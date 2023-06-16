@@ -15,6 +15,7 @@ function getCommands() {
 	    for (const file of commandFiles) {
 		    const filePath = path.join(commandsPath, file);
     		const command = require(filePath);
+            command.category = folder;
 	    	if ('data' in command && 'execute' in command) {
 		    	commands.push(command);
 		    }

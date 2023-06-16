@@ -4,14 +4,16 @@ const getCommands = require('./utilities/getCommands.js');
 
 /* Initialization */
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-let commands = getCommands();
-console.log(commands);
+
+/* Set up commands */
+client.commands = new Collection();
+getCommands().forEach(command => client.commands.set(command.data.name, command));
 
 /* Command handler */
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isChatInputCommand()) return;
 
-	const command = commands.find(c => c.data.name === interaction.commandName);
+	const command = client.commands.get(interaction.commandName);
 
 	if (!command) {
 		console.error(`No command matching ${interaction.commandName} was found.`);
