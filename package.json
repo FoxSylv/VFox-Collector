@@ -1,0 +1,27 @@
+{
+  "name": "vfox-collector",
+  "version": "1.0.0",
+  "description": "A discord bot about collecting vfoxes! (virtual foxes)",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FoxSylv/VFox-Collector.git"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "fox"
+  ],
+  "author": "FoxSylv",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FoxSylv/VFox-Collector/issues"
+  },
+  "homepage": "https://github.com/FoxSylv/VFox-Collector#readme",
+  "dependencies": {
+    "discord.js": "^14.11.0"
+  }
+}
