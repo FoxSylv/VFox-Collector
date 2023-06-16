@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 
 module.exports = {
+    isDev: true,
 	data: new SlashCommandBuilder()
 		.setName("reload")
 		.setDescription("Reloads a command")
@@ -29,7 +30,6 @@ module.exports = {
 	        console.error(error);
         	await interaction.reply(`There was an error while reloading a command \`${command.data.name}\`:\n\`${error.message}\``);
         }
-
-	},
+	}
 };
 
