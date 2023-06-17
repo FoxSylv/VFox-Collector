@@ -27,7 +27,7 @@ module.exports = {
             user.foxChance = getNewChance(chance, user);
 
             await user.save();
-    		await interaction.reply(`You found ${(foundFoxes === 1) ? "a fox" : `${foundFoxes} foxes`}!`);
+    		await interaction.reply(`You found ${(foundFoxes === 1) ? "a fox" : `${foundFoxes} foxes`}! :fox:`);
         }
         else {
             await interaction.reply(`You did not find any foxes :(`);
