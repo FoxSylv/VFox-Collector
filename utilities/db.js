@@ -7,7 +7,9 @@ async function dbInit() {
 
 
 const Upgrades = mongoose.Schema({
-    
+    blessingCount: {type: Number, min: 0},
+    minionCount: {type: Number, min: 0},
+    watcherCount: {type: Number, min: 0}
 });
 const Stats = new mongoose.Schema({
     foxesFound: {type: Number, min: 0},
