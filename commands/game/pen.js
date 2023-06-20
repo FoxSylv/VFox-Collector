@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { User, getProfile } = require('../../utilities/db.js');
+const { getProfile } = require('../../utilities/db.js');
 
 
 module.exports = {

@@ -1,27 +1,16 @@
 const mongoose = require('mongoose');
 const { dbURI } = require('../config.json');
+const { User } = require('./dbSchema.js');
+
 
 async function dbInit() {
-    await mongoose.connect(dbURI);
+    try {
+        await mongoose.connect(dbURI);
+    }
+    catch (error) {
+        console.log(error);
+    }
 }
-
-
-const Upgrades = mongoose.Schema({
-    blessingCount: {type: Number, min: 0},
-    minionCount: {type: Number, min: 0},
-    watcherCount: {type: Number, min: 0}
-});
-const Stats = new mongoose.Schema({
-    foxesFound: {type: Number, min: 0},
-    numSearches: {type: Number, min: 0}
-});
-const User = mongoose.model('User', new mongoose.Schema({
-    _id: String,
-    foxes: {type: Number, min: 0},
-    cooldown: {type: Number, min: 0},
-    stats: {type: Stats},
-    upgrades: {type: Upgrades}
-}));
 
 
 async function newUser(userId) {
@@ -34,7 +23,6 @@ async function getProfile(userId) {
 }
 
 module.exports = {
-    User,
     getProfile,
     dbInit
 };

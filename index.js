@@ -1,11 +1,11 @@
 const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
-const { User, dbInit } = require('./utilities/db.js');
+const { dbInit } = require('./utilities/db.js');
 const getCommands = require('./utilities/getCommands.js');
 
 /* Initialization */
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
-dbInit().catch(e => console.log(e));
+dbInit();
 
 
 /* Set up commands */
