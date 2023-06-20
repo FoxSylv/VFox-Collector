@@ -1,20 +1,21 @@
 const mongoose = require('mongoose');
 
 const Upgrades = mongoose.Schema({
-    blessingCount: {type: Number, min: 0}, 
-    minionCount: {type: Number, min: 0}, 
-    watcherCount: {type: Number, min: 0}
-});
+    b: {type: Number, min: 0, alias: "blessingCount"}, 
+    m: {type: Number, min: 0, alias: "minionCount"}, 
+    w: {type: Number, min: 0, alias: "watcherCount"}
+}, {_id: false});
 const Stats = new mongoose.Schema({
-    foxesFound: {type: Number, min: 0}, 
-    numSearches: {type: Number, min: 0}
-});
+    f: {type: Number, min: 0, alias: "foxesFound"},
+    n: {type: Number, min: 0, alias: "numSearches"},
+    s: {type: Number, min: 0, alias: "shrinePurchases"}
+}, {_id: false});
 const User = mongoose.model("User", new mongoose.Schema({
     _id: String,
-    foxes: {type: Number, min: 0}, 
-    cooldown: {type: Number, min: 0}, 
-    stats: {type: Stats},
-    upgrades: {type: Upgrades}
+    f: {type: Number, min: 0, alias: "foxes"}, 
+    c: {type: Number, min: 0, alias: "cooldown"},
+    s: {type: Stats, alias: "stats"},
+    u: {type: Upgrades, alias: "upgrades"}
 }));
 
 

@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
-const { User, getProfile } = require('../../utilities/db.js');
+const { getProfile } = require('../../utilities/db.js');
 
 const shrinePurchases = [
     {name: "Kitsune's Blessing", value: "blessingCount", basePrice: 20, description: "Gain slightly increased fox finding luck"},
@@ -46,6 +46,10 @@ module.exports = {
         if (user.foxes >= price) {
             user.upgrades[upgrade] = userUpgrade + 1;
             user.foxes -= price;
+
+            user.stats ??= {};
+            const oldPurchases = user.stats.shrinePurchases ?? 0;
+            user.stats.shrinePurchases = oldPurchases + 1;
             interaction.reply(`You got a **${purchase.name}**! (You now have ${user.upgrades[upgrade]})`);
         }
         else {
