@@ -17,6 +17,12 @@ It causes issues from the pre-reload version never fully unloading.\n \
 Turn the bot off and on again instead to avoid this issue.");
             return;
         }
+        else if (filename === "utilities/dbSchema.js") {
+            await interaction.reply("`utilities/dbSchema.js` cannot be reloaded!\n \
+It causes issues from the pre-reload version never fully unloading.\n \
+Turn the bot off and on again instead to avoid this issue.");
+            return;
+        }
 
         delete require.cache[require.resolve(`../../${filename}`)];
         try {
