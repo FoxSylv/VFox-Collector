@@ -1,16 +1,16 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { User, getProfile } = require('../../utilities/db.js');
+const { getProfile } = require('../../utilities/db.js');
 
 function getChance(user) {
     const foxes = user.foxes ?? 0;
-    const blessings = user.upgrades?.blessingCount ?? 0;
+    const blessings = user.upgrades?.shrine?.blessingCount ?? 0;
     return (0.97 ** foxes) * (1 + 0.2 * blessings);
 }
 
 function findFoxes(user) {
-    const helpers = user.upgrades?.helperCount ?? 0;
+    const minions = user.upgrades?.shrine?.minionCount ?? 0;
     let foxes = 1;
-    for (let i = 0; i < helpers; ++i) {
+    for (let i = 0; i < minions; ++i) {
         if (Math.random() < 0.5) {
             ++foxes;
         }
@@ -20,8 +20,8 @@ function findFoxes(user) {
 
 function getCooldown(user) {
     const foxes = user.foxes ?? 0;
-    const watchers = user.upgrades?.watcherCount ?? 0;
-    return 5000 + Math.min((100 * (foxes - 40)) * (0.8 ** watchers), 0);
+    const watchers = user.upgrades?.shrine?.watcherCount ?? 0;
+    return 5000 + Math.max((100 * (foxes - 40)) * (0.8 ** watchers), 0);
 }
 
 module.exports = {
@@ -38,7 +38,7 @@ module.exports = {
             return;
         }
 
-        if (!user.stats) user.stats = {} 
+        user.stats ??= {} 
         const oldSearches = user.stats?.numSearches ?? 0;
         user.stats.numSearches = oldSearches + 1;
 

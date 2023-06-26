@@ -8,7 +8,7 @@ const shrinePurchases = [
 ];
 
 function getPrice(user, purchase) {
-    return purchase.basePrice * ((user.upgrades[purchase.value] ?? 0) + 1);
+    return purchase.basePrice * ((user.upgrades?.shrine[purchase.value] ?? 0) + 1);
 }
 
 function getShrineShopEmbed(user) {
@@ -34,6 +34,7 @@ module.exports = {
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
         user.upgrades ??= {};
+        user.upgrades.shrine ??= {};
         const upgrade = interaction.options.getString("upgrade");
         if (!upgrade) {
             interaction.reply({embeds: [getShrineShopEmbed(user)]});
@@ -42,20 +43,20 @@ module.exports = {
 
         let purchase = shrinePurchases.find(p => p.value === upgrade);
         let price = getPrice(user, purchase);
-        let userUpgrade = user.upgrades[upgrade] ?? 0;
+        let userUpgrade = user.upgrades.shrine[upgrade] ?? 0;
         if (user.foxes >= price) {
-            user.upgrades[upgrade] = userUpgrade + 1;
+            user.upgrades.shrine[upgrade] = userUpgrade + 1;
             user.foxes -= price;
 
             user.stats ??= {};
             const oldPurchases = user.stats.shrinePurchases ?? 0;
             user.stats.shrinePurchases = oldPurchases + 1;
-            interaction.reply(`You got a **${purchase.name}**! (You now have ${user.upgrades[upgrade]})`);
+            interaction.reply(`You got a **${purchase.name}**! (You now have ${user.upgrades.shrine[upgrade]})`);
         }
         else {
             interaction.reply(`You do not have enough foxes for a **${purchase.name}**... (${user.foxes}/${price})`);
         }
-        user.save();
+        await user.save();
 	}
 };
 

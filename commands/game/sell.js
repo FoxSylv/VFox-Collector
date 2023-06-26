@@ -39,10 +39,14 @@ This will remove your shrine upgrades, but will give you **${newCoins - oldCoins
         try {
             const confirmation = await response.awaitMessageComponent({ filter: (i) => i.user.id === interaction.user.id, time: 60000 }); 
             if (confirmation.customId === "confirm") {
+                user.stats ??= {};
+                user.stats.foxesSold = (user.stats.foxesSold ?? 0) + (user.foxes ?? 0);
+
                 user.foxes = 0;
                 user.coins = newCoins;
-                user.upgrades = {};
-                user.save();
+                user.upgrades ??= {};
+                user.upgrades.shrine = {};
+                await user.save();
                 await confirmation.update({content: `You have sold **${oldFoxes}**:fox: foxes for **${newCoins - oldCoins}**:coin:! (You now have **${newCoins}**:coin:)`, components: []});
             }
             else {
