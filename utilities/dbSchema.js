@@ -13,7 +13,8 @@ const Stats = new mongoose.Schema({
 const User = mongoose.model("User", new mongoose.Schema({
     _id: String,
     f: {type: Number, min: 0, alias: "foxes"}, 
-    c: {type: Number, min: 0, alias: "cooldown"},
+    c: {type: Number, min: 0, alias: "coins"},
+    l: {type: Number, min: 0, alias: "cooldown"},
     s: {type: Stats, alias: "stats"},
     u: {type: Upgrades, alias: "upgrades"}
 }));

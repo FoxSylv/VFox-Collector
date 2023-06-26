@@ -9,12 +9,21 @@ module.exports = {
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
         const foxes = user.foxes ?? 0;
+        const coins = user.coins ?? 0;
+
+        let responseText = "";
         if (foxes === 0) {
-            interaction.reply("You have no foxes :(");
+            responseText = responseText.concat("You have no foxes :(");
         }
         else {
-            interaction.reply(`You have ${(foxes === 1) ? `a fox` : `${foxes} foxes`}! :fox:`);
+            responseText = responseText.concat(`You have ${(foxes === 1) ? `a fox` : `${foxes} foxes`}! :fox:`);
 	    }
+
+        if (coins > 0) {
+            responseText = responseText.concat(`\nYou have ${(coins === 1) ? `a coin` : `${coins} coins`} :coin:`);
+        }
+
+        await interaction.reply(responseText);
     }
 };
 
