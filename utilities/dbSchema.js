@@ -2,37 +2,37 @@ const mongoose = require('mongoose');
 
 const NetUpgrades = mongoose.Schema({
     s: {type: Boolean, alias: "shoddy"},
-    s: {type: Boolean, alias: "basic"},
-    s: {type: Boolean, alias: "extendo"},
-    s: {type: Boolean, alias: "trawling"},
-    s: {type: Boolean, alias: "glitter"},
-    s: {type: Boolean, alias: "nine-tailed"}
+    b: {type: Boolean, alias: "basic"},
+    e: {type: Boolean, alias: "extendo"},
+    t: {type: Boolean, alias: "trawling"},
+    g: {type: Boolean, alias: "glitter"},
+    n: {type: Boolean, alias: "nine-tailed"}
 }, {_id: false});
 const PenUpgrades = mongoose.Schema({
-    s: {type: Boolean, alias: "basic"},
-    s: {type: Boolean, alias: "cramped"},
-    s: {type: Boolean, alias: "park"},
-    s: {type: Boolean, alias: "pit"},
-    s: {type: Boolean, alias: "apartment"},
+    b: {type: Boolean, alias: "basic"},
+    c: {type: Boolean, alias: "cramped"},
+    p: {type: Boolean, alias: "park"},
+    i: {type: Boolean, alias: "pit"},
+    a: {type: Boolean, alias: "apartment"},
     s: {type: Boolean, alias: "shrine"}
 }, {_id: false});
 const LandUpgrades = mongoose.Schema({
-    s: {type: Boolean, alias: "basic"},
-    s: {type: Boolean, alias: "woods"},
-    s: {type: Boolean, alias: "forest"},
-    s: {type: Boolean, alias: "dump"},
-    s: {type: Boolean, alias: "countryside"},
-    s: {type: Boolean, alias: "blessed"}
+    b: {type: Boolean, alias: "basic"},
+    w: {type: Boolean, alias: "woods"},
+    f: {type: Boolean, alias: "forest"},
+    d: {type: Boolean, alias: "dump"},
+    c: {type: Boolean, alias: "countryside"},
+    l: {type: Boolean, alias: "blessed"}
 }, {_id: false});
 const BaitUpgrades = mongoose.Schema({
-    s: {type: Number, alias: "basic"},
+    b: {type: Number, alias: "basic"},
     s: {type: Number, alias: "special"},
-    s: {type: Number, alias: "advanced"},
-    s: {type: Number, alias: "blessed"}
+    a: {type: Number, alias: "advanced"},
+    l: {type: Number, alias: "blessed"}
 }, {_id: false});
 
 const CoinUpgrades = mongoose.Schema({
-    n: {type: NetUpgrades, alis: "nets"},
+    n: {type: NetUpgrades, alias: "nets"},
     p: {type: PenUpgrades, alias: "pens"},
     l: {type: LandUpgrades, alias: "land"},
     b: {type: BaitUpgrades, alias: "bait"},

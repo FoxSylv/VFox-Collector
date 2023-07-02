@@ -50,7 +50,8 @@ function getShopEmbed(user, currentLocation) {
     else {
         const category = shopPurchases.find(c => c.value === currentLocation);
         description = category.upgrades.reduce((acc, upgrade) => {
-            return acc.concat(`• **${upgrade.name}** (${upgrade.price}:coin:): ${upgrade.flavor}\n`);
+            const price = user.upgrades?.coin?.[category.value]?.[upgrade.value] === true ? `:white_check_mark:` : `${upgrade.price}:coin:`;
+            return acc.concat(`• **${upgrade.name}** (${price}): ${upgrade.flavor}\n`);
         }, "");
     }
     
@@ -88,16 +89,50 @@ module.exports = {
         .addStringOption(option =>
             option.setName("upgrade")
                   .setDescription("The upgrade to buy")
-                  .addChoices(...shopPurchases.flatMap(c => c.upgrades.map(p => JSON.parse(`{"name": "${p.name}", "value": "${p.value}"}`))))
+                  .addChoices(...shopPurchases.flatMap(c => c.upgrades.map(p => JSON.parse(`{"name": "${p.name}", "value": "${c.value + '.' + p.value}"}`))))
         ),
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
         const upgrade = interaction.options.getString("upgrade");
         if (upgrade) {
-            await interaction.reply("[TODO!]");
+            const split = upgrade.split('.');
+            const category = shopPurchases.find(c => c.value === split[0]);
+            const upgradeData = category.upgrades.find(u => u.value === split[1]);
+            if ((user.upgrades?.coin?.[category.value]?.[upgradeData.value] !== undefined) && (upgradeData.quantity === undefined)) {
+                await interaction.reply(`You already have the ${upgradeData.name}!`);
+                return;
+            }
+
+            const coins = user.coins ?? 0;
+            if (coins < upgradeData.price) {
+                await interaction.reply(`You do not have enough :coin: for ${upgradeData.name}! (You have ${coins}:coin: and need ${upgradeData.price}:coin:!)`);
+                return;
+            }
+            user.coins = coins - upgradeData.price;
+
+            if (category.value === "items") {
+                await interaction.reply("ITEMS NOT YET IMPLEMENTED!!!!");
+            }
+            else {
+                user.upgrades ??= {};
+                user.upgrades.coin ??= {};
+                user.upgrades.coin[category.value] ??= {};
+                const oldValue = user.upgrades.coin[category.value][upgradeData.value];
+                if (upgradeData.quantity) {
+                    user.upgrades.coin[category.value][upgradeData.value] = (oldValue ?? 0) + upgradeData.quantity;
+                }
+                else {
+                    user.upgrades.coin[category.value][upgradeData.value] = true;
+                }
+                await interaction.reply(`You purchased ${upgradeData.quantity ? `${upgradeData.quantity} ` : ``}${upgradeData.name} for ${upgradeData.price}:coin:!`);
+            }
+
+            await user.save();
             return;
         }
 
+        
+        /* If nothing is purchased, display entire shop */
         let response = await interaction.reply(getShopMessage(user));
         const collector = response.createMessageComponentCollector({ componentType: ComponentType.ButtonInteraction, time: 3_600_000 });
 
