@@ -59,7 +59,7 @@ function getShopEmbed(user, currentLocation) {
         .setColor(0xEA580C)
         .setTitle(`The Shop${currentLocation === "back" ? "": ` - ${currentLocation.charAt(0).toUpperCase().concat(currentLocation.slice(1))}`}`)
         .setDescription(description)
-        .setFooter({text: "No 🪙 No Service"});
+        .setFooter({text: `You have ${user.coins ?? 0}🪙`});
 }
 
 const buttons = [new ButtonBuilder({
@@ -82,6 +82,41 @@ function getShopMessage(user, currentLocation) {
 }
 
 
+
+async function executePurchase(interaction, user, category, upgrade) {
+    if ((user.upgrades?.coin?.[category.value]?.[upgrade.value] !== undefined) && (upgrade.quantity === undefined)) {
+        await interaction.reply(`You already have the ${upgrade.name}!`);
+        return;
+    }
+
+    const coins = user.coins ?? 0;
+    if (coins < upgrade.price) {
+        await interaction.reply(`You do not have enough :coin: for ${upgrade.name}! (You have ${coins}:coin: and need ${upgrade.price}:coin:!)`);
+        return;
+    }
+    user.coins = coins - upgrade.price;
+
+    if (category.value === "items") {
+        await interaction.reply("ITEMS NOT YET IMPLEMENTED!!!!");
+    }
+    else {
+        user.upgrades ??= {};
+        user.upgrades.coin ??= {};
+        user.upgrades.coin[category.value] ??= {};
+        const oldValue = user.upgrades.coin[category.value][upgrade.value];
+        if (upgrade.quantity) {
+            user.upgrades.coin[category.value][upgrade.value] = (oldValue ?? 0) + upgrade.quantity;
+        }
+        else {
+            user.upgrades.coin[category.value][upgrade.value] = true;
+        }
+        await interaction.reply(`You purchased ${upgrade.quantity ? `${upgrade.quantity} ` : ``}${upgrade.name} for ${upgrade.price}:coin:!`);
+    }
+
+    await user.save();
+}
+
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("shop")
@@ -98,36 +133,7 @@ module.exports = {
             const split = upgrade.split('.');
             const category = shopPurchases.find(c => c.value === split[0]);
             const upgradeData = category.upgrades.find(u => u.value === split[1]);
-            if ((user.upgrades?.coin?.[category.value]?.[upgradeData.value] !== undefined) && (upgradeData.quantity === undefined)) {
-                await interaction.reply(`You already have the ${upgradeData.name}!`);
-                return;
-            }
-
-            const coins = user.coins ?? 0;
-            if (coins < upgradeData.price) {
-                await interaction.reply(`You do not have enough :coin: for ${upgradeData.name}! (You have ${coins}:coin: and need ${upgradeData.price}:coin:!)`);
-                return;
-            }
-            user.coins = coins - upgradeData.price;
-
-            if (category.value === "items") {
-                await interaction.reply("ITEMS NOT YET IMPLEMENTED!!!!");
-            }
-            else {
-                user.upgrades ??= {};
-                user.upgrades.coin ??= {};
-                user.upgrades.coin[category.value] ??= {};
-                const oldValue = user.upgrades.coin[category.value][upgradeData.value];
-                if (upgradeData.quantity) {
-                    user.upgrades.coin[category.value][upgradeData.value] = (oldValue ?? 0) + upgradeData.quantity;
-                }
-                else {
-                    user.upgrades.coin[category.value][upgradeData.value] = true;
-                }
-                await interaction.reply(`You purchased ${upgradeData.quantity ? `${upgradeData.quantity} ` : ``}${upgradeData.name} for ${upgradeData.price}:coin:!`);
-            }
-
-            await user.save();
+            await executePurchase(interaction, user, category, upgradeData);
             return;
         }
 
