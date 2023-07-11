@@ -1,5 +1,7 @@
-const { SlashCommandBuilder } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
+const { foxEmoji } = require('../../data/foxEmoji.js');
+const { countFoxes } = require('../../utilities/countFoxes.js');
 
 
 module.exports = {
@@ -8,22 +10,22 @@ module.exports = {
 		.setDescription("Look inside your fox pen!"),
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
-        const foxes = user.foxes ?? 0;
-        const coins = user.coins ?? 0;
 
-        let responseText = "";
-        if (foxes === 0) {
-            responseText = responseText.concat("You have no foxes :(");
-        }
-        else {
-            responseText = responseText.concat(`You have ${(foxes === 1) ? `a fox` : `${foxes} foxes`}! :fox:`);
-	    }
-
-        if (coins > 0) {
-            responseText = responseText.concat(`\nYou have ${(coins === 1) ? `a coin` : `${coins} coins`} :coin:`);
+        let description = countFoxes(user.foxes) === 0 ? "You have no foxes :(\n" : foxEmoji.reduce((acc, type) => {
+            if ((user.foxes[type.value] ?? 0) !== 0) {
+                return acc.concat(`**${user.foxes[type.value]}** ${type.emoji}\n`);
+            }
+            return acc;
+        }, "");
+        if ((user.coins ?? 0) !== 0) {
+            description = description.concat(`${user.coins}:coin:\n`);
         }
 
-        await interaction.reply(responseText);
+        const embed = new EmbedBuilder()
+            .setColor(0xEA580C)
+            .setTitle(user.equips?.pen ? `${user.equips.pen} -` : "Your Pen - ")
+            .setDescription(description);
+        await interaction.reply({embeds: [embed]});
     }
 };
 

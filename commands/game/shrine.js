@@ -1,5 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
+const { countFoxes } = require('../../utilities/countFoxes.js');
+const { foxEmoji } = require('../../data/foxEmoji.js');
 
 const shrinePurchases = [
     {name: "Kitsune's Blessing", value: "blessingCount", basePrice: 20, description: "Gain slightly increased fox finding luck"},
@@ -18,7 +20,7 @@ function getShrineShopEmbed(user) {
         .setDescription(shrinePurchases.reduce((acc, purchase) => {
             return acc.concat(`• **${purchase.name}** (${getPrice(user, purchase)}:fox:): ${purchase.description}\n`);
         }, ""))
-        .setFooter({text: "May the kitsune smile down onto all of us"});
+        .setFooter({text: `You have ${countFoxes(user.foxes)} foxes!`});
 }
 
 
@@ -33,24 +35,29 @@ module.exports = {
         ),
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
-        user.upgrades ??= {};
-        user.upgrades.shrine ??= {};
         const upgrade = interaction.options.getString("upgrade");
         if (!upgrade) {
             interaction.reply({embeds: [getShrineShopEmbed(user)]});
             return;
         }
 
-        let purchase = shrinePurchases.find(p => p.value === upgrade);
-        let price = getPrice(user, purchase);
-        let userUpgrade = user.upgrades.shrine[upgrade] ?? 0;
-        if (user.foxes >= price) {
+        const purchase = shrinePurchases.find(p => p.value === upgrade);
+        const price = getPrice(user, purchase);
+        const userUpgrade = user.upgrades.shrine[upgrade] ?? 0;
+        if (countFoxes(user.foxes) >= price) {
+            user.upgrades ??= {};
+            user.upgrades.shrine ??= {};
             user.upgrades.shrine[upgrade] = userUpgrade + 1;
-            user.foxes -= price;
+
+            let priceLeft = price;
+            foxEmoji.forEach(type => {
+                const delta = Math.min(priceLeft, user.foxes[type.value]);
+                user.foxes[type.value] -= delta;
+                priceLeft -= delta;
+            });
 
             user.stats ??= {};
-            const oldPurchases = user.stats.shrinePurchases ?? 0;
-            user.stats.shrinePurchases = oldPurchases + 1;
+            user.stats.shrinePurchases = (user.stats.shrinePurchases ?? 0) + 1;
             interaction.reply(`You got a **${purchase.name}**! (You now have ${user.upgrades.shrine[upgrade]})`);
         }
         else {

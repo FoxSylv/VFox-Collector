@@ -58,14 +58,30 @@ const Stats = new mongoose.Schema({
     o: {type: Number, min: 0, alias: "foxesSold"}
 }, {_id: false});
 
+const Foxes = new mongoose.Schema({
+    o: {type: Number, min: 0, alias: "orange"},
+    g: {type: Number, min: 0, alias: "grey"},
+    c: {type: Number, min: 0, alias: "cryptid"},
+    k: {type: Number, min: 0, alias: "kitsune"}
+}, {_id: false});
+
+const Equips = new mongoose.Schema({
+    n: {type: String, alias: "net"},
+    p: {type: String, alias: "pen"},
+    l: {type: String, alias: "land"},
+    b: {type: String, alias: "bait"},
+    i: {type: [String], alias: "activeItems"}
+}, {_id: false});
+
 const User = mongoose.model("User", new mongoose.Schema({
     _id: String,
-    f: {type: Number, min: 0, alias: "foxes"}, 
+    f: {type: Foxes, alias: "foxes"}, 
     c: {type: Number, min: 0, alias: "coins"},
     l: {type: Number, min: 0, alias: "cooldown"},
     s: {type: Stats, alias: "stats"},
     u: {type: Upgrades, alias: "upgrades"},
-    i: {type: [String], alias: "items"}
+    i: {type: [String], alias: "items"},
+    e: {type: Equips, alias: "equips"}
 }));
 
 

@@ -15,7 +15,8 @@ module.exports = {
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
         const newFoxes = interaction.options.getInteger("foxes");
-        user.foxes = newFoxes;
+        user.foxes ??= {};
+        user.foxes.orange = newFoxes;
         await interaction.reply(`You now have ${newFoxes} foxes!`);
         await user.save();
 	}
