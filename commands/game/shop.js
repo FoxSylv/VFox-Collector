@@ -1,54 +1,18 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
-
-const shopPurchases = [
-    {name: "Net Catalogue", value: "nets", emoji: "🪤", description: "Catch foxes better!", upgrades: [
-        {name: "Shoddy Net", value: "shoddy", price: 1, flavor: "It beats using your hands", description: "**PERMANENT PURCHASE**\n\nSets your fox-finding chance to 0.98\n(The default fox-finding chance is 0.97)\nAllows you to find items, even if this net is not equipped"},
-        {name: "Basic Net", value: "basic", price: 2, flavor: "Positively mediocre", description: "**PERMANENT PURCHASE**\n\nSets your fox-finding chance to 0.988\nMarginally increases quantity of found foxes\nAllows you to catch rare foxes, even if this net is not equipped"},
-        {name: "Extendo-Net", value: "extendo", price: 4, flavor: "Pros: Long range. Cons: Heavy", description: "**PERMANENT PURCHASE**\n\nSets your fox-finding chance to 0.991\nIncreases the quantity of found foxes\nReduces the average fox rarity"},
-        {name: "Trawling Net", value: "trawling", price: 6, flavor: "Aren't these made for fishing?", description: "**PERMANENT PURCHASE**\n\nSets your fox-finding chance to 0.993\nDrastically increases quantity of found foxes\nDrastically increases the quantity of items found\nDrastically reduces the quality of found items\nYou cannot find rare foxes with this net"},
-        {name: "Glitter Net", value: "glitter", price: 7, flavor: "Made of pure(ish) gold", description: "**PERMANENT PURCHASE**\n\nSets your fox-finding chance to 0.95\n(Default fox-finding chance is 0.97)\nDrastically increases quality of found items\nDrastically reduces quantity of items found\nDrastically increases the average fox rarity\nReduces the quantity of found foxes"},
-        {name: "Nine-tailed Net", value: "nine-tailed", price: 9, flavor: "Don't think too hard about it", description: "**PERMANENT PURCHASE**\n\nSets your fox-finding chance to 0.999\nDrastically increases both the quantity and quality of foxes found\nYou cannot find items with this net\nAllows you to catch kitsunes, even if this net is not equipped"}
-    ]},
-    {name: "Pen Catalogue", value: "pens", emoji: "🥅",description: "Store foxes better!", upgrades: [
-        {name: "Basic Pen", value: "basic", price: 1, flavor: "Where were you keeping them before?", description: "**PERMANENT PURCHASE**\n\nSets your minimum cooldown to 4.2 seconds\n(Default minimum cooldown is 5.1 seconds)\nSets maximum capacity to 120 foxes\n(Default maximum capacity is 60 foxes)\nSets your overpopulation penalty to 0.2 seconds per fox\n(Default overpopulation penalty is 0.3 seconds per fox)"},
-        {name: "Cramped Pen", value: "cramped", price: 3, flavor: "Don't call PETA", description: "**PERMANENT PURCHASE**\n\nSets your minimum cooldown to 5.6 seconds\nSets maximum capacity to 350 foxes\nSets your overpopulation penalty to 0.15 seconds per fox\nReduces the chance to find rare foxes"},
-        {name: "Fox Park", value: "park", price: 3, flavor: "Go away, children!", description: "**PERMANENT PURCHASE**\n\nSets your minimum cooldown to 7.4 seconds\nSets maximum capacity to 150 foxes\nSets your overpopulation penalty to 0.25 seconds per fox\nIncreases the chance to find rare foxes\nMarginally increases the chance to find items"},
-        {name: "Fox Pit", value: "pit", price: 5, flavor: "Definitely don't call PETA", description: "**PERMANENT PURCHASE**\n\nSets your minimum cooldown to 18.2 seconds\nSets maximum capacity to 750 foxes\nSets your overpopulation penalty to 0.1 seconds per fox\nYou cannot find items with this pen\nYou cannot find rare foxes with this pen"},
-        {name: "Luxury Apartments", value: "apartment", price: 6, flavor: "Utilities included", description: "**PERMANENT PURCHASE**\n\nSets your minimum cooldown to 34.6 seconds\nSets maximum capacity to 400 foxes\nSets your overpopulation penalty to 0.2 seconds\nDrastically increases the chance to find rare foxes\nMarginally reduces the chance to find items"},
-        {name: "Nine-tailed Shrine", value: "shrine", price: 9, flavor: "I've been here before!", description: "**PERMANENT PURCHASE**\n\nSets your minimum cooldown to 9.0 seconds\nThe maximum capacity is the average price in foxes of the shrine upgrades\nThe overpopulation penalty is 0.09 seconds\nDrastically increases both the quantity and quality of found foxes\nYou cannot find items with this pen\nAllows you catch kitsunes, even if this pen is not equipped"}
-    ]},
-    {name: "Land Catalogue", value: "land", emoji: "🌲", description: "Find better foxes!", upgrades: [
-        {name: "Basic Land", value: "basic", price: 1, flavor: "I can see my house from here!", description: "**PERMANENT PURCHASE**\n\nIncreases the quantity of found foxes\nMarginally increases the odds to find rare foxes\nMarginally increases the odds to find items"},
-        {name: "Small Woods", value: "woods", price: 3, flavor: "There are a lot of foxes here", description: "**PERMANENT PURCHASE**\n\nDrastically increases the odds of finding a rare fox\nIncreases the quantity of found foxes\nIncreases the quantity of found items"},
-        {name: "Quaint Forest", value: "forest", price: 5, flavor: "Hasn't been touched in centuries", description: "**PERMANENT PURCHASE**\n\nAbsurdly increases the quantity of found foxes\nIncreases the odds to find rare foxes\nDecreases the quality and quantity of found items"},
-        {name: "Garbage Dump", value: "dump", price: 5, flavor: "You paid how much??", description: "**PERMANENT PURCHASE**\n\nAbsurdly increases the quantity of items found\nDrastically increases the quality of found items\nAbsurdly decreases the quality and quantity of found foxes"},
-        {name: "Abundant Countryside", value: "countryside", price: 8, flavor: "There are way too many foxes here", description: "**PERMANENT PURCHASE**\n\nAbsurdly increases the quantity of found foxes\nDrastically increases the odds to find rare foxes\nMarginally increases fox-finding chance\nDrastically increases item quantity\nIncreases item quality"},
-        {name: "Blessed Land", value: "blessed", price: 9, flavor: "Nine-tailed Land", description: "**PERMANENT PURCHASE**\n\nAbsurdly increases the quantity and quality of found foxes\nIncreases the odds of finding kitsunes specifically\nMarginally increases fox-finding chance\nYou cannot find items with this land\nAllows you to catch kitsunes, even if this land is not equipped"}
-    ]},
-    {name: "Bait Catalogue", value: "bait", emoji: "🍎", description: "Lure even more foxes with temporary bait!", upgrades: [
-        {name: "Basic Bait", value: "basic", price: 2, quantity: 100, flavor: "C'mere foxy foxy foxy", description: "**100-TIME USE**\n\nMarginally increases fox-finding chance\nIncreases the quantity of found foxes"},
-        {name: "Special Bait", value: "special", price: 4, quantity: 200, flavor: "Special bait for special foxes!", description: "**200-TIME USE**\n\nMarginally increases fox-finding chance\nDrastically increases the quantity and quality of found foxes\nReduces the odds of finding items"},
-        {name: "Advanced Bait", value: "advanced", price: 7, quantity: 50, flavor: "Hand-crafted with love", description: "**50-TIME USE**\n\nIncreases fox-finding chance\nAbsurdly increases the odds to find rare foxes\nIncreases quantity of foxes found\nDrastically increases quantity and quality of found items"},
-        {name: "Blessed Bait", value: "blessed", price: 9, quantity: 9, flavor: "Use sparingly", description: "**9-TIME USE**\n\nAbsurdly increases fox-finding chance\nAbsurdly increases the quantity and quality of found foxes\nIncreases the odds of finding kitsunes specifically\nYou cannot find items with this bait"}
-    ]},
-    {name: "Item Catalogue", value: "items", emoji: "📦", description: "Get one-time use items!", upgrades: [
-        {name: "Refund Voucher", value: "voucher", price: 1, quantity: 1, flavor: "This is a terrible deal", description: "**ONE-TIME USE**\n\nInstantly gain fifteen foxes!\nRare foxes not included"},
-        {name: "Government Bribe", value: "bribe", price: 1, quantity: 1, flavor: "It's only illegal if you get caught", description: "**ONE-TIME USE**\n\nSets your fox count to zero while preserving shrine upgrades\nYou do not gain any coins from this"},
-        {name: "Shrine Donation", value: "donation", price: 9, quantity: 1, flavor: "Take-a-fox Leave-a-fox", description: "**ONE-TIME USE**\n\nPreserves shrine upgrades next time you sell foxes\nThis is the only way to get coins while maintaining shrine upgrades"}
-    ]}
-];
+const { shopData } = require('../../data/shopData.js');
+const { msToSec } = require('../../utilities/msToSec.js');
 
 function getShopEmbed(user, currentLocation) {
     let description;
     currentLocation ??= "back";
     if (currentLocation === "back") {
-        description = shopPurchases.reduce((acc, category) => {
+        description = shopData.reduce((acc, category) => {
             return acc.concat(`• ${category.emoji} **${category.name}**: ${category.description}\n`);
         }, "");
     }
     else {
-        const category = shopPurchases.find(c => c.value === currentLocation);
+        const category = shopData.find(c => c.value === currentLocation);
         description = category.upgrades.reduce((acc, upgrade) => {
             const price = user.upgrades?.coin?.[category.value]?.[upgrade.value] === true ? `:white_check_mark:` : `${upgrade.price}:coin:`;
             return acc.concat(`• **${upgrade.name}** (${price}): ${upgrade.flavor}\n`);
@@ -66,7 +30,7 @@ const buttons = [new ButtonBuilder({
     custom_id: "back",
     style: ButtonStyle.Secondary,
     label: "⬅️ Back"
-})].concat(shopPurchases.map(category => new ButtonBuilder({
+})].concat(shopData.map(category => new ButtonBuilder({
     custom_id: category.value,
     style: ButtonStyle.Primary,
     label: `${category.emoji} ${category.value.charAt(0).toUpperCase().concat(category.value.slice(1))}`
@@ -83,11 +47,67 @@ function getShopMessage(user, currentLocation) {
 
 
 
+function getUpgradePower(power) {
+    switch (power) {
+        case -4:
+            return "Absurdly decreases";
+        case -2:
+            return "Drastically decreases";
+        case -1:
+            return "Decreases";
+        case -0.5:
+            return "Marginally decreases";
+        case 0.5:
+            return "Marginally increases";
+        case 1:
+            return "Increases";
+        case 2:
+            return "Drastically increases";
+        case 4:
+            return "Absurdly increases";
+        default:
+            return "Does not change";
+    }
+}
+const upgradeText = {
+    foxQuantity: {name: "fox quantity"},
+    foxQuality: {name: "fox quality", generic: "rare foxes"},
+    itemQuantity: {name: "item quantity", generic: "items"},
+    itemQuality: {name: "item quality"},
+    kitsune: {name: "the chance to find kitsunes specficially", generic: "kitsunes"}
+};
+function getUpgradeDescription(upgrade) {
+    return (upgrade.quantity ? `**${upgrade.quantity}-TIME USE**\n` : `**PERMANENT PURCHASE**\n`).concat(Object.keys(upgrade).reduce((acc, key) => {
+        switch (key) {
+            case "name":
+            case "value":
+            case "price":
+            case "flavor":
+            case "quantity":
+            case "minionChance":
+                return acc;
+            case "extraChance":
+                return acc.concat(`Marginally boosts your fox-finding chance by ${upgrade[key]}\n`);
+            case "chance":
+                return acc.concat(`Sets your fox-finding chance to ${upgrade[key]}\n`);
+            case "cooldown":
+                return acc.concat(`Sets your minimum cooldown to ${msToSec(upgrade[key])}\n`);
+            case "max":
+                return acc.concat(`Sets your maximum pen capacity to ${upgrade[key]}\n`);
+            case "penalty":
+                return acc.concat(`Sets your overpopulation penalty to ${msToSec(upgrade[key])} per fox\n`);
+            case "extra":
+                return acc.concat(`${upgrade[key]}\n`);
+            default:
+                return acc.concat(upgrade[key] === -1000 ? `You cannot find ${upgradeText[key].generic} with this equipped!\n` : `${getUpgradePower(upgrade[key])} ${upgradeText[key].name}\n`);
+        }
+    }, ""));
+}
 function getUpgradeMessage(user, category, upgrade) {
     const embed = new EmbedBuilder()
         .setColor(0xEA580C)
         .setTitle(`${category.emoji} - ${upgrade.name}`)
-        .setDescription(`${upgrade.description}`)
+        .setDescription(getUpgradeDescription(upgrade))
         .addFields({name: '\u200b', value: '\u200b'},
                    {name: `Price: **${upgrade.price}**:coin:`, value: `You have: **${user.coins ?? 0}**:coin:`})
         .setFooter({text: upgrade.flavor});
@@ -155,14 +175,14 @@ module.exports = {
         .addStringOption(option =>
             option.setName("upgrade")
                   .setDescription("The upgrade to buy")
-                  .addChoices(...shopPurchases.flatMap(c => c.upgrades.map(p => JSON.parse(`{"name": "${p.name}", "value": "${c.value + '.' + p.value}"}`))))
+                  .addChoices(...shopData.flatMap(c => c.upgrades.map(p => JSON.parse(`{"name": "${p.name}", "value": "${c.value + '.' + p.value}"}`))))
         ),
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
         const upgrade = interaction.options.getString("upgrade");
         if (upgrade) {
             const split = upgrade.split('.');
-            const category = shopPurchases.find(c => c.value === split[0]);
+            const category = shopData.find(c => c.value === split[0]);
             const upgradeData = category.upgrades.find(u => u.value === split[1]);
             await executePurchase(interaction, user, category, upgradeData);
             return;
