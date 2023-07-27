@@ -4,13 +4,19 @@ const { countFoxes } = require('../../utilities/countFoxes.js');
 const { foxEmoji } = require('../../data/foxEmoji.js');
 
 const shrinePurchases = [
-    {name: "Kitsune's Blessing", value: "blessingCount", basePrice: 20, description: "Gain slightly increased fox finding luck"},
-    {name: "Helper Minion", value: "minionCount", basePrice: 50, description: "Get a little friend to help you find more foxes at a time"},
-    {name: "Pen Watcher", value: "watcherCount", basePrice: 75, description: "Reduce the cooldown from having a lot of foxes"}
+    {name: "Kitsune's Blessing", value: "blessingCount", basePrice: 20, description: "Gain increased fox finding luck"},
+    {name: "Kitsune's Watcher", value: "watcherCount", basePrice: 50, description: "Increase pen capacity"},
+    {name: "Kitsune's Minion", value: "minionCount", basePrice: 60, description: "Find more foxes at a time"},
+    {name: "Kitsune's Eyesight", value: "eyesightCount", basePrice: 100, description: "Find more items"},
+    {name: "Kitsune's Haste", value: "hasteCount", basePrice: 160, description: "Reduce cooldown times"},
+    {name: "Kitsune's Luck", value: "luckCount", basePrice: 190, description: "Find rarer foxes"},
+    {name: "Kitsune's Journal", value: "journalCount", basePrice: 300, description: "Reduce bait loss"},
+    {name: "Kitsune's Curiosity", value: "curiosityCount", basePrice: 1000, description: "Kitsunes grow curious of you"},
+    {name: "????????????", value: "tailCount", basePrice: 9999, description: "???????????????????????"}
 ];
 
 function getPrice(user, purchase) {
-    return purchase.basePrice * ((user.upgrades?.shrine[purchase.value] ?? 0) + 1);
+    return purchase.basePrice * ((user.upgrades?.shrine?.[purchase.value] ?? 0) + 1);
 }
 
 function getShrineShopEmbed(user) {
@@ -43,7 +49,7 @@ module.exports = {
 
         const purchase = shrinePurchases.find(p => p.value === upgrade);
         const price = getPrice(user, purchase);
-        const userUpgrade = user.upgrades.shrine[upgrade] ?? 0;
+        const userUpgrade = user.upgrades?.shrine?.[upgrade] ?? 0;
         if (countFoxes(user.foxes) >= price) {
             user.upgrades ??= {};
             user.upgrades.shrine ??= {};

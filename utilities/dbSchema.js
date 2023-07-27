@@ -41,8 +41,13 @@ const CoinUpgrades = mongoose.Schema({
 
 const ShrineUpgrades = mongoose.Schema({
     b: {type: Number, min: 0, alias: "blessingCount"},
+    w: {type: Number, min: 0, alias: "watcherCount"},
     m: {type: Number, min: 0, alias: "minionCount"},
-    w: {type: Number, min: 0, alias: "watcherCount"}
+    e: {type: Number, min: 0, alias: "eyesightCount"},
+    h: {type: Number, min: 0, alias: "hasteCount"},
+    l: {type: Number, min: 0, alias: "luckCount"},
+    j: {type: Number, min: 0, alias: "journalCount"},
+    c: {type: Number, min: 0, alias: "curiosityCount"},
 }, {_id: false});
 
 

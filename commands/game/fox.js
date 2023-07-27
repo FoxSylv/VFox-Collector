@@ -1,42 +1,20 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
+const { shopData } = require('../../data/shopData.js');
 const { foxEmoji } = require('../../data/foxEmoji.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
 
 
-const bonuses = [
-    {value: "net", chance: 0.97, minionChance: 0.96, bonuses: [
-        {value: "shoddy", chance: 0.98},
-        {value: "basic", chance: 0.988, minionChance: 0.968},
-        {value: "extendo", chance: 0.991, minionChance: 0.973, foxQuantity: 1, foxQuality: -1},
-        {value: "trawling", chance: 0.993, minionChance: 0.98, foxQuantity: 2, foxQuality: -1000, itemQuantity: 2, itemQuality: -2},
-        {value: "glitter", chance: 0.95, minionChance: 0.92, foxQuantity: -1, foxQuality: 2, itemQuantity: -2, itemQuality: 2},
-        {value: "nine-tailed", chance: 0.999, minionChance: 0.988, foxQuantity: 2, foxQuality: 2, itemQuantity: -1000, kitsune: 0.1}
-    ]},
-    {value: "pen", bonuses: [
-        {value: "cramped", foxQuality: -1},
-        {value: "park", foxQuality: 1, itemQuantity: 0.5},
-        {value: "pit", foxQuality: -1000, itemQuantity: -1000},
-        {value: "apartment", foxQuality: 2, itemQuantity: -0.5},
-        {value: "shrine", foxQuantity: 2, foxQuality: 2, itemQuantity: -1000, kitsune: 0.1}
-    ]},
-    {value: "land", bonuses: [
-        {value: "basic", foxQuantity: 1, foxQuality: 0.5, itemQuantity: 0.5},
-        {value: "woods", foxQuantity: 1, foxQuality: 2, itemQuantity: 1},
-        {value: "forest", foxQuantity: 4, foxQuality: 1, itemQuantity: -1, itemQuality: -1},
-        {value: "dump", foxQuantity: -4, foxQuality: -4, itemQuantity: 4, itemQuality: 2},
-        {value: "countryside", chance: 0.0001, minionChance: 0.003, foxQuantity: 4, foxQuality: 2, itemQuantity: 2, itemQuality: 1},
-        {value: "blessed", chance: 0.00011, minionChance: 0.004, foxQuantity: 4, foxQuality: 4, itemQuantity: -1000, kitsune: 0.25}
-    ]},
-    {value: "bait", bonuses: [
-        {value: "basic", chance: 0.0001, minionChance: 0.0012, foxQuantity: 1},
-        {value: "special", chance: 0.00012, minionChance: 0.0011, foxQuantity: 2, foxQuality: 2, itemQuantity: -1},
-        {value: "advanced", chance: 0.0002, minionChance: 0.02, foxQuantity: 1, foxQuality: 4, itemQuantity: 2, itemQuantity: 2},
-        {value: "blessed", chance: 0.0009, minionChance: 0.005, foxQuantity: 4, foxQuality: 4, itemQuantity: -1000, kitsune: 0.25}
-    ]}
-];
+function invSum(start, end) {
+    let result = 0;
+    for (let i = start; i < end; ++i) {
+        result += (1 / i);
+    }
+    return result;
+}
+
 function getBonus(user, category, bonus) {
-    return bonuses.find(c => c.value === category)?.bonuses.find?.(b => b.value === user.equips?.[category])?.[bonus];
+    return shopData.find(c => c.value === category)?.bonuses.find?.(b => b.value === user.equips?.[category])?.[bonus];
 }
 function getAllBonuses(user, bonus) {
     return bonuses.reduce((acc, cat) => {
@@ -56,17 +34,25 @@ function canKitsune(user) {
             (user.upgrades?.coin?.land?.blessed === true));
 }
 
+function getFoxChance(user, foxCount) {
+    let chance = getAllBonuses(user, "chance");
+    chance += (invSum(9, user.upgrades?.shrine?.blessingCount ?? 0) / 10);
+    return Math.tanh(2.4 + chance) ** (foxCount);
+}
+
 function findFoxes(user, foxCount, isMinion, iterations) {
-    const chance = getAllBonuses(user, isMinion ? "minionChance" : "chance") ** foxCount;
+    const chance = getFoxChance(user, foxCount, isMinion) * (isMinion ? 0.5 : 1);
+    const fquantityBonus = getAllBonuses(user, "foxQuantity") * (isMinion ? 0.6 : 1);
+    const fqualityBonus = (getAllBonuses(user, "foxQuality") + invSum(3, 3 + (user.upgrades?.shrine?.luckCount ?? 0))) * (isMinion ? 0.4 : 1);
+    const kitsuneBonus = isMinion ? 0 : (1 + (getAllBonuses(user, "kitsune") / 10) + invSum(15, 15 + (user.upgrades?.shrine?.curiosityCount ?? 0)));
 
     let foxes = new Map();
     for (let i = 0; i < iterations; ++i) {
         if (Math.random() < chance) {
-            const quantity = 1 + Math.floor(Math.random() * (getAllBonuses(user, "foxQuantity") * (isMinion ? 0.6 : 1)));
-            const quality = 1 + Math.floor(getAllBonuses(user, "foxQuality") * (isMinion ? 0.4 : 1));
-            const kitsune = isMinion ? 0 : (1 + getAllBonuses(user, "kitsune"));
+            const quantity = 1 + Math.floor(Math.random() * fquantityBonus);
+            const quality = Math.floor(Math.random() * fqualityBonus);
 
-            if (kitsune * quality > 9 && canKitsune(user) && canRareFox(user)) {
+            if (kitsuneBonus * quality > 9 && canKitsune(user) && canRareFox(user)) {
                 foxes.set("kitsune", (foxes.get("kitsune") ?? 0) + quantity);
             }
             else if (quality > 5 && canRareFox(user)) {
@@ -109,6 +95,15 @@ function foxMessage(user, foxes, item) {
 }
 
 
+function getCooldown(user, foxCount) {
+    const baseCooldown = getAllBonuses(user, "cooldown");
+    const penalty = getAllBonuses(user, "penalty");
+    const max = getAllBonuses(user, "max") + ((user.upgrades?.shrine?.watcherCount ?? 0) * 10);
+
+    return (baseCooldown + penalty * Max.max(0, (user.foxes ?? 0) - max)) / invSum(1, 1 + (user?.upgrades?.shrine?.hasteCount ?? 0));
+}
+
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("fox")
@@ -118,13 +113,12 @@ module.exports = {
         const cooldown = user.cooldown;
         const now = Date.now();
         if (now < cooldown) {
-            const cooldownLeft = Math.ceil((cooldown - now) / 100) / 10;
-            await interaction.reply(`You are still on cooldown for \`${cooldownLeft}${(cooldownLeft === Math.ceil(cooldownLeft) ? `.0` : ``)}\` seconds`);
+            await interaction.reply(`You are still on cooldown for \`${msToSec(cooldown - now)}\``);
             return;
         }
 
         /* Calculate foxes earned */
-        const foxCount = countFoxes(user.foxes); /* To prevent repeated recalculation */
+        const foxCount = countFoxes(user.foxes);
         const minionCount = user.upgrades?.shrine?.minionCount ?? 0;
         const userFoxes = findFoxes(user, foxCount, false, 1);
         const minionFoxes = findFoxes(user, foxCount, true, minionCount);
@@ -137,7 +131,7 @@ module.exports = {
         if (canItems(user)) {
             //TODO: ITEMS
         }
-
+        
         await user.save();
         await interaction.reply(foxMessage(user, totalFoxes, item));
 	}

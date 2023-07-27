@@ -86,10 +86,8 @@ function getUpgradeDescription(upgrade) {
             case "quantity":
             case "minionChance":
                 return acc;
-            case "extraChance":
-                return acc.concat(`Marginally boosts your fox-finding chance by ${upgrade[key]}\n`);
             case "chance":
-                return acc.concat(`Sets your fox-finding chance to ${upgrade[key]}\n`);
+                return acc.concat(`Boosts your fox-finding chance by ${upgrade[key]}\n`);
             case "cooldown":
                 return acc.concat(`Sets your minimum cooldown to ${msToSec(upgrade[key])}\n`);
             case "max":
