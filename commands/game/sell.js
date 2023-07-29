@@ -54,6 +54,7 @@ module.exports = {
                 user.coins = newCoins;
                 user.upgrades ??= {};
                 user.upgrades.shrine = {};
+                user.cooldown = undefined;
                 await user.save();
                 await confirmation.update({content: `You have sold **${oldFoxes}**:fox: foxes for **${newCoins - oldCoins}**:coin:! (You now have **${newCoins}**:coin:)`, embeds: [], components: []});
             }
