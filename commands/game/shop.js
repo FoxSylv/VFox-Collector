@@ -14,7 +14,13 @@ function getShopEmbed(user, currentLocation) {
     else {
         const category = shopData.find(c => c.value === currentLocation);
         description = category.upgrades.reduce((acc, upgrade) => {
-            const price = user.upgrades?.coin?.[category.value]?.[upgrade.value] === true ? `:white_check_mark:` : `${upgrade.price}:coin:`;
+            let price = `${upgrade.price}:coin:`;
+            if (user.upgrades?.coin?.[category.value]?.[upgrade.value] === true) {
+                price = ":white_check_mark:";
+            }
+            if (user.equips?.[category.value] === upgrade.value) {
+                price = ":ballot_box_with_check:";
+            }
             return acc.concat(`• **${upgrade.name}** (${price}): ${upgrade.flavor}\n`);
         }, "");
     }
