@@ -17,7 +17,7 @@ function getBonus(user, category, bonus) {
     return shopData.find(c => c.value === category)?.bonuses.find?.(b => b.value === user.equips?.[category])?.[bonus];
 }
 function getAllBonuses(user, bonus) {
-    return bonuses.reduce((acc, cat) => {
+    return shopData.reduce((acc, cat) => {
         return acc + (getBonus(user, cat, bonus) ?? (cat[bonus] ?? 0));
     }, 0);
 }
@@ -86,9 +86,10 @@ function foxMessage(user, foxes, item) {
     }, "");
     const foxCount = countFoxes(user.foxes);
 
+    const net = shopData.find(c => c.value === "nets").upgrades.find(u => u.value === user.equips?.nets);
     const embed = new EmbedBuilder()
         .setColor(0xEA580C)
-        .setTitle(user.equips?.net ? `${user.equips.net} -` : "You found:")
+        .setTitle(user.equips?.nets ? `${net.name} -` : "You found:")
         .setDescription(description === "" ? "You found no foxes :(" : description)
         .setFooter({text: `You now have ${foxCount} ${foxCount === 1 ? "fox" : "foxes"}!`});
     return {embeds: [embed]};

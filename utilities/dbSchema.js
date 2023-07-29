@@ -71,8 +71,8 @@ const Foxes = new mongoose.Schema({
 }, {_id: false});
 
 const Equips = new mongoose.Schema({
-    n: {type: String, alias: "net"},
-    p: {type: String, alias: "pen"},
+    n: {type: String, alias: "nets"},
+    p: {type: String, alias: "pens"},
     l: {type: String, alias: "land"},
     b: {type: String, alias: "bait"},
     i: {type: [String], alias: "activeItems"}
