@@ -53,7 +53,7 @@ module.exports = {
             }
             user.equips ??= {};
             user.equips[categoryVal] = upgradeVal;
-            await interaction.reply(`You have equipped ${categoryVal === "bait" ? "" : "the"} ${upgradeName}!`);
+            await interaction.reply(`You have equipped ${categoryVal === "bait" ? "" : "the "}${upgradeName}!`);
             await user.save();
             return;
     	}
