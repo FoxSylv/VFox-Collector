@@ -3,11 +3,12 @@ const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
 const { foxEmoji } = require('../../data/foxEmoji.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
+const { msToSec } = require('../../utilities/msToSec.js');
 
 
-function invSum(start, end) {
+function invSum(start, span) {
     let result = 0;
-    for (let i = start; i < end; ++i) {
+    for (let i = start; i < (start + span); ++i) {
         result += (1 / i);
     }
     return result;
@@ -40,9 +41,8 @@ function getFoxChance(user, foxCount) {
 function findFoxes(user, foxCount, isMinion, iterations) {
     const chance = getFoxChance(user, foxCount, isMinion) * (isMinion ? 0.5 : 1);
     const fquantityBonus = getAllBonuses(user, "foxQuantity") * (isMinion ? 0.6 : 1);
-    const fqualityBonus = (getAllBonuses(user, "foxQuality") + invSum(3, 3 + (user.upgrades?.shrine?.luckCount ?? 0))) * (isMinion ? 0.4 : 1);
-    const kitsuneBonus = isMinion ? 0 : (1 + (getAllBonuses(user, "kitsune") / 10) + invSum(15, 15 + (user.upgrades?.shrine?.curiosityCount ?? 0)));
-    console.log(`${chance}, ${fquantityBonus}`);
+    const fqualityBonus = (getAllBonuses(user, "foxQuality") + invSum(3, user.upgrades?.shrine?.luckCount ?? 0)) * (isMinion ? 0.4 : 1);
+    const kitsuneBonus = isMinion ? 0 : (1 + (getAllBonuses(user, "kitsune") / 10) + invSum(15, user.upgrades?.shrine?.curiosityCount ?? 0));
 
     let foxes = new Map();
     for (let i = 0; i < iterations; ++i) {
@@ -74,22 +74,34 @@ function findFoxes(user, foxCount, isMinion, iterations) {
 }
 
 
-function foxMessage(user, foxes, item) {
-    const description = foxEmoji.reduce((acc, type) => {
+function foxMessage(user, foxes, baitEnded, item) {
+    let description = foxEmoji.reduce((acc, type) => {
         const num = foxes.get(type.value);
         if (num) {
             return acc.concat(`**${num}** ${type.emoji}\n`);
         }
         return acc;
     }, "");
-    const foxCount = countFoxes(user.foxes);
+    let foundFoxes = true;
+    if (description === "") {
+        description = "You found no foxes :(\n";
+        foundFoxes = false;
+    }
 
+    if (baitEnded !== "none") {
+        description = description.concat(`\nYou ran out of ${baitEnded}!\n`);
+    }
+    else if (user.equips?.bait) {
+        description = description.concat(`\n***${user.upgrades.coin.bait[user.equips.bait]}** ${shopData.find(c => c.value === "bait").upgrades.find(p => p.value === user.equips.bait).name} left!*\n`);
+    }
+
+    const foxCount = countFoxes(user.foxes);
     const net = shopData.find(c => c.value === "nets").upgrades.find(u => u.value === user.equips?.nets);
     const embed = new EmbedBuilder()
         .setColor(0xEA580C)
         .setTitle(user.equips?.nets ? `${net.name} -` : "You found:")
-        .setDescription(description === "" ? "You found no foxes :(" : description)
-        .setFooter({text: `You now have ${foxCount} ${foxCount === 1 ? "fox" : "foxes"}!`});
+        .setDescription(description)
+        .setFooter({text: `You ${foundFoxes ? "now ": ""}have ${foxCount} ${foxCount === 1 ? "fox" : "foxes"}!`});
     return {embeds: [embed]};
 }
 
@@ -99,7 +111,7 @@ function getCooldown(user, foxCount) {
     const penalty = getAllBonuses(user, "penalty");
     const max = getAllBonuses(user, "max") + ((user.upgrades?.shrine?.watcherCount ?? 0) * 10);
 
-    return (baseCooldown + penalty * Max.max(0, (user.foxes ?? 0) - max)) / invSum(1, 1 + (user?.upgrades?.shrine?.hasteCount ?? 0));
+    return (baseCooldown + penalty * Math.max(0, foxCount - max)) / invSum(1, 1 + (user?.upgrades?.shrine?.hasteCount ?? 0));
 }
 
 
@@ -125,14 +137,30 @@ module.exports = {
         for (const [type, num] of userFoxes) totalFoxes.set(type, num);
         for (const [type, num] of minionFoxes) totalFoxes.set(type, (totalFoxes.get(type) ?? 0) + num);
 
+        /* Use bait */
+        const baitRate = (1 - Math.tanh((user.upgrades?.shrine?.journalCount ?? 0) / 25)) * (totalFoxes.size === 0 ? 0.9 : 1);
+        let baitEnded = "none";
+        if (Math.random() < baitRate) {
+            const baitVal = user.equips?.bait;
+            if (baitVal) {
+                const newBait = user.upgrades.coin.bait[baitVal] - 1;
+                if (newBait === 0) {
+                    baitEnded = shopData.find(c => c.value === "bait").upgrades.find(p => p.value === user.equips.bait).name;
+                    user.equips.bait = undefined;
+                }
+                user.upgrades.coin.bait[baitVal] = newBait;
+            }
+        }
+
         /* Calculate items earned */
         let item = undefined;
         if (canItems(user)) {
             //TODO: ITEMS
         }
-        
+    
+        user.cooldown = now + getCooldown(user, foxCount);
         await user.save();
-        await interaction.reply(foxMessage(user, totalFoxes, item));
+        await interaction.reply(foxMessage(user, totalFoxes, baitEnded, item));
 	}
 };
 
