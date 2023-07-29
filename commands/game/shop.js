@@ -155,7 +155,7 @@ async function executePurchase(interaction, user, category, upgrade) {
             }
 
             user.coins = (user.coins ?? 0) - upgrade.price;
-            await confirmation.update({content: `You purchased ${upgrade.quantity ? `${upgrade.quantity} ` : ``}${upgrade.name} for ${upgrade.price}:coin:!`, embeds: [], components: []});
+            await confirmation.update({content: `You purchased ${upgrade.quantity ? `${upgrade.quantity} ` : ``}${upgrade.name} for **${upgrade.price}**:coin:!`, embeds: [], components: []});
         }
     
         await user.save();
