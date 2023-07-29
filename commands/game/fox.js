@@ -13,12 +13,9 @@ function invSum(start, end) {
     return result;
 }
 
-function getBonus(user, category, bonus) {
-    return shopData.find(c => c.value === category)?.bonuses.find?.(b => b.value === user.equips?.[category])?.[bonus];
-}
 function getAllBonuses(user, bonus) {
-    return shopData.reduce((acc, cat) => {
-        return acc + (getBonus(user, cat, bonus) ?? (cat[bonus] ?? 0));
+    return shopData.reduce((acc, category) => {
+        return acc + (category.upgrades.find(u => u.value === user.equips?.[category.value])?.[bonus] ?? (category[bonus] ?? 0));
     }, 0);
 }
 
@@ -45,6 +42,7 @@ function findFoxes(user, foxCount, isMinion, iterations) {
     const fquantityBonus = getAllBonuses(user, "foxQuantity") * (isMinion ? 0.6 : 1);
     const fqualityBonus = (getAllBonuses(user, "foxQuality") + invSum(3, 3 + (user.upgrades?.shrine?.luckCount ?? 0))) * (isMinion ? 0.4 : 1);
     const kitsuneBonus = isMinion ? 0 : (1 + (getAllBonuses(user, "kitsune") / 10) + invSum(15, 15 + (user.upgrades?.shrine?.curiosityCount ?? 0)));
+    console.log(`${chance}, ${fquantityBonus}`);
 
     let foxes = new Map();
     for (let i = 0; i < iterations; ++i) {
