@@ -1,24 +1,26 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { User, getProfile } = require('../../utilities/db.js');
+const { getProfile } = require('../../utilities/db.js');
+const { foxEmoji } = require('../../data/foxEmoji.js');
+const { countFoxes } = require('../../utilities/countFoxes.js');
+
+const data = new SlashCommandBuilder()
+    .setName("setfoxes")
+    .setDescription("Magically apparate foxes");
+foxEmoji.forEach(f => data.addIntegerOption(option => 
+    option.setName(f.value)
+          .setDescription(`Number of ${f.value} foxes to apparate`)
+          .setMinValue(0))
+);
 
 module.exports = {
     isDev: true,
-	data: new SlashCommandBuilder()
-		.setName("setfoxes")
-		.setDescription("Magically apparate foxes")
-        .addIntegerOption(option =>
-            option.setName("foxes")
-                  .setDescription("Number of foxes to apparate")
-                  .setRequired(true)
-                  .setMinValue(0)
-        ),
+	data: data,
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
-        const newFoxes = interaction.options.getInteger("foxes");
         user.foxes ??= {};
-        user.foxes.orange = newFoxes;
-        await interaction.reply(`You now have ${newFoxes} foxes!`);
+        foxEmoji.forEach(f => user.foxes[f.value] = (interaction.options.getInteger(f.value) ?? 0));
         await user.save();
+        await interaction.reply(`You now have ${countFoxes(user.foxes)} foxes!`);
 	}
 };
 
