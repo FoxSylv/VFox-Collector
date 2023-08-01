@@ -2,6 +2,7 @@ const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
 const { token } = require('./config.json');
 const { dbInit } = require('./utilities/db.js');
 const getCommands = require('./utilities/getCommands.js');
+const { getProfile } = require('./utilities/db.js');
 
 /* Initialization */
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -9,32 +10,55 @@ dbInit();
 
 
 /* Set up commands */
-client.commands = new Collection();
-getCommands().forEach(command => client.commands.set(command.data.name, command));
+client.commands = {};
+getCommands().forEach(command => client.commands[command.data.name] = command);
 
-/* Command handler */
 client.on(Events.InteractionCreate, async interaction => {
-	if (!interaction.isChatInputCommand()) return;
+    /* Multi-hit Button Handler */
+    if (interaction.isButton()) {
+        const commandName = Object.keys(client.commands).find(c => client.commands[c].buttonValues?.includes(interaction.customId));
+        if (!commandName) {
+            return;
+        }
+        const command = client.commands[commandName];
 
-	const command = client.commands.get(interaction.commandName);
+        try {
+            const user = await getProfile(interaction.user.id);
+            await interaction.reply(await command.buttonPress(user, interaction.customId));
+        }
+        catch (error) {
+            console.error(error);
+    		if (interaction.replied || interaction.deferred) {
+		    	await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+	    	}
+            else {
+		    	await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+	    	}
 
-	if (!command) {
-		console.error(`No command matching ${interaction.commandName} was found.`);
-		return;
-	}
+        }
+    }
 
-	try {
-		await command.execute(interaction);
-	}
-    catch (error) {
-		console.error(error);
-		if (interaction.replied || interaction.deferred) {
-			await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-		}
-        else {
-			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-		}
-	}
+    /* Command Handler */
+	if (interaction.isChatInputCommand()) {
+	    const command = client.commands[interaction.commandName];
+    	if (!command) {
+		    console.error(`No command matching ${interaction.commandName} was found.`);
+	    	return;
+    	}
+
+    	try {
+		    await command.execute(interaction);
+	    }
+        catch (error) {
+	    	console.error(error);
+    		if (interaction.replied || interaction.deferred) {
+		    	await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
+	    	}
+            else {
+		    	await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
+	    	}
+    	}
+    }
 });
 
 

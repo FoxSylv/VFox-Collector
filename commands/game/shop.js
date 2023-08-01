@@ -181,6 +181,10 @@ module.exports = {
                   .setDescription("The upgrade to buy")
                   .addChoices(...shopData.flatMap(c => c.upgrades.map(p => JSON.parse(`{"name": "${p.name}", "value": "${c.value + '.' + p.value}"}`))))
         ),
+    buttonValues: ["back"].concat(shopData.map(c => c.value)),
+    async buttonPress(user, customId) {
+        return getShopMessage(user, customId);
+    },
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
         const upgrade = interaction.options.getString("upgrade");
@@ -194,13 +198,7 @@ module.exports = {
 
         
         /* If nothing is purchased, display entire shop */
-        let response = await interaction.reply(getShopMessage(user));
-        const collector = response.createMessageComponentCollector({ componentType: ComponentType.ButtonInteraction, time: 3_600_000 });
-
-        collector.on('collect', async i => {
-            if (i.user.id !== interaction.user.id) return;
-            await i.reply(getShopMessage(user, i.customId));
-        });
+        await interaction.reply(getShopMessage(user));
 	}
 };
 

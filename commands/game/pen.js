@@ -57,16 +57,13 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("pen")
 		.setDescription("Look inside your fox pen!"),
+    buttonValues: ["toPen", "toBait"],
+    async buttonPress(user, customId) {
+        return customId === "toPen" ? getPenScreen(user) : getBaitBox(user);
+    },
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
-
-        let response = await interaction.reply(getPenScreen(user));
-        const collector = response.createMessageComponentCollector({ componentType: ComponentType.ButtonInteraction, time: 3_600_000 });
-
-        collector.on('collect', async i => {
-            if (i.user.id !== interaction.user.id) return;
-            await i.reply(i.customId === "toPen" ? getPenScreen(user) : getBaitBox(user));
-        });
+        await interaction.reply(getPenScreen(user));
     }
 };
 
