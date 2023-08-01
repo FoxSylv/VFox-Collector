@@ -11,7 +11,7 @@ module.exports = {
 				  .setRequired(true)),
 	async execute(interaction) {
         const commandName = interaction.options.getString("command", true).toLowerCase();
-		const command = interaction.client.commands.get(commandName);
+		const command = interaction.client.commands[commandName];
 
 		if (!command) {
 			return interaction.reply(`There is no command with name \`${commandName}\`!`);
@@ -20,10 +20,9 @@ module.exports = {
         delete require.cache[require.resolve(`../${command.category}/${command.data.name}.js`)];
 
         try {
-	        interaction.client.commands.delete(command.data.name);
 	        const newCommand = require(`../${command.category}/${command.data.name}.js`);
             newCommand.category = command.category;
-	        interaction.client.commands.set(newCommand.data.name, newCommand);
+	        interaction.client.commands[newCommand.data.name] = newCommand;
     	    await interaction.reply(`Command \`${newCommand.data.name}\` was reloaded!`);
         }
         catch (error) {
