@@ -1,12 +1,12 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
-const { foxEmoji } = require('../../data/foxEmoji.js');
+const { foxData } = require('../../data/foxData.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
 
 
 function getPenScreen(user) {
-    let description = (countFoxes(user.foxes) === 0 && (user.coins ?? 0) === 0) ? "You have no foxes :(\n" : foxEmoji.reduce((acc, type) => {
+    let description = (countFoxes(user.foxes) === 0 && (user.coins ?? 0) === 0) ? "You have no foxes :(\n" : foxData.reduce((acc, type) => {
         if ((user.foxes[type.value] ?? 0) !== 0) {
             return acc.concat(`**${user.foxes[type.value]}** ${type.emoji}\n`);
         }   

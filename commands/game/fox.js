@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
-const { foxEmoji } = require('../../data/foxEmoji.js');
+const { foxData } = require('../../data/foxData.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
 const { msToSec } = require('../../utilities/msToSec.js');
 
@@ -27,7 +27,7 @@ function canRareFox(user) {
     return user.upgrades?.coin?.nets?.basic === true;
 }
 function canKitsune(user) {
-    return ((user.upgrades?.coin?.nets?.nine-tailed === true) ||
+    return ((user.upgrades?.coin?.nets?.["nine-tailed"] === true) ||
             (user.upgrades?.coin?.pens?.shrine === true) ||
             (user.upgrades?.coin?.land?.blessed === true));
 }
@@ -47,17 +47,19 @@ function findFoxes(user, foxCount, isMinion, iterations) {
     let foxes = new Map();
     for (let i = 0; i < iterations; ++i) {
         if (Math.random() < chance) {
-            const quantity = 1 + Math.floor(Math.random() * fquantityBonus);
-            const quality = Math.floor(Math.random() * fqualityBonus);
+            const quantity = 1 + Math.max(0, Math.floor(0.7 + Math.random() * fquantityBonus - (foxCount / 30)));
+            const quality = 1.6 + Math.max(0, Math.random() * fqualityBonus - (foxCount / 30));
 
-            if (kitsuneBonus * quality > 9 && canKitsune(user) && canRareFox(user)) {
-                foxes.set("kitsune", (foxes.get("kitsune") ?? 0) + quantity);
-            }
-            else if (quality > 5 && canRareFox(user)) {
-                foxes.set("cryptid", (foxes.get("cryptid") ?? 0) + quantity);
-            }
-            else if (quality > 2 && canRareFox(user)) {
-                foxes.set("grey", (foxes.get("grey") ?? 0) + quantity);
+            if (canRareFox(user) && quantity >= 1) {
+                const kitsunePower = (kitsuneBonus * quality) - foxData.find(f => f.value === "kitsune").weight;
+                if (kitsunePower > 0 && canKitsune(user)) {
+                    foxes.set("kitsune", (foxes.get("kitsune") ?? 0) + Math.ceil(kitsunePower * quantity / quality));
+                }
+                else {
+                    const foxType = foxData.findLast(f => quality > f.weight) ?? foxData.find(f => f.value === "orange");
+                    const power = Math.ceil(quantity * quantity / foxType.weight);
+                    foxes.set(foxType.value, (foxes.get(foxType.value) ?? 0) + power);
+                }
             }
             else {
                 foxes.set("orange", (foxes.get("orange") ?? 0) + Math.max(1, quantity));
@@ -75,7 +77,7 @@ function findFoxes(user, foxCount, isMinion, iterations) {
 
 
 function foxMessage(user, foxes, baitEnded, item) {
-    let description = foxEmoji.reduce((acc, type) => {
+    let description = foxData.reduce((acc, type) => {
         const num = foxes.get(type.value);
         if (num) {
             return acc.concat(`**${num}** ${type.emoji}\n`);

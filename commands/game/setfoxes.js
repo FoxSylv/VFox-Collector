@@ -1,12 +1,12 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
-const { foxEmoji } = require('../../data/foxEmoji.js');
+const { foxData } = require('../../data/foxData.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
 
 const data = new SlashCommandBuilder()
     .setName("setfoxes")
     .setDescription("Magically apparate foxes");
-foxEmoji.forEach(f => data.addIntegerOption(option => 
+foxData.forEach(f => data.addIntegerOption(option => 
     option.setName(f.value)
           .setDescription(`Number of ${f.value} foxes to apparate`)
           .setMinValue(0))
@@ -18,7 +18,7 @@ module.exports = {
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
         user.foxes ??= {};
-        foxEmoji.forEach(f => user.foxes[f.value] = (interaction.options.getInteger(f.value) ?? 0));
+        foxData.forEach(f => user.foxes[f.value] = (interaction.options.getInteger(f.value) ?? 0));
         await user.save();
         await interaction.reply(`You now have ${countFoxes(user.foxes)} foxes!`);
 	}

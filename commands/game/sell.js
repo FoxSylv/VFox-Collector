@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, EmbedBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
-const { foxEmoji } = require('../../data/foxEmoji.js');
+const { foxData } = require('../../data/foxData.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -13,7 +13,7 @@ module.exports = {
         const oldCoins = user.coins ?? 0;
         const newCoins = Math.max(Math.floor(oldFoxes / 100), oldCoins);
 
-        const description = foxEmoji.reduce((acc, type) => {
+        const description = foxData.reduce((acc, type) => {
             if ((user.foxes?.[type.value] ?? 0) !== 0) {
                 return acc.concat(`**${user.foxes[type.value]}** ${type.emoji} -> **${user.foxes[type.value] * type.weight}** :fox:\n`);
             }

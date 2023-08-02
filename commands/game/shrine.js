@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
-const { foxEmoji } = require('../../data/foxEmoji.js');
+const { foxData } = require('../../data/foxData.js');
 
 const shrinePurchases = [
     {name: "Kitsune's Blessing", value: "blessingCount", basePrice: 20, description: "Gain increased fox finding luck"},
@@ -56,7 +56,7 @@ module.exports = {
             user.upgrades.shrine[upgrade] = userUpgrade + 1;
 
             let priceLeft = price;
-            foxEmoji.forEach(type => {
+            foxData.forEach(type => {
                 const delta = Math.min(priceLeft, user.foxes[type.value]);
                 user.foxes[type.value] -= delta;
                 priceLeft -= delta;
