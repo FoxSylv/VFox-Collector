@@ -67,7 +67,7 @@ module.exports = {
             interaction.reply(`You got a **${purchase.name}**! (You now have ${user.upgrades.shrine[upgrade]})`);
         }
         else {
-            interaction.reply(`You do not have enough foxes for a **${purchase.name}**... (${user.foxes}/${price})`);
+            interaction.reply(`You do not have enough foxes for a **${purchase.name}**... (${countFoxes(user.foxes)}/${price})`);
         }
         await user.save();
 	}
