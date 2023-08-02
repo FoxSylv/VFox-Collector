@@ -108,6 +108,7 @@ function getUpgradeDescription(upgrade) {
     }, ""));
 }
 function getUpgradeMessage(user, category, upgrade) {
+    const isOwned = (user.upgrades?.coin?.[category.value]?.[upgrade.value] !== undefined) && (upgrade.quantity === undefined);
     const embed = new EmbedBuilder()
         .setColor(0xEA580C)
         .setTitle(`${category.emoji} - ${upgrade.name}`)
@@ -119,9 +120,9 @@ function getUpgradeMessage(user, category, upgrade) {
     const actionRow = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
             .setCustomId("purchase")
-            .setLabel("Purchase")
+            .setLabel(isOwned ? "Purchased" : "Purchase")
             .setStyle(ButtonStyle.Primary)
-            .setDisabled((user.coins ?? 0) < upgrade.price),
+            .setDisabled(((user.coins ?? 0) < upgrade.price) || isOwned),
         new ButtonBuilder()
             .setCustomId("cancel")
             .setLabel("Cancel")
@@ -132,11 +133,6 @@ function getUpgradeMessage(user, category, upgrade) {
 }
 
 async function executePurchase(interaction, user, category, upgrade) {
-    if ((user.upgrades?.coin?.[category.value]?.[upgrade.value] !== undefined) && (upgrade.quantity === undefined)) {
-        await interaction.reply(`You already have the ${upgrade.name}!`);
-        return;
-    }
-    
     const response = await interaction.reply(getUpgradeMessage(user, category, upgrade));
     try {
 	    const confirmation = await response.awaitMessageComponent({filter: i => i.user.id === interaction.user.id, time: 60000});
