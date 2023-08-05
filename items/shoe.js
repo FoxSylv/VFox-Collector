@@ -4,7 +4,7 @@ module.exports = {
     value: "shoe",
     description: "JUNK! Might as well use it to free up a slot",
     rarity: 0,
-    async onUse(interaction) {
-        
+    async onUse(user) {
+        return "Good riddance!";        
     }
 }

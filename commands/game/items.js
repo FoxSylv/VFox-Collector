@@ -16,25 +16,13 @@ function getItemEmbed(user) {
 
 function getItemSelector(user) {
     const userItems = user.items ?? {};
-    let itemList = userItems.map((userItem, index) => {
+    let itemList = userItems.filter(i => i).map((userItem, index) => {
         const item = items[userItem];
         return new StringSelectMenuOptionBuilder()
             .setLabel(item.name)
             .setDescription(item.description)
             .setValue(`${index}.${item.value}`);
     });
-    if (itemList.length === 0) {
-        return new ActionRowBuilder()
-            .addComponents(new StringSelectMenuBuilder()
-                .setCustomId("noItems")
-                .setPlaceholder("You have no items!")
-                .addOptions(new StringSelectMenuOptionBuilder()
-                    .setLabel("You have no items!")
-                    .setDescription("You have no items!")
-                    .setValue("noItems")
-                )
-            );
-    }
 
     return new ActionRowBuilder()
         .addComponents(new StringSelectMenuBuilder()
@@ -51,7 +39,21 @@ module.exports = {
 		.setDescription("View and use your items"),
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
-        await interaction.reply({embeds: [getItemEmbed(user)], components: [getItemSelector(user)]});
+
+        const response = await interaction.reply({embeds: [getItemEmbed(user)], components: (user.items ?? {}).filter(i => i).length === 0 ? [] : [getItemSelector(user)]});
+        try {
+            const selection = await response.awaitMessageComponent({filter: i => i.user.id === interaction.user.id, time: 60000});
+            const [slot, itemVal] = selection.values[0].split('.');
+            const item = items[itemVal];
+            const useMessage = await item.onUse(user);
+            user.items ??= {};
+            user.items[slot] = undefined;
+            await user.save();
+            await interaction.editReply({content: `You used the ${item.emoji} ${item.name}! ${useMessage}`, embeds: [], components: []});
+        }
+        catch(e) {
+            await interaction.editReply({components: []});
+        }
 	}
 };
 
