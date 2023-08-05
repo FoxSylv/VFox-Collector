@@ -14,50 +14,38 @@ client.commands = {};
 getCommands().forEach(command => client.commands[command.data.name] = command);
 
 client.on(Events.InteractionCreate, async interaction => {
-    /* Multi-hit Button Handler */
-    if (interaction.isButton()) {
-        const commandName = Object.keys(client.commands).find(c => client.commands[c].buttonValues?.includes(interaction.customId));
-        if (!commandName) {
-            return;
-        }
-        const command = client.commands[commandName];
+    try {
+        /* Multi-hit Button Handler */
+        if (interaction.isButton()) {
+            const commandName = Object.keys(client.commands).find(c => client.commands[c].buttonValues?.includes(interaction.customId));
+            if (!commandName) {
+                return;
+            }
+            const command = client.commands[commandName];
 
-        try {
             const user = await getProfile(interaction.user.id);
             await interaction.reply(await command.buttonPress(user, interaction.customId));
         }
-        catch (error) {
-            console.error(error);
-    		if (interaction.replied || interaction.deferred) {
-		    	await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-	    	}
-            else {
-		    	await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-	    	}
 
+        /* Slash Command Handler */
+	    if (interaction.isChatInputCommand()) {
+	        const command = client.commands[interaction.commandName];
+        	if (!command) {
+	    	    console.error(`No command matching ${interaction.commandName} was found.`);
+	        	return;
+        	}
+
+    		await command.execute(interaction);
         }
     }
-
-    /* Command Handler */
-	if (interaction.isChatInputCommand()) {
-	    const command = client.commands[interaction.commandName];
-    	if (!command) {
-		    console.error(`No command matching ${interaction.commandName} was found.`);
-	    	return;
-    	}
-
-    	try {
-		    await command.execute(interaction);
-	    }
-        catch (error) {
-	    	console.error(error);
-    		if (interaction.replied || interaction.deferred) {
-		    	await interaction.followUp({ content: 'There was an error while executing this command!', ephemeral: true });
-	    	}
-            else {
-		    	await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-	    	}
-    	}
+    catch(error) {
+        console.error(error);
+        if (interaction.replied || interaction.deferred) {
+            await interaction.followUp({ content: 'An error occurred while responding to this interaction!', ephemeral: true });
+        }
+        else {
+            await interaction.reply({ content: 'An error occurred while responding to this interaction!', ephemeral: true });
+        }
     }
 });
 
