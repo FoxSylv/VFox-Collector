@@ -16,13 +16,16 @@ function getItemEmbed(user) {
 
 function getItemSelector(user) {
     const userItems = user.items ?? {};
-    let itemList = userItems.filter(i => i).map((userItem, index) => {
+    let itemList = userItems.map((userItem, index) => {
+        if (!userItem) {
+            return undefined;
+        }
         const item = items[userItem];
         return new StringSelectMenuOptionBuilder()
             .setLabel(item.name)
             .setDescription(item.description)
             .setValue(`${index}.${item.value}`);
-    });
+    }).filter(i => i);
 
     return new ActionRowBuilder()
         .addComponents(new StringSelectMenuBuilder()
