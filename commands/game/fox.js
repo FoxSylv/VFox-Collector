@@ -175,7 +175,10 @@ module.exports = {
                 const newItem = filteredItems[Math.floor(Math.random() * filteredItems.length)];
 
                 const userItems = user.items ?? {};
-                const slot = userItems.find(s => !s) ?? userItems.length;
+                const slot = userItems.findIndex(s => !s);
+                if (slot === -1) { //if (findIndex fails)
+                    slot = userItems.length;
+                }
                 if (slot < 9) { //Max 9 items
                     user.items ??= {};
                     user.items[slot] = newItem;
