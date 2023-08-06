@@ -142,7 +142,16 @@ async function executePurchase(interaction, user, category, upgrade) {
         }
 
         if (category.value === "items") {
-            await confirmation.update({content: "ITEMS NOT YET IMPLEMENTED!!!!", embeds: [], components: []});
+            const userItems = user.items ?? {};
+            const slot = userItems.find(s => !s) ?? userItems.length;
+            if (slot >= 9) {
+                await confirmation.update({content: "You do not have any free item slots!", embeds: [], components: []});
+                return;
+            }
+            const item = items[upgrade.value];
+            await confirmation.update({content: `You purchased a ${item.emoji} ${item.name}! It has gone into slot ${slot}`, embeds: [], components: []});
+            userItems[slot] = item.value;
+            user.items = userItems;
         }
         else {
             user.upgrades ??= {};
@@ -156,10 +165,10 @@ async function executePurchase(interaction, user, category, upgrade) {
                 user.upgrades.coin[category.value][upgrade.value] = true;
             }
 
-            user.coins = (user.coins ?? 0) - upgrade.price;
             await confirmation.update({content: `You purchased ${upgrade.quantity ? `${upgrade.quantity} ` : ``}${upgrade.name} for **${upgrade.price}**:coin:!`, embeds: [], components: []});
         }
-    
+        
+        user.coins = (user.coins ?? 0) - upgrade.price;
         await user.save();
     }
     catch (e) {
