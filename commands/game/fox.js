@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
 const { foxData } = require('../../data/foxData.js');
+const { items } = require('../../utilities/items.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
 const { msToSec } = require('../../utilities/msToSec.js');
 
@@ -77,6 +78,7 @@ function findFoxes(user, foxCount, isMinion, iterations) {
 
 
 function foxMessage(user, foxes, baitEnded, item) {
+    /* Fox Tally */
     let description = foxData.reduce((acc, type) => {
         const num = foxes.get(type.value);
         if (num) {
@@ -90,12 +92,21 @@ function foxMessage(user, foxes, baitEnded, item) {
         foundFoxes = false;
     }
 
+    /* Bait */
     if (baitEnded !== "none") {
         description = description.concat(`\nYou ran out of ${baitEnded}!\n`);
     }
     else if (user.equips?.bait) {
         description = description.concat(`\n***${user.upgrades.coin.bait[user.equips.bait]}** ${shopData.find(c => c.value === "bait").upgrades.find(p => p.value === user.equips.bait).name} left!*\n`);
     }
+
+    /* Item */
+    if (item) {
+        [slot, itemVal] = item.split('.');
+        const item = items[itemVal];
+        description = description.concat(`\nYou found a ${items.emoji} **${items.name}**! ${slot >= 9 ? `Unfortunately, your item inventory was full :(` : `It has gone into slot *${slot}*!`}\n`);
+    }
+
 
     const foxCount = countFoxes(user.foxes);
     const net = shopData.find(c => c.value === "nets").upgrades.find(u => u.value === user.equips?.nets);
@@ -157,7 +168,20 @@ module.exports = {
         /* Calculate items earned */
         let item = undefined;
         if (canItems(user)) {
-            //TODO: ITEMS
+            const iquantity = getAllBonuses(user, "itemQuantity") + invSum(2, user.upgrades?.shrine?.eyesightCount ?? 0);
+            if (iquantity / 100 > Math.random()) {
+                const iquality = Math.max(getAllBonuses(user, "itemQuality"), 0);
+                const filteredItems = Object.keys(items).filter(itemVal => items[itemVal].rarity <= iquality);
+                const newItem = filteredItems[Math.floor(Math.random() * filteredItems.length)];
+
+                const userItems = user.items ?? {};
+                const slot = userItems.find(s => !s) ?? userItems.length;
+                if (slot < 9) { //Max 9 items
+                    user.items ??= {};
+                    user.items[slot] = newItem;
+                }
+                item = `${slot}.${newItem}`;
+            }
         }
     
         user.cooldown = now + getCooldown(user, foxCount);
