@@ -171,7 +171,7 @@ module.exports = {
             const iquantity = getAllBonuses(user, "itemQuantity") + invSum(2, user.upgrades?.shrine?.eyesightCount ?? 0);
             if (iquantity / 100 > Math.random()) {
                 const iquality = Math.max(getAllBonuses(user, "itemQuality"), 0);
-                const filteredItems = Object.keys(items).filter(itemVal => items[itemVal].rarity <= iquality);
+                const filteredItems = Object.keys(items).filter(itemVal => items[itemVal].rarity <= iquality && items[itemVal].rarity + 3 > iquality);
                 const newItem = filteredItems[Math.floor(Math.random() * filteredItems.length)];
 
                 const userItems = user.items ?? {};
