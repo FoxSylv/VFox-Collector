@@ -1,0 +1,39 @@
+const { SlashCommandBuilder } = require('discord.js');
+const { getProfile } = require('../../utilities/db.js');
+
+module.exports = {
+    isDev: true,
+	data: new SlashCommandBuilder()
+		.setName("setitem")
+		.setDescription("Magically apparate items")
+        .addStringOption(option =>
+            option.setName("item")
+                  .setDescription("Value of item to apparate")
+                  .setRequired(true)
+        )
+        .addIntegerOption(option =>
+            option.setName("slot")
+                  .setDescription("Slot to put the item in")
+                  .setMinValue(1)
+                  .setMaxValue(9)
+        ),
+	async execute(interaction) {
+        const user = await getProfile(interaction.user.id);
+        let userItems = user.items ?? {};
+        const newItem = interaction.options.getString("item");
+        let slot = interaction.options.getInteger("slot") ?? (userItems.findIndex(i => !i) + 1);
+        if (slot === 0) { //if (findIndex fails)
+            slot = userItems.length + 1;
+        }
+
+        if (slot > 9) {
+            await interaction.reply("Item inventory full!");
+            return;
+        }
+        userItems[slot - 1] = newItem;
+        user.items = userItems;
+        await interaction.reply(`You now have ${newItem} in slot ${slot}`);
+        await user.save();
+	}
+};
+
