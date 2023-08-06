@@ -49,7 +49,7 @@ module.exports = {
             user.items ??= {};
             user.items[slot] = undefined;
             await user.save();
-            await interaction.editReply({content: `You used the ${item.emoji} ${item.name}! ${useMessage}`, embeds: [], components: []});
+            await interaction.editReply({content: `You used the ${item.emoji} **${item.name}**! ${useMessage}`, embeds: [], components: []});
         }
         catch(e) {
             await interaction.editReply({components: []});
