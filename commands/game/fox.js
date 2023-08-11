@@ -5,6 +5,7 @@ const { foxData } = require('../../data/foxData.js');
 const { items } = require('../../utilities/items.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
 const { msToSec } = require('../../utilities/msToSec.js');
+const { getColor } = require('../../utilities/getColor.js');
 
 
 function invSum(start, span) {
@@ -111,7 +112,7 @@ function foxMessage(user, foxes, baitEnded, item) {
     const foxCount = countFoxes(user.foxes);
     const net = shopData.find(c => c.value === "nets").upgrades.find(u => u.value === user.equips?.nets);
     const embed = new EmbedBuilder()
-        .setColor(0xEA580C)
+        .setColor(getColor(user))
         .setTitle(user.equips?.nets ? `${net.name} -` : "You found:")
         .setDescription(description)
         .setFooter({text: `You ${foundFoxes ? "now ": ""}have ${foxCount} ${foxCount === 1 ? "fox" : "foxes"}!`});

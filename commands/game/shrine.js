@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
 const { foxData } = require('../../data/foxData.js');
+const { getColor } = require('../../utilities/getColor.js');
 
 const shrinePurchases = [
     {name: "Kitsune's Blessing", value: "blessingCount", basePrice: 20, description: "Gain increased fox finding luck"},
@@ -21,7 +22,7 @@ function getPrice(user, purchase) {
 
 function getShrineShopEmbed(user) {
     return new EmbedBuilder()
-        .setColor(0xEA580C)
+        .setColor(getColor(user))
         .setTitle("The Shrine")
         .setDescription(shrinePurchases.reduce((acc, purchase) => {
             return acc.concat(`• **${purchase.name}** (${getPrice(user, purchase)}:fox:): ${purchase.description}\n`);

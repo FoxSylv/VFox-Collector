@@ -86,7 +86,8 @@ const User = mongoose.model("User", new mongoose.Schema({
     s: {type: Stats, alias: "stats"},
     u: {type: Upgrades, alias: "upgrades"},
     i: {type: [String], alias: "items"},
-    e: {type: Equips, alias: "equips"}
+    e: {type: Equips, alias: "equips"},
+    o: {type: Number, min: 0, max: 0xFFFFFF, alias: "color"}
 }));
 
 

@@ -3,6 +3,7 @@ const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
 const { foxData } = require('../../data/foxData.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
+const { getColor } = require('../../utilities/getColor.js');
 
 
 function getPenScreen(user) {
@@ -18,7 +19,7 @@ function getPenScreen(user) {
 
     const pen = shopData.find(c => c.value === "pens").upgrades.find(u => u.value === user.equips?.pens);
     const embed = new EmbedBuilder()
-        .setColor(0xEA580C)
+        .setColor(getColor(user))
         .setTitle(user.equips?.pens ? `${pen.name} -` : "Your Pen - ")
         .setDescription(description);
 
@@ -40,7 +41,7 @@ function getBaitBox(user) {
     }
 
     const embed = new EmbedBuilder()
-        .setColor(0xEA580C)
+        .setColor(getColor(user))
         .setTitle(`${shopData.find(c => c.value === "bait").emoji} Bait Box`)
         .setDescription(description);
 

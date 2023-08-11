@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
 const { items } = require('../../utilities/items.js');
+const { getColor } = require('../../utilities/getColor.js');
 
 function getEmbedDescription(user) {
     //Equipped items
@@ -33,7 +34,7 @@ function getEmbedDescription(user) {
 
 function getEquipEmbed(user) {
     return new EmbedBuilder()
-        .setColor(0xEA580C)
+        .setColor(getColor(user))
         .setTitle("Your Equips -")
         .setDescription(getEmbedDescription(user));
 }

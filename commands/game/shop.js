@@ -3,6 +3,7 @@ const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
 const { msToSec } = require('../../utilities/msToSec.js');
 const { items } = require('../../utilities/items.js');
+const { getColor } = require('../../utilities/getColor.js');
 
 function getShopEmbed(user, currentLocation) {
     let description;
@@ -27,7 +28,7 @@ function getShopEmbed(user, currentLocation) {
     }
     
     return new EmbedBuilder()
-        .setColor(0xEA580C)
+        .setColor(getColor(user))
         .setTitle(`The Shop${currentLocation === "back" ? "": ` - ${currentLocation.charAt(0).toUpperCase().concat(currentLocation.slice(1))}`}`)
         .setDescription(description)
         .setFooter({text: `You have ${user.coins ?? 0}🪙`});
@@ -111,7 +112,7 @@ function getUpgradeDescription(upgrade) {
 function getUpgradeMessage(user, category, upgrade) {
     const isOwned = (user.upgrades?.coin?.[category.value]?.[upgrade.value] !== undefined) && (upgrade.quantity === undefined);
     const embed = new EmbedBuilder()
-        .setColor(0xEA580C)
+        .setColor(getColor(user))
         .setTitle(`${category.emoji} - ${upgrade.name}`)
         .setDescription(getUpgradeDescription(upgrade))
         .addFields({name: '\u200b', value: '\u200b'},

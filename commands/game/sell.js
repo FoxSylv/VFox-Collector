@@ -2,6 +2,7 @@ const { SlashCommandBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, Embed
 const { getProfile } = require('../../utilities/db.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
 const { foxData } = require('../../data/foxData.js');
+const { getColor } = require('../../utilities/getColor.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -25,7 +26,7 @@ module.exports = {
         else if (oldCoins === newCoins) {status = `Since you have **${oldCoins}**:coin:, you must sell at least **${(oldCoins + 1) * 100}**:fox: to get another coin :coin:!`;}
         else {status = `Since you have **${oldFoxes}**:fox: and **${oldCoins}**:coin:, selling now will give **${newCoins - oldCoins}**:coin:!`;}
         const sellEmbed = new EmbedBuilder()
-            .setColor(0xEA580C)
+            .setColor(getColor(user))
             .setTitle("Sell your foxes?")
             .setDescription(description)
             .addFields({name: '\u200b', value: '\u200b'},

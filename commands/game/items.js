@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { items } = require('../../utilities/items.js');
+const { getColor } = require('../../utilities/getColor.js');
 
 function getItemEmbed(user) {
     let description = "";
@@ -9,7 +10,7 @@ function getItemEmbed(user) {
     }
 
     return new EmbedBuilder()
-        .setColor(0xEA580C)
+        .setColor(getColor(user))
         .setTitle("Your Items -")
         .setDescription(description);
 }
@@ -60,7 +61,7 @@ module.exports = {
                     user.equips.activeItems = user.equips.activeItems.concat(item.activeEffect.value);
                 }
             }
-            const useMessage = await item.onUse(user);
+            const useMessage = await item.onUse(user, selection);
             user.items ??= {};
             user.items[slot] = undefined;
 
@@ -69,6 +70,7 @@ module.exports = {
             await interaction.editReply({content: `You used the ${item.emoji} **${item.name}**! ${useMessage}`, embeds: [], components: []});
         }
         catch(e) {
+            console.error(e)
             await interaction.editReply({components: []});
         }
 	}
