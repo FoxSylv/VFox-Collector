@@ -1,13 +1,15 @@
 module.exports = {
     emoji: ":takeout_box:",
-    name: "Kitsune Mega Box",
+    name: "Fox Mega Box",
     value: "mbox",
-    description: "An extreme number of kitsunes",
+    description: "An extreme number of every type of fox",
     rarity: 9,
     async onUse(user) {
-        const num = 3 + Math.floor(Math.random() * 7);
         user.foxes ??= {};
-        user.foxes.kitsune = (user.foxes.kitsune ?? 0) + num;
-        return `You got **${num}** :shinto_shrine:!`;
+        user.foxes.orange = (user.foxes.kitsune ?? 0) + (10 + Math.floor(Math.random() * 20));
+        user.foxes.grey = (user.foxes.kitsune ?? 0) + (5 + Math.floor(Math.random() * 10));
+        user.foxes.cryptid = (user.foxes.kitsune ?? 0) + (1 + Math.floor(Math.random() * 2));
+        user.foxes.kitsune = (user.foxes.kitsune ?? 0) + (3 + Math.floor(Math.random() * 7));
+        return `You got a whole lot of foxes!`;
     }
 }
