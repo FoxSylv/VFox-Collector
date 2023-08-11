@@ -1,9 +1,9 @@
 module.exports = {
-    emoji: ":athletic_shoe:",
-    name: "Old Shoe",
+    emoji: ":hook:",
+    name: "Fishing Hook",
     value: "shoe",
     description: "JUNK! Might as well use it to free up a slot",
-    rarity: -2,
+    rarity: -3,
     async onUse(user) {
         return "Good riddance!";
     }
