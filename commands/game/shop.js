@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, Butt
 const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
 const { msToSec } = require('../../utilities/msToSec.js');
+const { items } = require('../../utilities/items.js');
 
 function getShopEmbed(user, currentLocation) {
     let description;

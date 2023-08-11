@@ -48,9 +48,23 @@ module.exports = {
             const selection = await response.awaitMessageComponent({filter: i => i.user.id === interaction.user.id, time: 60000});
             const [slot, itemVal] = selection.values[0].split('.');
             const item = items[itemVal];
+
+            if (item.activeEffect) {
+                user.equips ??= {};
+                user.equips.activeItems ??= [];
+                if ((user.equips.activeItems.includes(item.activeEffect.value) && !item.activeEffect.isStackable)) {
+                    await interaction.editReply({content: `You already have the **${item.activeEffect.name}** effect active!`, embeds: [], components: []});
+                    return;
+                }
+                else {
+                    user.equips.activeItems = user.equips.activeItems.concat(item.activeEffect.value);
+                }
+            }
             const useMessage = await item.onUse(user);
             user.items ??= {};
             user.items[slot] = undefined;
+
+            
             await user.save();
             await interaction.editReply({content: `You used the ${item.emoji} **${item.name}**! ${useMessage}`, embeds: [], components: []});
         }

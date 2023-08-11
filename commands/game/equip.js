@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
+const { items } = require('../../utilities/items.js');
 
 function getEmbedDescription(user) {
     //Equipped items
@@ -18,7 +19,13 @@ function getEmbedDescription(user) {
         description = description.concat("You have no active items!");
     }
     else {
-        description = description.concat("TODO - ITEMS");
+        let userItems = user.equips?.activeItems ?? [];
+        while (userItems.length > 0) {
+            let oldLength = userItems.length;
+            const item = items[userItems[0]];
+            userItems = userItems.filter(i => i !== item.value);
+            description = description.concat(`${item.emoji} ${item.activeEffect.name} ${item.activeEffect.isStackable ? `(${oldLength - userItems.length}x)` : ""}\n`);
+        }
     }
 
     return description;

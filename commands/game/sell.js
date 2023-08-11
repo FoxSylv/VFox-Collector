@@ -12,6 +12,7 @@ module.exports = {
         const oldFoxes = countFoxes(user.foxes, true);
         const oldCoins = user.coins ?? 0;
         const newCoins = Math.max(Math.floor(oldFoxes / 100), oldCoins);
+        const hasDonation = user.equips?.activeItems?.includes("donation");
 
         const description = foxData.reduce((acc, type) => {
             if ((user.foxes?.[type.value] ?? 0) !== 0) {
@@ -28,7 +29,7 @@ module.exports = {
             .setTitle("Sell your foxes?")
             .setDescription(description)
             .addFields({name: '\u200b', value: '\u200b'},
-                       {name: `This will reset your shrine upgrades and fox count`, value: status})
+                       {name: `This will reset${hasDonation ? "" : "your shrine upgrades and"} fox count`, value: status})
             .setFooter({text: `You have ${user.coins ?? 0}🪙`});
 
         const confirm = new ButtonBuilder()
@@ -53,7 +54,14 @@ module.exports = {
                 user.foxes = {};
                 user.coins = newCoins;
                 user.upgrades ??= {};
-                user.upgrades.shrine = {};
+
+                if (hasDonation) {
+                    user.equips.activeItems = user.equips.activeItems.filter(i => i !== "donation");
+                }
+                else {
+                    user.upgrades.shrine = {};
+                }
+
                 user.cooldown = undefined;
                 await user.save();
                 await confirmation.update({content: `You have sold **${oldFoxes}**:fox: foxes for **${newCoins - oldCoins}**:coin:! (You now have **${newCoins}**:coin:)`, embeds: [], components: []});
