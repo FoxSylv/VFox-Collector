@@ -3,7 +3,7 @@ module.exports = {
     name: "Fox Mega Box",
     value: "mbox",
     description: "An extreme number of every type of fox",
-    rarity: 9,
+    rarity: 8.5,
     async onUse(user) {
         user.foxes ??= {};
         user.foxes.orange = (user.foxes.kitsune ?? 0) + (10 + Math.floor(Math.random() * 20));
