@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { items } = require('../../utilities/items.js');
+const { effectData } = require('../../data/effectData.js');
 const { getColor } = require('../../utilities/getColor.js');
 
 function getItemEmbed(user) {
@@ -50,18 +51,19 @@ module.exports = {
             const [slot, itemVal] = selection.values[0].split('.');
             const item = items[itemVal];
 
-            if (item.activeEffect) {
+            if (item.activeEffects) {
                 user.equips ??= {};
-                user.equips.activeItems ??= [];
-                if ((user.equips.activeItems.includes(item.activeEffect.value) && !item.activeEffect.isStackable)) {
-                    await interaction.editReply({content: `You already have the **${item.activeEffect.name}** effect active!`, embeds: [], components: []});
-                    return;
+                user.equips.activeEffects ??= [];
+                for (const effect of item.activeEffects) {
+                    if ((user.equips.activeEffects.includes(effect) && !effectData[effect].isStackable)) {
+                        await interaction.editReply({content: `You already have the **${effectData[effect].name}** effect active!`, embeds: [], components: []});
+                        return;
+                    }
                 }
-                else {
-                    user.equips.activeItems = user.equips.activeItems.concat(item.activeEffect.value);
-                }
+                item.activeEffects.forEach(effect => user.equips.activeEffects = user.equips.activeEffects.concat(effect));
             }
-            const useMessage = await item.onUse(user, selection);
+            //We pass in `items` here since each item cannot `require()` the full list of items (would cause a circular `require()` dependency)
+            const useMessage = await item.onUse(user, selection, items, parseInt(slot));
             user.items ??= {};
             user.items[slot] = undefined;
 
@@ -70,7 +72,6 @@ module.exports = {
             await interaction.editReply({content: `You used the ${item.emoji} **${item.name}**! ${useMessage}`, embeds: [], components: []});
         }
         catch(e) {
-            console.error(e)
             await interaction.editReply({components: []});
         }
 	}

@@ -8,9 +8,9 @@ module.exports = {
     rarity: 0.5,
     async onUse(user, interaction) {
         user.equips ??= {};
-        user.equips.activeItems ??= [];
-        if (!user.equips.activeItems.includes("color")) {
-            user.equips.activeItems = user.equips.activeItems.concat("color");
+        user.equips.activeEffects ??= [];
+        if (!user.equips.activeEffects.includes("color")) {
+            user.equips.activeEffects = user.equips.activeEffects.concat("color");
         }
 
         const modal = new ModalBuilder()

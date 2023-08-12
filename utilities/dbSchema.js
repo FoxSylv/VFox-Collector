@@ -75,7 +75,7 @@ const Equips = new mongoose.Schema({
     p: {type: String, alias: "pens"},
     l: {type: String, alias: "land"},
     b: {type: String, alias: "bait"},
-    i: {type: [String], alias: "activeItems"}
+    e: {type: [String], alias: "activeEffects"}
 }, {_id: false});
 
 const User = mongoose.model("User", new mongoose.Schema({

@@ -3,7 +3,6 @@ const { clientId, guildId, token } = require('../config.json');
 const fs = require('node:fs');
 const path = require('node:path');
 
-
 function getItems() {
     const items = {};
     const itemPath = path.join(__dirname, "../items");
@@ -21,6 +20,5 @@ function getItems() {
 
     return items;
 }
-const items = getItems();
 
-module.exports = { items };
+module.exports.items = getItems();

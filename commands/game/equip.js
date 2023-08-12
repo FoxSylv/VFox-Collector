@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
+const { effectData } = require('../../data/effectData.js');
 const { items } = require('../../utilities/items.js');
 const { getColor } = require('../../utilities/getColor.js');
 
@@ -14,18 +15,18 @@ function getEmbedDescription(user) {
         description = "You do not have anything equipped!\n"
     }
 
-    //Active Items
-    description = description.concat("\n**Active Items -**\n");
-    if (user.equips?.activeItems === undefined || user.equips?.activeItems?.length === 0) {
-        description = description.concat("You have no active items!");
+    //Active Effects
+    description = description.concat("\n**Active Effects -**\n");
+    if (user.equips?.activeEffects === undefined || user.equips?.activeEffects?.length === 0) {
+        description = description.concat("You have no active effects!");
     }
     else {
-        let userItems = user.equips?.activeItems ?? [];
-        while (userItems.length > 0) {
-            let oldLength = userItems.length;
-            const item = items[userItems[0]];
-            userItems = userItems.filter(i => i !== item.value);
-            description = description.concat(`${item.emoji} ${item.activeEffect.name} ${item.activeEffect.isStackable ? `(${oldLength - userItems.length}x)` : ""}\n`);
+        let userEffects = user.equips?.activeEffects ?? [];
+        while (userEffects.length > 0) {
+            let oldLength = userEffects.length;
+            const effect = effectData[userEffects[0]];
+            userEffects = userEffects.filter(i => i !== userEffects[0]);
+            description = description.concat(`${effect.emoji} ${effect.name} ${effect.isStackable ? `(${oldLength - userEffects.length}x)` : ""}\n`);
         }
     }
 
