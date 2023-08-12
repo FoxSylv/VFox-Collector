@@ -4,7 +4,7 @@ module.exports = {
     value: "glass",
     description: "Increased item quantity until an item is found",
     rarity: 1.5,
-    activeEffects: ["iquan"],
+    activeEffects: ["iquanu"],
     async onUse(user) {
         return "You now have increased item quantity";
     }
