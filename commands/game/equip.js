@@ -17,10 +17,17 @@ function getEmbedDescription(user) {
 
     //Active Effects
     description = description.concat("\n**Active Effects -**\n");
-    if (user.equips?.activeEffects === undefined || user.equips?.activeEffects?.length === 0) {
+    const tailCount = (user.items ?? []).filter(i => i === "tail").length;
+    if ((user.equips?.activeEffects === undefined || user.equips?.activeEffects?.length === 0) && tailCount === 0) {
         description = description.concat("You have no active effects!");
     }
     else {
+        if (tailCount >= 9) {
+            description = description.concat(":trident: **Kitsune God Tier**\n");
+        }
+        else if (tailCount > 0) {
+            description = description.concat(`:sewing_needle: Kitsune's Tail (${tailCount}x)\n`);
+        }
         let userEffects = user.equips?.activeEffects ?? [];
         while (userEffects.length > 0) {
             let oldLength = userEffects.length;

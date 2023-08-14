@@ -41,10 +41,11 @@ function getFoxChance(user, foxCount) {
 }
 
 function findFoxes(user, foxCount, isMinion, iterations) {
-    const chance = getFoxChance(user, foxCount, isMinion) * (isMinion ? 0.5 : 1);
-    const fquantityBonus = getAllBonuses(user, "foxQuantity") * (isMinion ? 0.6 : 1);
-    const fqualityBonus = (getAllBonuses(user, "foxQuality") + invSum(3, user.upgrades?.shrine?.luckCount ?? 0)) * (isMinion ? 0.4 : 1);
-    const kitsuneBonus = isMinion ? 0 : (1 + (getAllBonuses(user, "kitsune") / 10) + invSum(15, user.upgrades?.shrine?.curiosityCount ?? 0));
+    const tailCount = (user.items ?? []).filter(i => i === "tail").length;
+    const chance = getFoxChance(user, foxCount, isMinion) * (isMinion ? 0.5 : 1) * (1 + (tailCount / 10));
+    const fquantityBonus = getAllBonuses(user, "foxQuantity") * (isMinion ? 0.6 : (1 + (tailCount / 3)));
+    const fqualityBonus = (getAllBonuses(user, "foxQuality") + invSum(3, user.upgrades?.shrine?.luckCount ?? 0)) * (isMinion ? 0.4 : (1 + (tailCount / 3)));
+    const kitsuneBonus = isMinion ? 0 : (1 + (getAllBonuses(user, "kitsune") / 10) + invSum(15, (user.upgrades?.shrine?.curiosityCount ?? 0) + tailCount));
 
     let foxes = new Map();
     for (let i = 0; i < iterations; ++i) {

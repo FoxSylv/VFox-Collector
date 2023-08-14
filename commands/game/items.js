@@ -19,7 +19,7 @@ function getItemEmbed(user) {
 function getItemSelector(user) {
     const userItems = user.items ?? {};
     let itemList = userItems.map((userItem, index) => {
-        if (!userItem) {
+        if (!userItem || userItem === "tail") {
             return undefined;
         }
         const item = items[userItem];
@@ -45,7 +45,7 @@ module.exports = {
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
 
-        const response = await interaction.reply({embeds: [getItemEmbed(user)], components: (user.items ?? {}).filter(i => i).length === 0 ? [] : [getItemSelector(user)]});
+        const response = await interaction.reply({embeds: [getItemEmbed(user)], components: (user.items ?? {}).filter(i => i && i !== "tail").length === 0 ? [] : [getItemSelector(user)]});
         try {
             const selection = await response.awaitMessageComponent({filter: i => i.user.id === interaction.user.id, time: 60000});
             const [slot, itemVal] = selection.values[0].split('.');
