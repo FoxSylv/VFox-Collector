@@ -65,7 +65,9 @@ module.exports = {
             //We pass in `items` here since each item cannot `require()` the full list of items (would cause a circular `require()` dependency)
             const useMessage = await item.onUse(user, selection, items, parseInt(slot));
             user.items ??= {};
-            user.items[slot] = undefined;
+            if (itemVal !== "swap") { //Special case
+                user.items[slot] = undefined;
+            }
 
             
             await user.save();
