@@ -2,10 +2,10 @@ module.exports = {
     emoji: ":microscope:",
     name: "Research",
     value: "micro",
-    description: "Boosts item quality at massive detriment to everything else",
+    description: "Temporarily boosts item quality at massive detriment to everything else",
     rarity: 3,
-    activeEffects: ["iqualu", "iquandd", "fqualdd", "fquandd"],
+    activeEffects: ["micro"],
     async onUse(user) {
-        return "It's so pretty!";
+        return "Lab coat and safety glasses not included";
     }
 }

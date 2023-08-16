@@ -21,6 +21,10 @@ function getAllBonuses(user, bonus) {
         return acc + (category.upgrades.find(u => u.value === user.equips?.[category.value])?.[bonus] ?? (category[bonus] ?? 0));
     }, 0);
 }
+/* Returns the number of times the effect is active, if stackable */
+function hasEffect(user, activeEffect) {
+    return user.equips?.activeEffects?.filter(e => e === activeEffect).length ?? 0;
+}
 
 function canItems(user) {
     return user.upgrades?.coin?.nets?.shoddy === true;
@@ -34,24 +38,74 @@ function canKitsune(user) {
             (user.upgrades?.coin?.land?.blessed === true));
 }
 
-function getFoxChance(user, foxCount) {
+function getFoxChance(user, foxCount, isMinion, tailCount) {
     let chance = getAllBonuses(user, "chance");
     chance += (invSum(9, user.upgrades?.shrine?.blessingCount ?? 0) / 10);
+    chance -= invSum(2, hasEffect(user, "micro")) / 50;
+    chance += invSum(2, hasEffect(user, "faith")) / 50;
+    chance *= (isMinion ? 0.5 : 1) + (1 + (tailCount / 10));
     return Math.tanh(2.4 + chance) ** (foxCount);
 }
+function getFoxQuantity(user, foxCount, isMinion, tailCount) {
+    let quantity = getAllBonuses(user, "foxQuantity");
+    quantity += invSum(2, hasEffect(user, "chain"));
+    quantity -= invSum(2, hasEffect(user, "ball"));
+    quantity -= hasEffect(user, "micro");
+    quantity += hasEffect(user, "idea");
+    quantity *= isMinion ? 0.6 : (1 + (tailCount / 3));
+    return quantity;
+}
+function getFoxQuality(user, foxCount, isMinion, tailCount) {
+    let quality = getAllBonuses(user, "foxQuality");
+    quality += invSum(3, user.upgrades?.shrine?.luckCount ?? 0);
+    quality -= invSum(2, hasEffect(user, "chain"));
+    quality += invSum(2, hasEffect(user, "ball"));
+    quality -= hasEffect(user, "micro");
+    quality += hasEffect(user, "idea");
+    quality *= isMinion ? 0.4 : (1 + (tailCount / 3));
+    return quality;
+}
+function getKitsuneBonus(user, foxCount, isMinion, tailCount) {
+    if (isMinion) {
+        return 0;
+    }
+    let kbonus = getAllBonuses(user, "kitsune") / 10;
+    kbonus += invSum(15, (user.upgrades?.shrine?.curiosityCount ?? 0) + tailCount);
+    kbonus -= hasEffect(user, "micro");
+    return 1 + kbonus;
+}
+function getItemChance(user, tailCount) {
+    let chance = getAllBonuses(user, "itemQuantity");
+    chance += invSum(2, user.upgrades?.shrine?.eyesightCount ?? 0);
+    chance += invSum(2, hasEffect(user, "glass"));
+    chance -= invSum(2, hasEffect(user, "sslag"));
+    chance -= invSum(2, hasEffect(user, "ball"));
+    chance -= hasEffect(user, "micro");
+    chance += hasEffect(user, "greed");
+    chance += tailCount / 2;
+    return 0.01 + Math.min(0, 0.08 + (chance / 20));
+}
+function getItemQuality(user, tailCount) {
+    let quality = getAllBonuses(user, "itemQuality");
+    quality -= invSum(2, hasEffect(user, "chain"));
+    quality += invSum(2, hasEffect(user, "micro"));
+    quality += invSum(2, hasEffect(user, "prec"));
+    quality += hasEffect(user, "greed");
+    quality += tailCount / 3;
+    return Math.min(Math.max(-7, quality), 9);
+}
 
-function findFoxes(user, foxCount, isMinion, iterations) {
-    const tailCount = (user.items ?? []).filter(i => i === "tail").length;
-    const chance = getFoxChance(user, foxCount, isMinion) * (isMinion ? 0.5 : 1) * (1 + (tailCount / 10));
-    const fquantityBonus = getAllBonuses(user, "foxQuantity") * (isMinion ? 0.6 : (1 + (tailCount / 3)));
-    const fqualityBonus = (getAllBonuses(user, "foxQuality") + invSum(3, user.upgrades?.shrine?.luckCount ?? 0)) * (isMinion ? 0.4 : (1 + (tailCount / 3)));
-    const kitsuneBonus = isMinion ? 0 : (1 + (getAllBonuses(user, "kitsune") / 10) + invSum(15, (user.upgrades?.shrine?.curiosityCount ?? 0) + tailCount));
+function findFoxes(user, foxCount, isMinion, iterations, tailCount) {
+    const chance = getFoxChance(user, foxCount, isMinion, tailCount);
+    const fquantityBonus = getFoxQuantity(user, foxCount, isMinion, tailCount);
+    const fqualityBonus = getFoxQuality(user, foxCount, isMinion, tailCount);
+    const kitsuneBonus = getKitsuneBonus(user, foxCount, isMinion, tailCount);
 
     let foxes = new Map();
     for (let i = 0; i < iterations; ++i) {
         if (Math.random() < chance) {
-            const quantity = 1 + Math.max(0, Math.floor(0.7 + Math.random() * fquantityBonus - (foxCount / 30)));
-            const quality = 1.6 + Math.max(0, Math.random() * fqualityBonus - (foxCount / 30));
+            const quantity = 1 + Math.max(0, Math.floor(0.7 + Math.random() * fquantityBonus));
+            const quality = 1.6 + Math.max(0, Math.random() * fqualityBonus);
 
             if (canRareFox(user) && quantity >= 1) {
                 const kitsunePower = (kitsuneBonus * quality) - foxData.find(f => f.value === "kitsune").weight;
@@ -146,8 +200,9 @@ module.exports = {
         /* Calculate foxes earned */
         const foxCount = countFoxes(user.foxes);
         const minionCount = user.upgrades?.shrine?.minionCount ?? 0;
-        const userFoxes = findFoxes(user, foxCount, false, 1);
-        const minionFoxes = findFoxes(user, foxCount, true, minionCount);
+        const tailCount = (user.items ?? []).filter(i => i === "tail").length;
+        const userFoxes = findFoxes(user, foxCount, false, 1, tailCount);
+        const minionFoxes = findFoxes(user, foxCount, true, minionCount, tailCount);
         let totalFoxes = new Map();
         for (const [type, num] of userFoxes) totalFoxes.set(type, num);
         for (const [type, num] of minionFoxes) totalFoxes.set(type, (totalFoxes.get(type) ?? 0) + num);
@@ -170,9 +225,8 @@ module.exports = {
         /* Calculate items earned */
         let item = undefined;
         if (canItems(user)) {
-            const iquantity = getAllBonuses(user, "itemQuantity") + invSum(2, user.upgrades?.shrine?.eyesightCount ?? 0);
-            if (iquantity / 100 > Math.random()) {
-                const iquality = Math.max(getAllBonuses(user, "itemQuality"), 0);
+            if (getItemChance(user, tailCount) > Math.random()) {
+                const iquality = getItemQuality(user, tailCount);
                 const filteredItems = Object.keys(items).filter(itemVal => items[itemVal].rarity <= iquality && items[itemVal].rarity + 3 > iquality);
                 const newItem = filteredItems[Math.floor(Math.random() * filteredItems.length)];
 
