@@ -6,8 +6,8 @@ const { getColor } = require('../../utilities/getColor.js');
 
 const shrinePurchases = [
     {name: "Kitsune's Blessing", value: "blessingCount", basePrice: 20, description: "Gain increased fox finding luck"},
-    {name: "Kitsune's Watcher", value: "watcherCount", basePrice: 50, description: "Increase pen capacity"},
-    {name: "Kitsune's Minion", value: "minionCount", basePrice: 60, description: "Find more foxes at a time"},
+    {name: "Kitsune's Minion", value: "minionCount", basePrice: 50, description: "Find more foxes at a time"},
+    {name: "Kitsune's Watcher", value: "watcherCount", basePrice: 70, description: "Increase pen capacity"},
     {name: "Kitsune's Eyesight", value: "eyesightCount", basePrice: 100, description: "Find more items"},
     {name: "Kitsune's Haste", value: "hasteCount", basePrice: 160, description: "Reduce cooldown times"},
     {name: "Kitsune's Luck", value: "luckCount", basePrice: 190, description: "Find rarer foxes"},
@@ -97,6 +97,7 @@ module.exports = {
 
             let priceLeft = price;
             foxData.forEach(type => {
+                if (!user.foxes[type.value]) return;
                 const delta = Math.min(priceLeft, user.foxes[type.value]);
                 user.foxes[type.value] -= delta;
                 priceLeft -= delta;

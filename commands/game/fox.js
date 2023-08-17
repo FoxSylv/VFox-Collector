@@ -40,11 +40,11 @@ function canKitsune(user) {
 
 function getFoxChance(user, foxCount, isMinion, tailCount) {
     let chance = getAllBonuses(user, "chance");
-    chance += (invSum(9, user.upgrades?.shrine?.blessingCount ?? 0) / 10);
+    chance += (user.upgrades?.shrine?.blessingCount ?? 0) / 10;
     chance -= invSum(2, hasEffect(user, "micro")) / 50;
     chance += invSum(2, hasEffect(user, "faith")) / 50;
     chance *= (isMinion ? 0.5 : 1) + (1 + (tailCount / 10));
-    return Math.tanh(2.4 + chance) ** (foxCount);
+    return Math.min(Math.tanh(2.4 + chance) ** (foxCount), 0.9);
 }
 function getFoxQuantity(user, foxCount, isMinion, tailCount) {
     let quantity = getAllBonuses(user, "foxQuantity");
@@ -100,6 +100,7 @@ function findFoxes(user, foxCount, isMinion, iterations, tailCount) {
     const fquantityBonus = getFoxQuantity(user, foxCount, isMinion, tailCount);
     const fqualityBonus = getFoxQuality(user, foxCount, isMinion, tailCount);
     const kitsuneBonus = getKitsuneBonus(user, foxCount, isMinion, tailCount);
+    console.log(`${chance} ${fquantityBonus} ${fqualityBonus} ${kitsuneBonus}`);
 
     let foxes = new Map();
     for (let i = 0; i < iterations; ++i) {
@@ -175,10 +176,13 @@ function foxMessage(user, foxes, baitEnded, item) {
 }
 
 
+function getPenCapacity(user) {
+    return getAllBonuses(user, "max") + ((user.upgrades?.shrine?.watcherCount ?? 0) * 20);
+}
 function getCooldown(user, foxCount) {
     const baseCooldown = getAllBonuses(user, "cooldown");
     const penalty = getAllBonuses(user, "penalty");
-    const max = getAllBonuses(user, "max") + ((user.upgrades?.shrine?.watcherCount ?? 0) * 10);
+    const max = getPenCapacity(user);
 
     return (baseCooldown + penalty * Math.max(0, foxCount - max)) / invSum(1, 1 + (user?.upgrades?.shrine?.hasteCount ?? 0));
 }
