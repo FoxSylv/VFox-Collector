@@ -149,6 +149,13 @@ function foxMessage(user, foxes, baitEnded, item) {
         foundFoxes = false;
     }
 
+    /* Overpopulation */
+    const foxCount = countFoxes(user.foxes);
+    const capacity = getPenCapacity(user);
+    if (capacity < foxCount) {
+        description = description.concat(`\nYour pen is overcrowded! (**${foxCount}/${capacity}**)\nYou have gained ${msToSec(getCooldown(user, foxCount) - getCooldown(user, capacity))} extra cooldown!\n`);
+    }
+
     /* Bait */
     if (baitEnded !== "none") {
         description = description.concat(`\nYou ran out of ${baitEnded}!\n`);
@@ -165,7 +172,6 @@ function foxMessage(user, foxes, baitEnded, item) {
     }
 
 
-    const foxCount = countFoxes(user.foxes);
     const net = shopData.find(c => c.value === "nets").upgrades.find(u => u.value === user.equips?.nets);
     const embed = new EmbedBuilder()
         .setColor(getColor(user))
