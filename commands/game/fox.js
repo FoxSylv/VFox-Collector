@@ -39,12 +39,12 @@ function canKitsune(user) {
 }
 
 function getFoxChance(user, foxCount, isMinion, tailCount) {
-    let chance = getAllBonuses(user, "chance");
+    let chance = getAllBonuses(user, "chance") * 2;
     chance += (user.upgrades?.shrine?.blessingCount ?? 0) / 20;
     chance -= invSum(2, hasEffect(user, "micro")) / 50;
     chance += invSum(2, hasEffect(user, "faith")) / 50;
-    chance *= (isMinion ? 0.5 : 1) + (1 + (tailCount / 10));
-    return Math.min(Math.tanh(2.4 + chance) ** (foxCount), 0.9);
+    chance *= (1 + (tailCount / 10));
+    return Math.min(Math.tanh(2.4 + chance) ** (foxCount), 0.9) * (isMinion ? (1 / (Math.sqrt(user.upgrades?.shrine?.minionCount ?? 0) + 1)) : 1);
 }
 function getFoxQuantity(user, foxCount, isMinion, tailCount) {
     let quantity = getAllBonuses(user, "foxQuantity");
