@@ -30,7 +30,7 @@ module.exports = {
             .setTitle("Sell your foxes?")
             .setDescription(description)
             .addFields({name: '\u200b', value: '\u200b'},
-                       {name: `This will reset${hasDonation ? "" : "your shrine upgrades and"} fox count`, value: status})
+                       {name: `This will reset${hasDonation ? "" : " your shrine upgrades and"} fox count`, value: status})
             .setFooter({text: `You have ${user.coins ?? 0}🪙`});
 
         const confirm = new ButtonBuilder()
@@ -68,11 +68,12 @@ module.exports = {
                 await confirmation.update({content: `You have sold **${oldFoxes}**:fox: foxes for **${newCoins - oldCoins}**:coin:! (You now have **${newCoins}**:coin:)`, embeds: [], components: []});
             }
             else {
-                await confirmation.update({content: 'The potential buyer walks away, looking disappointed.', embeds: [], components: []});
+                await confirmation.deferUpdate();
+                await interaction.editReply({ components: [] });
             }
         }
         catch (e) {
-            await interaction.editReply({content: 'After waiting for a minute with no response, the potential buyer walks away.', embeds: [], components: [] }); 
+            await interaction.editReply({ components: [] }); 
         }
 	}
 };
