@@ -40,7 +40,7 @@ function canKitsune(user) {
 
 function getFoxChance(user, foxCount, isMinion, tailCount) {
     let chance = getAllBonuses(user, "chance");
-    chance += (user.upgrades?.shrine?.blessingCount ?? 0) / 10;
+    chance += (user.upgrades?.shrine?.blessingCount ?? 0) / 20;
     chance -= invSum(2, hasEffect(user, "micro")) / 50;
     chance += invSum(2, hasEffect(user, "faith")) / 50;
     chance *= (isMinion ? 0.5 : 1) + (1 + (tailCount / 10));
@@ -83,7 +83,7 @@ function getItemChance(user, tailCount) {
     chance -= hasEffect(user, "micro");
     chance += hasEffect(user, "greed");
     chance += tailCount / 2;
-    return 0.01 + Math.min(0, 0.08 + (chance / 20));
+    return 0.01 + Math.max(0, 0.08 + (chance / 20));
 }
 function getItemQuality(user, tailCount) {
     let quality = getAllBonuses(user, "itemQuality");
@@ -167,8 +167,8 @@ function foxMessage(user, foxes, baitEnded, item) {
     /* Item */
     if (item) {
         [slot, itemVal] = item.split('.');
-        const item = items[itemVal];
-        description = description.concat(`\nYou found a ${items.emoji} **${items.name}**! ${slot >= 9 ? `Unfortunately, your item inventory was full :(` : `It has gone into slot *${slot}*!`}\n`);
+        const newItem = items[itemVal];
+        description = description.concat(`\nYou found a ${newItem.emoji} **${newItem.name}**! ${slot >= 9 ? `Unfortunately, your item inventory was full :(` : `It has gone into slot **${parseInt(slot) + 1}**!`}\n`);
     }
 
 
@@ -241,7 +241,7 @@ module.exports = {
                 const newItem = filteredItems[Math.floor(Math.random() * filteredItems.length)];
 
                 const userItems = user.items ?? {};
-                const slot = userItems.findIndex(s => !s);
+                let slot = userItems.findIndex(s => !s);
                 if (slot === -1) { //if (findIndex fails)
                     slot = userItems.length;
                 }
