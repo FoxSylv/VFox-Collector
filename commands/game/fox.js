@@ -177,7 +177,7 @@ function foxMessage(user, foxes, baitEnded, item) {
         .setColor(getColor(user))
         .setTitle(user.equips?.nets ? `${net.name} -` : "You found:")
         .setDescription(description)
-        .setFooter({text: `You ${foundFoxes ? "now ": ""}have ${foxCount} ${foxCount === 1 ? "fox" : "foxes"}!`});
+        .setFooter({text: `You ${foundFoxes ? "now ": ""}have ${foxCount} ${foxCount === 1 ? "fox" : "foxes"}! ${(foxCount === 69 || foxCount === 420) ? "Nice!" : ""}`});
     return {embeds: [embed]};
 }
 
