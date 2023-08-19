@@ -5,7 +5,7 @@ const { foxData } = require('../../data/foxData.js');
 const { getColor } = require('../../utilities/getColor.js');
 
 const shrinePurchases = [
-    {name: "Kitsune's Blessing", value: "blessingCount", basePrice: 20, description: "Gain increased fox finding luck"},
+    {name: "Kitsune's Blessing", value: "blessingCount", basePrice: 30, description: "Marginally increase the odds to find foxes"},
     {name: "Kitsune's Minion", value: "minionCount", basePrice: 50, description: "Find more foxes at a time"},
     {name: "Kitsune's Watcher", value: "watcherCount", basePrice: 70, description: "Increase pen capacity"},
     {name: "Kitsune's Eyesight", value: "eyesightCount", basePrice: 100, description: "Find more items"},
