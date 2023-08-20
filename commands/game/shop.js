@@ -136,8 +136,7 @@ function getUpgradeMessage(user, category, upgrade) {
                    {name: `Price: **${upgrade.price}**:coin:`, value: `You have: **${user.coins ?? 0}**:coin:`})
         .setFooter({text: upgrade.flavor});
 
-    const actionRow = new ActionRowBuilder().addComponents(
-        new ButtonBuilder()
+    let buttons = [new ButtonBuilder()
             .setCustomId(isOwned ? (isEquipped ? "unequip" : "equip") : "purchase")
             .setLabel(isOwned ? (isEquipped ? "Unequip" : "Equip") : "Purchase")
             .setStyle(ButtonStyle.Primary)
@@ -146,8 +145,18 @@ function getUpgradeMessage(user, category, upgrade) {
             .setCustomId(category.value)
             .setLabel("Cancel")
             .setStyle(ButtonStyle.Secondary)
-    );
+    ];
+    if (category.value === "bait") {
+        const baitCount = user.upgrades?.coin?.bait?.[upgrade.value] ?? 0;
+        buttons.splice(1, 0, new ButtonBuilder()
+            .setCustomId(isEquipped ? "unequip" : "equip")
+            .setLabel(`${isEquipped ? "Unequip" : "Equip"} (${baitCount})`)
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(baitCount <= 0)
+        );
+    }
 
+    const actionRow = new ActionRowBuilder().addComponents(...buttons);
     return {embeds: [embed], components: [actionRow]};
 }
 
