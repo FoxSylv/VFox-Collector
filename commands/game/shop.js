@@ -111,6 +111,7 @@ function getUpgradeDescription(upgrade) {
 }
 function getUpgradeMessage(user, category, upgrade) {
     const isOwned = (user.upgrades?.coin?.[category.value]?.[upgrade.value] !== undefined) && (upgrade.quantity === undefined);
+    const isEquipped = user.equips?.[category.value] === upgrade.value;
     const embed = new EmbedBuilder()
         .setColor(getColor(user))
         .setTitle(`${category.emoji} - ${upgrade.name}`)
@@ -121,10 +122,10 @@ function getUpgradeMessage(user, category, upgrade) {
 
     const actionRow = new ActionRowBuilder().addComponents(
         new ButtonBuilder()
-            .setCustomId("purchase")
-            .setLabel(isOwned ? "Purchased" : "Purchase")
+            .setCustomId(isOwned ? (isEquipped ? "unequip" : "equip") : "purchase")
+            .setLabel(isOwned ? (isEquipped ? "Unequip" : "Equip") : "Purchase")
             .setStyle(ButtonStyle.Primary)
-            .setDisabled(((user.coins ?? 0) < upgrade.price) || isOwned),
+            .setDisabled(((user.coins ?? 0) < upgrade.price) && !isOwned),
         new ButtonBuilder()
             .setCustomId("cancel")
             .setLabel("Cancel")
@@ -140,6 +141,20 @@ async function executePurchase(interaction, user, category, upgrade) {
 	    const confirmation = await response.awaitMessageComponent({filter: i => i.user.id === interaction.user.id, time: 60000});
         if (confirmation.customId === "cancel") {
             await confirmation.update({content: "Purchase cancelled!", embeds: [], components: []});
+            return;
+        }
+        else if (confirmation.customId === "equip") {
+            user.equips ??= {};
+            user.equips[category.value] = upgrade.value;
+            await user.save();
+            await confirmation.update({content: `${category.value === "items" ? "" : "The "}${upgrade.name} was equipped!`, embeds: [], components: []});
+            return;
+        }
+        else if (confirmation.customId === "unequip") {
+            user.equips ??= {};
+            user.equips[category.value] = undefined;
+            await user.save();
+            await confirmation.update({content: `${category.value === "items" ? "" : "The "}${upgrade.name} was unequipped!`, embeds: [], components: []});
             return;
         }
 
@@ -167,7 +182,9 @@ async function executePurchase(interaction, user, category, upgrade) {
                 user.upgrades.coin[category.value][upgrade.value] = true;
             }
 
-            await confirmation.update({content: `You purchased ${upgrade.quantity ? `${upgrade.quantity} ` : ``}${upgrade.name} for **${upgrade.price}**:coin:!`, embeds: [], components: []});
+            user.equips ??= {};
+            user.equips[category.value] = upgrade.value;
+            await confirmation.update({content: `You purchased ${upgrade.quantity ? `${upgrade.quantity} ` : ``}${upgrade.name} for **${upgrade.price}**:coin:!\nIt has automatically been equipped`, embeds: [], components: []});
         }
         
         user.coins = (user.coins ?? 0) - upgrade.price;
