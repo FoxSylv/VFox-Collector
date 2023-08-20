@@ -171,14 +171,17 @@ async function executePurchase(interaction, user, category, upgrade) {
         }
         else if(confirmation.customId === "purchase") {
             if (category.value === "items") {
-                const userItems = user.items ?? {};
-                const slot = userItems.find(s => !s) ?? userItems.length;
+                const userItems = user.items ?? [];
+                let slot = userItems.findIndex(i => !i);
+                if (slot === -1) { //if(findIndex fails)
+                    slot = userItems.length;
+                }
                 if (slot >= 9) {
                     await confirmation.update({content: "You do not have any free item slots!", embeds: [], components: []});
                     return;
                 }
                 const item = items[upgrade.value];
-                await confirmation.update({content: `You purchased a ${item.emoji} ${item.name}! It has gone into slot ${slot}`, embeds: [], components: []});
+                await confirmation.update({content: `You purchased a ${item.emoji} ${item.name}! It has gone into slot ${slot + 1}`, embeds: [], components: []});
                 userItems[slot] = item.value;
                 user.items = userItems;
             }
