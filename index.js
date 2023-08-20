@@ -27,6 +27,18 @@ client.on(Events.InteractionCreate, async interaction => {
             await interaction.reply(await command.buttonPress(user, interaction.customId));
         }
 
+        /* Multi-Hit String Select Menu Handler */
+        if (interaction.isStringSelectMenu()) {
+            const commandName = Object.keys(client.commands).find(c => client.commands[c].stringSelectValues?.includes(interaction.values[0]));
+            if (!commandName) {
+                return;
+            }
+            const command = client.commands[commandName];
+
+            const user = await getProfile(interaction.user.id);
+            await command.stringSelect(interaction, user, interaction.values[0]);
+        }
+
         /* Slash Command Handler */
 	    if (interaction.isChatInputCommand()) {
 	        const command = client.commands[interaction.commandName];

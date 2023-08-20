@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType } = require('discord.js');
+const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, StringSelectMenuBuilder, StringSelectMenuOptionBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
 const { msToSec } = require('../../utilities/msToSec.js');
@@ -34,6 +34,7 @@ function getShopEmbed(user, currentLocation) {
         .setFooter({text: `You have ${user.coins ?? 0}🪙`});
 }
 
+
 const buttons = [new ButtonBuilder({
     custom_id: "back",
     style: ButtonStyle.Secondary,
@@ -43,14 +44,29 @@ const buttons = [new ButtonBuilder({
     style: ButtonStyle.Primary,
     label: `${category.emoji} ${category.value.charAt(0).toUpperCase().concat(category.value.slice(1))}`
 })));
-function getActionRow(currentLocation) {
-    currentLocation ??= "back";
+function getNavbar(currentLocation) {
     const usedButtons = buttons.filter(b => b.data.custom_id !== currentLocation);
     return new ActionRowBuilder({components: usedButtons});
 }
 
+function getCatalogueSelector(categoryValue) {
+    const category = shopData.find(c => c.value === categoryValue);
+    return new ActionRowBuilder()
+        .addComponents(new StringSelectMenuBuilder()
+            .setCustomId("shopSelect")
+            .setPlaceholder("View a shop upgrade")
+            .addOptions(...category.upgrades.map(upgrade => new StringSelectMenuOptionBuilder()
+                .setLabel(upgrade.name)
+                .setDescription(upgrade.flavor)
+                .setValue(`${category.value}.${upgrade.value}`)
+            ))
+        );
+}
+
 function getShopMessage(user, currentLocation) {
-    return {embeds: [getShopEmbed(user, currentLocation)], components: [getActionRow(currentLocation)]};
+    currentLocation ??= "back";
+    const comps = currentLocation === "back" ? [getNavbar(currentLocation)] : [getCatalogueSelector(currentLocation), getNavbar(currentLocation)];
+    return {embeds: [getShopEmbed(user, currentLocation)], components: comps};
 }
 
 
@@ -127,7 +143,7 @@ function getUpgradeMessage(user, category, upgrade) {
             .setStyle(ButtonStyle.Primary)
             .setDisabled(((user.coins ?? 0) < upgrade.price) && !isOwned),
         new ButtonBuilder()
-            .setCustomId("cancel")
+            .setCustomId(category.value)
             .setLabel("Cancel")
             .setStyle(ButtonStyle.Secondary)
     );
@@ -139,11 +155,7 @@ async function executePurchase(interaction, user, category, upgrade) {
     const response = await interaction.reply(getUpgradeMessage(user, category, upgrade));
     try {
 	    const confirmation = await response.awaitMessageComponent({filter: i => i.user.id === interaction.user.id, time: 60000});
-        if (confirmation.customId === "cancel") {
-            await confirmation.update({content: "Purchase cancelled!", embeds: [], components: []});
-            return;
-        }
-        else if (confirmation.customId === "equip") {
+        if (confirmation.customId === "equip") {
             user.equips ??= {};
             user.equips[category.value] = upgrade.value;
             await user.save();
@@ -157,38 +169,39 @@ async function executePurchase(interaction, user, category, upgrade) {
             await confirmation.update({content: `${category.value === "items" ? "" : "The "}${upgrade.name} was unequipped!`, embeds: [], components: []});
             return;
         }
-
-        if (category.value === "items") {
-            const userItems = user.items ?? {};
-            const slot = userItems.find(s => !s) ?? userItems.length;
-            if (slot >= 9) {
-                await confirmation.update({content: "You do not have any free item slots!", embeds: [], components: []});
-                return;
-            }
-            const item = items[upgrade.value];
-            await confirmation.update({content: `You purchased a ${item.emoji} ${item.name}! It has gone into slot ${slot}`, embeds: [], components: []});
-            userItems[slot] = item.value;
-            user.items = userItems;
-        }
-        else {
-            user.upgrades ??= {};
-            user.upgrades.coin ??= {};
-            user.upgrades.coin[category.value] ??= {};
-            const oldValue = user.upgrades.coin[category.value][upgrade.value];
-            if (upgrade.quantity) {
-                user.upgrades.coin[category.value][upgrade.value] = (oldValue ?? 0) + upgrade.quantity;
+        else if(confirmation.customId === "purchase") {
+            if (category.value === "items") {
+                const userItems = user.items ?? {};
+                const slot = userItems.find(s => !s) ?? userItems.length;
+                if (slot >= 9) {
+                    await confirmation.update({content: "You do not have any free item slots!", embeds: [], components: []});
+                    return;
+                }
+                const item = items[upgrade.value];
+                await confirmation.update({content: `You purchased a ${item.emoji} ${item.name}! It has gone into slot ${slot}`, embeds: [], components: []});
+                userItems[slot] = item.value;
+                user.items = userItems;
             }
             else {
-                user.upgrades.coin[category.value][upgrade.value] = true;
-            }
-
-            user.equips ??= {};
-            user.equips[category.value] = upgrade.value;
-            await confirmation.update({content: `You purchased ${upgrade.quantity ? `${upgrade.quantity} ` : ``}${upgrade.name} for **${upgrade.price}**:coin:!\nIt has automatically been equipped`, embeds: [], components: []});
-        }
+                user.upgrades ??= {};
+                user.upgrades.coin ??= {};
+                user.upgrades.coin[category.value] ??= {};
+                const oldValue = user.upgrades.coin[category.value][upgrade.value];
+                if (upgrade.quantity) {
+                    user.upgrades.coin[category.value][upgrade.value] = (oldValue ?? 0) + upgrade.quantity;
+                }
+                else {
+                    user.upgrades.coin[category.value][upgrade.value] = true;
+                }
         
-        user.coins = (user.coins ?? 0) - upgrade.price;
-        await user.save();
+                user.equips ??= {};
+                user.equips[category.value] = upgrade.value;
+                await confirmation.update({content: `You purchased ${upgrade.quantity ? `${upgrade.quantity} ` : ``}${upgrade.name} for **${upgrade.price}**:coin:!\nIt has automatically been equipped`, embeds: [], components: []});
+            }
+        
+            user.coins = (user.coins ?? 0) - upgrade.price;
+            await user.save();
+        }
     }
     catch (e) {
         await interaction.editReply({components: []});
@@ -199,29 +212,19 @@ async function executePurchase(interaction, user, category, upgrade) {
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("shop")
-		.setDescription("Purchase permanent upgrades!")
-        .addStringOption(option =>
-            option.setName("upgrade")
-                  .setDescription("The upgrade to buy")
-                  .addChoices(...shopData.flatMap(c => c.upgrades.map(p => JSON.parse(`{"name": "${p.name}", "value": "${c.value + '.' + p.value}"}`))))
-        ),
+		.setDescription("Purchase permanent upgrades!"),
     buttonValues: ["back"].concat(shopData.map(c => c.value)),
     async buttonPress(user, customId) {
         return getShopMessage(user, customId);
     },
+    stringSelectValues: shopData.flatMap(c => c.upgrades.map(u => `${c.value}.${u.value}`)),
+    async stringSelect(interaction, user, customId) {
+        const [categoryValue, upgradeValue] = customId.split('.');
+        const category = shopData.find(c => c.value === categoryValue);
+        await executePurchase(interaction, user, category, category.upgrades.find(u => u.value === upgradeValue));
+    },
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
-        const upgrade = interaction.options.getString("upgrade");
-        if (upgrade) {
-            const split = upgrade.split('.');
-            const category = shopData.find(c => c.value === split[0]);
-            const upgradeData = category.upgrades.find(u => u.value === split[1]);
-            await executePurchase(interaction, user, category, upgradeData);
-            return;
-        }
-
-        
-        /* If nothing is purchased, display entire shop */
         await interaction.reply(getShopMessage(user));
 	}
 };

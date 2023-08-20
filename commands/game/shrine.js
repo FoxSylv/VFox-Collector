@@ -48,7 +48,7 @@ function getPurchaseSelector(tailCount) {
     return new ActionRowBuilder()
         .addComponents(new StringSelectMenuBuilder()
             .setCustomId("shrinePurchase")
-            .setPlaceholder("Select a shrine upgrade!")
+            .setPlaceholder("Select a shrine upgrade")
             .addOptions(...options)
         );
 }
