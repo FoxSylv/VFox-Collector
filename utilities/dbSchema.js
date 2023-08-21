@@ -78,6 +78,10 @@ const Equips = new mongoose.Schema({
     e: {type: [String], alias: "activeEffects"}
 }, {_id: false});
 
+const Tutorials = new mongoose.Schema({
+    s: {type: Boolean, alias: "start"}
+}, {_id: false});
+
 const User = mongoose.model("User", new mongoose.Schema({
     _id: String,
     f: {type: Foxes, alias: "foxes"}, 
@@ -87,7 +91,8 @@ const User = mongoose.model("User", new mongoose.Schema({
     u: {type: Upgrades, alias: "upgrades"},
     i: {type: [String], alias: "items"},
     e: {type: Equips, alias: "equips"},
-    o: {type: Number, min: 0, max: 0xFFFFFF, alias: "color"}
+    o: {type: Number, min: 0, max: 0xFFFFFF, alias: "color"},
+    t: {type: Tutorials, alias: "tutorials"}
 }));
 
 

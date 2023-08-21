@@ -254,8 +254,19 @@ module.exports = {
         }
     
         user.cooldown = now + getCooldown(user, foxCount);
-        await user.save();
         await interaction.reply(foxMessage(user, totalFoxes, baitEnded, item));
+
+        /* Initial Tutorial */
+        if (!user.tutorials?.start) {
+            user.tutorials ??= {};
+            user.tutorials.start = true;
+
+            await interaction.followUp({content: `Welcome to VFox!\n
+In this game, the goal is to collect as many foxes as possible. The twist is that the more foxes you have, the harder they are to find!\n
+Luckily, you can forfeit foxes at the \`shrine\` to gain upgrades! Or you can \`sell\` them for coins to use at the \`shop\` for better equipment\n
+Either way, the choice is yours! Good luck hunting!`, ephemeral: true});
+        }
+        await user.save();
 	}
 };
 
