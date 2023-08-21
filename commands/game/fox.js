@@ -105,23 +105,22 @@ function findFoxes(user, foxCount, isMinion, iterations, tailCount) {
     let foxes = new Map();
     for (let i = 0; i < iterations; ++i) {
         if (Math.random() < chance) {
-            const quantity = 1 + Math.max(0, Math.floor(0.7 + Math.random() * fquantityBonus));
+            const quantity = 1 + Math.max(0, 0.7 + Math.random() * fquantityBonus);
             const quality = 1.6 + Math.max(0, Math.random() * fqualityBonus);
+            console.log(`${quantity} ${quality}`);
 
-            if (canRareFox(user) && quantity >= 1) {
-                const kitsunePower = (kitsuneBonus * quality) - foxData.find(f => f.value === "kitsune").weight;
-                if (kitsunePower > 0 && canKitsune(user)) {
-                    foxes.set("kitsune", (foxes.get("kitsune") ?? 0) + Math.ceil(kitsunePower * quantity / quality));
+            let type = "orange";
+            if (canRareFox(user)) {
+                if ((quality * kitsuneBonus) > 9 && canKitsune(user)) {
+                    type = "kitsune";
                 }
                 else {
-                    const foxType = foxData.findLast(f => quality > f.weight) ?? foxData.find(f => f.value === "orange");
-                    const power = Math.ceil(quantity * quantity / foxType.weight);
-                    foxes.set(foxType.value, (foxes.get(foxType.value) ?? 0) + power);
+                    type = foxData.findLast(f => quality > f.weight)?.value ?? "orange";
                 }
             }
-            else {
-                foxes.set("orange", (foxes.get("orange") ?? 0) + Math.max(1, quantity));
-            }
+            const typeData = foxData.find(f => f.value === type);
+            const newFoxes = Math.max(1, Math.floor(quantity / Math.sqrt(typeData.weight)));
+            foxes.set(type, (foxes.get(type) ?? 0) + newFoxes);
         }
     }
 
