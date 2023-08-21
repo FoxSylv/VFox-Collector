@@ -277,6 +277,18 @@ Some give temporary effects that can last until you next find an item or beyond!
 (You can view all active effects in your \`equips\` screen)`, ephemeral: true});
         }
 
+        /* Rare Fox Tutorial */
+        if (!user.tutorials?.rarefox && totalFoxes.has("grey")) {
+            user.tutorials ??= {};
+            user.tutorials.rarefox = true;
+
+            await interaction.followUp({content: `Congratulations! You just got your first rare fox\n
+When \`sell\`ing, rare foxes are valued higher than normal foxes\n
+Rare foxes aren't worth more at the \`shrine\`, however\n
+You can view the breakdown of your foxes in your \`pen\``, ephemeral: true});
+        }
+
+
         await user.save();
 	}
 };

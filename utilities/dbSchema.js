@@ -81,7 +81,8 @@ const Equips = new mongoose.Schema({
 const Tutorials = new mongoose.Schema({
     s: {type: Boolean, alias: "start"},
     c: {type: Boolean, alias: "coins"},
-    i: {type: Boolean, alias: "items"}
+    i: {type: Boolean, alias: "items"},
+    r: {type: Boolean, alias: "rarefox"}
 }, {_id: false});
 
 const User = mongoose.model("User", new mongoose.Schema({
