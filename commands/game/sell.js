@@ -64,8 +64,19 @@ module.exports = {
                 }
 
                 user.cooldown = undefined;
-                await user.save();
                 await confirmation.update({content: `You have sold **${oldFoxes}**:fox: foxes for **${newCoins - oldCoins}**:coin:! (You now have **${newCoins}**:coin:)`, embeds: [], components: []});
+
+                if (!user.tutorials?.coins) {
+                    user.tutorials ??= {};
+                    user.tutorials.coins = true;
+
+                    await confirmation.followUp({content: `Congratulations! You just got your first coin\n
+Coins are used in the \`shop\` to acquire better fox-finding gear\n
+You can equip and unequip gear in its shop screen after you have it acquired\n
+You can view everything that you are currently using in the \`equips\` screen`, ephemeral: true});
+                }
+
+                await user.save();
             }
             else {
                 await confirmation.deferUpdate();
