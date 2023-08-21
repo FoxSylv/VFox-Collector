@@ -168,7 +168,7 @@ function foxMessage(user, foxes, baitEnded, item) {
     if (item) {
         [slot, itemVal] = item.split('.');
         const newItem = items[itemVal];
-        description = description.concat(`\nYou found a ${newItem.emoji} **${newItem.name}**! ${slot >= 9 ? `Unfortunately, your item inventory was full :(` : `It has gone into slot **${parseInt(slot) + 1}**!`}\n`);
+        description = description.concat(`\nYou found a ${newItem.emoji} **${newItem.name}**!\n${slot >= 9 ? `Unfortunately, your item inventory was full :(` : `It has gone into slot **${parseInt(slot) + 1}**!`}\n`);
     }
 
 
@@ -266,6 +266,18 @@ In this game, the goal is to collect as many foxes as possible. The twist is tha
 Luckily, you can forfeit foxes at the \`shrine\` to gain upgrades! Or you can \`sell\` them for coins to use at the \`shop\` for better equipment\n
 Either way, the choice is yours! Good luck hunting!`, ephemeral: true});
         }
+
+        /* Item Tutorial */
+        if (!user.tutorials?.items && item) {
+            user.tutorials ??= {};
+            user.tutorials.items = true;
+
+            await interaction.followUp({content: `Congratulations! You just got your first item\n
+\`items\` give small boosts to your fox-finding capabilties\n
+Some give temporary effects that can last until you next find an item or beyond!\n
+(You can view all active effects in your \`equips\` screen)`, ephemeral: true});
+        }
+
         await user.save();
 	}
 };
