@@ -1,7 +1,8 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
-const { foxData } = require('../../data/foxData.js');
+const { foxData} = require('../../data/foxData.js');
+const { shrineData } = require('../../data/shrineData.js');
 const { items } = require('../../utilities/items.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
 const { msToSec } = require('../../utilities/msToSec.js');
@@ -188,6 +189,16 @@ function foxMessage(user, foxes, baitEnded, item) {
 
 
 function getPenCapacity(user) {
+    if (user.equips?.pens === "shrine") {
+        let priceSum = shrineData.reduce((acc, upgrade) => {
+            return acc + ((1 + (user.upgrades?.shrine?.[upgrade.value] ?? 0)) * upgrade.basePrice);
+        }, 0);
+        const tailCount = (user.items ?? []).filter(i => i === "tail").length;
+        if (tailCount < 9) {
+            priceSum += (tailCount + 1) * 1111;
+        }
+        return priceSum / (shrineData.length + (tailCount < 9 ? 1 : 0));
+    }
     return getAllBonuses(user, "max") + ((user.upgrades?.shrine?.watcherCount ?? 0) * 20);
 }
 function getCooldown(user, foxCount) {
@@ -195,7 +206,7 @@ function getCooldown(user, foxCount) {
     const penalty = getAllBonuses(user, "penalty");
     const max = getPenCapacity(user);
 
-    return (baseCooldown + penalty * Math.max(0, foxCount - max)) / invSum(1, 1 + (user?.upgrades?.shrine?.hasteCount ?? 0));
+    return Math.max((baseCooldown + penalty * Math.max(0, foxCount - max)) / invSum(1, 1 + (user?.upgrades?.shrine?.hasteCount ?? 0)), 2000);
 }
 
 const effectsRemovedOnItem = [

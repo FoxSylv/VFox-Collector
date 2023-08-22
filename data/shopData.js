@@ -9,11 +9,11 @@ const shopData = [
     ]}, 
     {name: "Pen Catalogue", value: "pens", emoji: "🥅",description: "Store foxes better!", cooldown: 5200, max: 60, penalty: 300, upgrades: [
         {name: "Basic Pen", value: "basic", price: 1, flavor: "Where were you keeping them before?", cooldown: 4200, max: 120, penalty: 200, itemQuality: 0.5},
-        {name: "Cramped Pen", value: "cramped", price: 3, flavor: "Don't call PETA", cooldown: 5600, max: 250, penalty: 150, foxQuality: -1},
-        {name: "Fox Park", value: "park", price: 3, flavor: "Go away, children!", cooldown: 7400, max: 150, penalty: 250, foxQuality: 1, itemQuantity: 0.5, itemQuality: 0.5},
-        {name: "Fox Pit", value: "pit", price: 5, flavor: "Definitely don't call PETA", cooldown: 18200, max: 500, penalty: 100, foxQuality: -1000, itemQuantity: -1000},
-        {name: "Luxury Apartments", value: "apartment", price: 6, flavor: "Utilities included", cooldown: 34600, max: 200, penalty: 200, foxQuality: 2, itemQuantity: -0.5, itemQuality: 1},
-        {name: "Nine-tailed Shrine", value: "shrine", price: 9, flavor: "I've been here before!", cooldown: 9000, penalty: 900, foxQuantity: 2, foxQuality: 2, itemQuantity: -1000, kitsune: 1, extra: "The maximum capacity is the average price in foxes of the shrine upgrades"}
+        {name: "Cramped Pen", value: "cramped", price: 3, flavor: "Don't call PETA", cooldown: 5600, max: 320, penalty: 150, foxQuality: -1},
+        {name: "Fox Park", value: "park", price: 3, flavor: "Go away, children!", cooldown: 7400, max: 140, penalty: 250, foxQuality: 1, itemQuantity: 0.5, itemQuality: 0.5},
+        {name: "Fox Pit", value: "pit", price: 5, flavor: "Definitely don't call PETA", cooldown: 18200, max: 600, penalty: 100, foxQuality: -1000, itemQuantity: -1000},
+        {name: "Luxury Apartments", value: "apartment", price: 6, flavor: "Utilities included", cooldown: 34600, max: 210, penalty: 200, foxQuality: 2, itemQuantity: -0.5, itemQuality: 1},
+        {name: "Nine-tailed Shrine", value: "shrine", price: 9, flavor: "I've been here before!", cooldown: 39100, penalty: 900, foxQuantity: 2, foxQuality: 2, itemQuantity: -1000, kitsune: 1, extra: "The maximum capacity is the average price in foxes of the shrine upgrades"}
     ]}, 
     {name: "Land Catalogue", value: "land", emoji: "🌲", description: "Find better foxes!", upgrades: [
         {name: "Basic Land", value: "basic", price: 1, flavor: "I can see my house from here!", foxQuantity: 1, foxQuality: 0.5, itemQuantity: 0.5},

@@ -2,25 +2,16 @@ const { SlashCommandBuilder, EmbedBuilder, ActionRowBuilder, StringSelectMenuBui
 const { getProfile } = require('../../utilities/db.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
 const { foxData } = require('../../data/foxData.js');
+const { shrineData } = require('../../data/shrineData.js');
 const { getColor } = require('../../utilities/getColor.js');
 
-const shrinePurchases = [
-    {name: "Kitsune's Blessing", value: "blessingCount", basePrice: 30, description: "Marginally increase the odds to find foxes"},
-    {name: "Kitsune's Minion", value: "minionCount", basePrice: 50, description: "Find more foxes at a time"},
-    {name: "Kitsune's Watcher", value: "watcherCount", basePrice: 70, description: "Increase pen capacity"},
-    {name: "Kitsune's Eyesight", value: "eyesightCount", basePrice: 100, description: "Find more items"},
-    {name: "Kitsune's Haste", value: "hasteCount", basePrice: 160, description: "Reduce cooldown times"},
-    {name: "Kitsune's Luck", value: "luckCount", basePrice: 190, description: "Find rarer foxes"},
-    {name: "Kitsune's Journal", value: "journalCount", basePrice: 300, description: "Reduce bait loss"},
-    {name: "Kitsune's Curiosity", value: "curiosityCount", basePrice: 900, description: "Increased chance to find kitsunes specifically"}
-];
 
 function getPrice(user, purchase) {
     return purchase.basePrice * ((user.upgrades?.shrine?.[purchase.value] ?? 0) + 1);
 }
 
 function getShrineShopEmbed(user) {
-    let description = shrinePurchases.reduce((acc, purchase) => {
+    let description = shrineData.reduce((acc, purchase) => {
             return acc.concat(`• **${purchase.name}** (${getPrice(user, purchase)}:fox:): ${purchase.description}\n`);
         }, "");
     const tailCount = (user.items ?? []).filter(i => i === "tail").length;
@@ -34,7 +25,7 @@ function getShrineShopEmbed(user) {
 }
 
 function getPurchaseSelector(tailCount) {
-    let options = shrinePurchases.map(p => new StringSelectMenuOptionBuilder()
+    let options = shrineData.map(p => new StringSelectMenuOptionBuilder()
         .setLabel(p.name)
         .setDescription(p.description)
         .setValue(p.value)
@@ -100,7 +91,7 @@ module.exports = {
                 return;
             }
 
-            const purchase = shrinePurchases.find(p => p.value === upgrade);
+            const purchase = shrineData.find(p => p.value === upgrade);
             price = getPrice(user, purchase);
             const userUpgrade = user.upgrades?.shrine?.[upgrade] ?? 0;
             if (countFoxes(user.foxes) >= price) {
