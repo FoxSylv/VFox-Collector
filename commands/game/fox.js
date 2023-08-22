@@ -100,14 +100,12 @@ function findFoxes(user, foxCount, isMinion, iterations, tailCount) {
     const fquantityBonus = getFoxQuantity(user, foxCount, isMinion, tailCount);
     const fqualityBonus = getFoxQuality(user, foxCount, isMinion, tailCount);
     const kitsuneBonus = getKitsuneBonus(user, foxCount, isMinion, tailCount);
-    console.log(`${chance} ${fquantityBonus} ${fqualityBonus} ${kitsuneBonus}`);
 
     let foxes = new Map();
     for (let i = 0; i < iterations; ++i) {
         if (Math.random() < chance) {
             const quantity = 1 + Math.max(0, 0.7 + Math.random() * fquantityBonus);
             const quality = 1.6 + Math.max(0, Math.random() * fqualityBonus);
-            console.log(`${quantity} ${quality}`);
 
             let type = "orange";
             if (canRareFox(user)) {
@@ -168,6 +166,14 @@ function foxMessage(user, foxes, baitEnded, item) {
         [slot, itemVal] = item.split('.');
         const newItem = items[itemVal];
         description = description.concat(`\nYou found a ${newItem.emoji} **${newItem.name}**!\n${slot >= 9 ? `Unfortunately, your item inventory was full :(` : `It has gone into slot **${parseInt(slot) + 1}**!`}\n`);
+        //Clear active effects
+        user.equips ??= {};
+        let userEffects = user.equips.activeEffects ?? [];
+        user.equips.activeEffects = userEffects.filter(effect => !effectsRemovedOnItem.includes(effect));
+        const numCleared = userEffects.length - user.equips.activeEffects.length;
+        if (numCleared > 0) {
+            description = description.concat(`Since you found an item, **${numCleared} active effect${numCleared === 1 ? "** has" : "s** have"} been cleared\n`);
+        }
     }
 
 
@@ -191,6 +197,18 @@ function getCooldown(user, foxCount) {
 
     return (baseCooldown + penalty * Math.max(0, foxCount - max)) / invSum(1, 1 + (user?.upgrades?.shrine?.hasteCount ?? 0));
 }
+
+const effectsRemovedOnItem = [
+    "glass",
+    "sslag",
+    "chain",
+    "ball",
+    "micro",
+    "prec",
+    "idea",
+    "greed",
+    "faith"
+];
 
 
 module.exports = {
