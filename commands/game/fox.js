@@ -155,12 +155,16 @@ function foxMessage(user, foxes, baitEnded, item) {
     }
 
     /* Bait */
-    if (baitEnded !== "none") {
+    if (user.equips?.bait) {
+        description = description.concat(`\n**${user.upgrades.coin.bait[user.equips.bait]}** ${shopData.find(c => c.value === "bait").upgrades.find(p => p.value === user.equips.bait).name} left!\n`);
+    }
+    if (baitEnded === "conserved") {
+        description = description.concat("*(Conserved!)*\n");
+    }
+    else if (baitEnded !== "none") {
         description = description.concat(`\nYou ran out of ${baitEnded}!\n`);
     }
-    else if (user.equips?.bait) {
-        description = description.concat(`\n***${user.upgrades.coin.bait[user.equips.bait]}** ${shopData.find(c => c.value === "bait").upgrades.find(p => p.value === user.equips.bait).name} left!*\n`);
-    }
+
 
     /* Item */
     if (item) {
@@ -209,13 +213,23 @@ function getCooldown(user, foxCount) {
     return Math.max((baseCooldown + penalty * Math.max(0, foxCount - max)) / invSum(1, 1 + (user?.upgrades?.shrine?.hasteCount ?? 0)), 2000);
 }
 
+
+function getBaitUseChance(user, hasFoundFoxes) {
+    let baitMod = user.upgrades?.shrine?.journalCount ?? 0;
+    baitMod += 3 * invSum(2, hasEffect(user, "cbait"));
+    baitMod += 4 * invSum(1, hasEffect(user, "mbait"));
+    return (1 - Math.tanh(baitMod / 25)) * (hasFoundFoxes ? 1 : 0.9);
+}
+
 const effectsRemovedOnItem = [
     "glass",
     "sslag",
+    "cbait",
     "chain",
     "ball",
     "micro",
     "prec",
+    "mbait",
     "idea",
     "greed",
     "faith"
@@ -246,17 +260,18 @@ module.exports = {
         for (const [type, num] of minionFoxes) totalFoxes.set(type, (totalFoxes.get(type) ?? 0) + num);
 
         /* Use bait */
-        const baitRate = (1 - Math.tanh((user.upgrades?.shrine?.journalCount ?? 0) / 25)) * (totalFoxes.size === 0 ? 0.9 : 1);
         let baitEnded = "none";
-        if (Math.random() < baitRate) {
-            const baitVal = user.equips?.bait;
-            if (baitVal) {
-                const newBait = user.upgrades.coin.bait[baitVal] - 1;
+        if (user.equips?.bait) {
+            if (Math.random() < getBaitUseChance(user, totalFoxes.size !== 0)) {
+                const newBait = user.upgrades.coin.bait[user.equips.bait] - 1;
                 if (newBait === 0) {
                     baitEnded = shopData.find(c => c.value === "bait").upgrades.find(p => p.value === user.equips.bait).name;
                     user.equips.bait = undefined;
                 }
-                user.upgrades.coin.bait[baitVal] = newBait;
+                user.upgrades.coin.bait[user.equips.bait] = newBait;
+            }
+            else {
+                baitEnded = "conserved";
             }
         }
 
