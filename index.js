@@ -7,14 +7,19 @@ const { getProfile } = require('./utilities/db.js');
 /* Initialization */
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 dbInit();
-
-
-/* Set up commands */
 client.commands = {};
 getCommands().forEach(command => client.commands[command.data.name] = command);
+const prevInteractions = new Map();
 
 client.on(Events.InteractionCreate, async interaction => {
     try {
+        /* Remove components from previous interaction */
+        const prev = prevInteractions.get(interaction.user.id);
+        if (prev) {
+            prev.editReply({components: []});
+        }
+        prevInteractions.set(interaction.user.id, interaction);
+
         /* Multi-hit Button Handler */
         if (interaction.isButton()) {
             const commandName = Object.keys(client.commands).find(c => client.commands[c].buttonValues?.includes(interaction.customId));
