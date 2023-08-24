@@ -15,7 +15,7 @@ client.on(Events.InteractionCreate, async interaction => {
     try {
         /* Remove components from previous interaction */
         const prev = prevInteractions.get(interaction.user.id);
-        if (prev) {
+        if (prev?.replied) {
             await prev.editReply({components: []});
         }
         prevInteractions.set(interaction.user.id, interaction);
