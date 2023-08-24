@@ -50,7 +50,12 @@ module.exports = {
             const confirmation = await response.awaitMessageComponent({ filter: (i) => i.user.id === interaction.user.id, time: 60000 }); 
             if (confirmation.customId === "confirm") {
                 user.stats ??= {};
-                user.stats.foxesSold = (user.stats.foxesSold ?? 0) + oldFoxes;
+                user.stats.foxesSold ??= {};
+                foxData.forEach(type => {
+                    if ((user.foxes[type.value] ?? 0) !== 0) {
+                        user.stats.foxesSold[type.value] = (user.stats.foxesSold[type.value] ?? 0) + user.foxes[type.value];
+                    }
+                });
 
                 user.foxes = {};
                 user.coins = newCoins;

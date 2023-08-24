@@ -124,8 +124,11 @@ function findFoxes(user, foxCount, isMinion, iterations, tailCount) {
     }
 
     user.foxes ??= {};
+    user.stats ??= {};
+    user.stats.foxesFound ??= {};
     for (const [type, num] of foxes) {
         user.foxes[type] = (user.foxes[type] ?? 0) + num;
+        user.stats.foxesFound[type] = (user.stats.foxesFound[type] ?? 0) + num;
     }
 
     return foxes;
@@ -264,14 +267,17 @@ module.exports = {
         if (user.equips?.bait) {
             if (Math.random() < getBaitUseChance(user, totalFoxes.size !== 0)) {
                 const newBait = user.upgrades.coin.bait[user.equips.bait] - 1;
+                user.stats ??= {};
                 if (newBait === 0) {
                     baitEnded = shopData.find(c => c.value === "bait").upgrades.find(p => p.value === user.equips.bait).name;
                     user.equips.bait = undefined;
                 }
                 user.upgrades.coin.bait[user.equips.bait] = newBait;
+                user.stats.baitConsumed = (user.stats.baitConsumed ?? 0) + 1;
             }
             else {
                 baitEnded = "conserved";
+                user.stats.baitConserved = (user.stats.baitConserved ?? 0) + 1;
             }
         }
 
@@ -293,10 +299,15 @@ module.exports = {
                     user.items[slot] = newItem;
                 }
                 item = `${slot}.${newItem}`;
+
+                user.stats ??= {};
+                user.stats.itemsFound = (user.stats.itemsFound ?? 0) + 1;
             }
         }
     
         user.cooldown = now + getCooldown(user, foxCount);
+        user.stats ??= {};
+        user.stats.numSearches = (user.stats.numSearches ?? 0) + 1;
         await interaction.reply(foxMessage(user, totalFoxes, baitEnded, item));
 
         /* Initial Tutorial */

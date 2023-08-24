@@ -212,6 +212,8 @@ async function executePurchase(interaction, user, category, upgrade) {
             }
         
             user.coins = (user.coins ?? 0) - upgrade.price;
+            user.stats ??= {};
+            user.stats.shopPurchases = (user.stats.shopPurchases ?? 0) + 1;
             await user.save();
         }
     }

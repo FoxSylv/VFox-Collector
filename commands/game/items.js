@@ -69,6 +69,8 @@ module.exports = {
                 user.items[slot] = undefined;
             }
 
+            user.stats ??= {};
+            user.stats.itemsUsed = (user.stats.itemsUsed ?? 0) + 1;
             
             await user.save();
             await interaction.editReply({content: `You used the ${item.emoji} **${item.name}**! ${useMessage}`, embeds: [], components: []});

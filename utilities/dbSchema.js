@@ -56,18 +56,23 @@ const Upgrades = mongoose.Schema({
     c: {type: CoinUpgrades, alias: "coin"}
 }, {_id: false});
 
-const Stats = new mongoose.Schema({
-    f: {type: Number, min: 0, alias: "foxesFound"},
-    n: {type: Number, min: 0, alias: "numSearches"},
-    s: {type: Number, min: 0, alias: "shrinePurchases"},
-    o: {type: Number, min: 0, alias: "foxesSold"}
-}, {_id: false});
-
 const Foxes = new mongoose.Schema({
     o: {type: Number, min: 0, alias: "orange"},
     g: {type: Number, min: 0, alias: "grey"},
     c: {type: Number, min: 0, alias: "cryptid"},
     k: {type: Number, min: 0, alias: "kitsune"}
+}, {_id: false});
+
+const Stats = new mongoose.Schema({
+    f: {type: Foxes, alias: "foxesFound"},
+    o: {type: Foxes, alias: "foxesSold"},
+    n: {type: Number, min: 0, alias: "numSearches"},
+    s: {type: Number, min: 0, alias: "shrinePurchases"},
+    p: {type: Number, min: 0, alias: "shopPurchases"},
+    i: {type: Number, min: 0, alias: "itemsFound"},
+    u: {type: Number, min: 0, alias: "itemsUsed"},
+    b: {type: Number, min: 0, alias: "baitConsumed"},
+    c: {type: Number, min: 0, alias: "baitConserved"}
 }, {_id: false});
 
 const Equips = new mongoose.Schema({
