@@ -13,9 +13,6 @@ function getPenScreen(user) {
         }   
         return acc;
     }, "");
-    if ((user.coins ?? 0) !== 0) {
-        description = description.concat(`**${user.coins}** :coin:\n`);
-    }   
 
     const pen = shopData.find(c => c.value === "pens").upgrades.find(u => u.value === user.equips?.pens);
     const embed = new EmbedBuilder()
