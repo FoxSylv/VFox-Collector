@@ -20,7 +20,7 @@ function findFoxes(user, foxCount, isMinion, iterations, tailCount) {
     user.stats ??= {};
     let foxes = new Map();
     for (let i = 0; i < iterations; ++i) {
-        if (Math.random() < chance || (!user.upgrades.coin && (user.stats?.dryStreak > 3))) {
+        if (Math.random() < chance || (!user.upgrades?.coin && (user.stats?.dryStreak > 3))) {
             const quantity = 1 + Math.max(0, 0.7 + Math.random() * fquantityBonus);
             const quality = 1.6 + Math.max(0, Math.random() * fqualityBonus);
 
