@@ -1,6 +1,7 @@
 const effectData = {
     donation: {emoji: ":dvd:", name: "Shrine Donation", isStackable: false},
     color: {emoji: ":art:", name: "Custom Color", isStackable: false},
+    stats: {emoji: ":abacus:", name: "Detailed Stats", isStackable: false},
     glass: {emoji: ":mag_right:", name: "Boosted Item Quantity", isStackable: true},
     sslag: {emoji: ":mag:", name: "Decreased Item Quantity", isStackable: true},
     cbait: {emoji: ":boomerang:", name: "Reduced Bait Usage", isStackable: true},

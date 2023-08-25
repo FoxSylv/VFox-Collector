@@ -32,6 +32,7 @@ const shopData = [
     {name: "Item Catalogue", value: "items", emoji: "📦", description: "Get one-time use items!", upgrades: [
         {name: "Refund Voucher", value: "voucher", price: 1, quantity: 1, flavor: "This is a terrible deal", extra: "Instantly gain ten foxes!\nRare foxes not included"},
         {name: "Government Bribe", value: "bribe", price: 1, quantity: 1, flavor: "It's only illegal if you get caught", extra: "Sets your fox count to zero while preserving shrine upgrades\nYou do not gain any coins from this"},
+        {name: "Stats Improver", value: "stats", price: 3, quantity: 1, flavor: "View all the things", extra: "Displays the exact values for your fox-finding chance, item chance, item quality, bait consumption chance, and fox quality and quantity in the `stats` menu"},
         {name: "Shrine Donation", value: "donation", price: 9, quantity: 1, flavor: "Take-a-fox Leave-a-fox", extra: "Preserves shrine upgrades next time you sell foxes\nThis is the only way to get coins while maintaining shrine upgrades"}
     ]}
 ];
