@@ -72,7 +72,8 @@ const Stats = new mongoose.Schema({
     i: {type: Number, min: 0, alias: "itemsFound"},
     u: {type: Number, min: 0, alias: "itemsUsed"},
     b: {type: Number, min: 0, alias: "baitConsumed"},
-    c: {type: Number, min: 0, alias: "baitConserved"}
+    c: {type: Number, min: 0, alias: "baitConserved"},
+    t: {type: Number, min: 0, alias: "dryStreak"}
 }, {_id: false});
 
 const Equips = new mongoose.Schema({
@@ -100,7 +101,7 @@ const User = mongoose.model("User", new mongoose.Schema({
     i: {type: [String], alias: "items"},
     e: {type: Equips, alias: "equips"},
     o: {type: Number, min: 0, max: 0xFFFFFF, alias: "color"},
-    t: {type: Tutorials, alias: "tutorials"}
+    t: {type: Tutorials, alias: "tutorials"},
 }));
 
 

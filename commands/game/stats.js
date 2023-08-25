@@ -37,6 +37,7 @@ Bait Conservation Chance: ${toPercent(1 - getBaitUseChance(user, true))}\n\n`);
 
     description = description.concat(`Total Hunts: **${userStats.numSearches ?? "None!"}**
 Foxes Found: ${toFoxVisual(userStats.foxesFound)}
+Current Dry Streak: **${userStats.dryStreak ?? 0}**
 Shrine Purchases: **${userStats.shrinePurchases ?? "None!"}**
 Foxes Forfeited: ${toFoxVisual(userStats.foxesForfeited)}
 Shop Purchases: **${userStats.shopPurchases ?? "None!"}**

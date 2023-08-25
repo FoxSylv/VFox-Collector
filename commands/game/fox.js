@@ -16,9 +16,10 @@ function findFoxes(user, foxCount, isMinion, iterations, tailCount) {
     const fqualityBonus = getFoxQuality(user, foxCount, isMinion, tailCount);
     const kitsuneBonus = getKitsuneBonus(user, foxCount, isMinion, tailCount);
 
+    user.stats ??= {};
     let foxes = new Map();
     for (let i = 0; i < iterations; ++i) {
-        if (Math.random() < chance) {
+        if (Math.random() < chance || (!user.upgrades.coin && (user.stats?.dryStreak > 3))) {
             const quantity = 1 + Math.max(0, 0.7 + Math.random() * fquantityBonus);
             const quality = 1.6 + Math.max(0, Math.random() * fqualityBonus);
 
@@ -34,11 +35,14 @@ function findFoxes(user, foxCount, isMinion, iterations, tailCount) {
             const typeData = foxData.find(f => f.value === type);
             const newFoxes = Math.max(1, Math.floor(quantity / Math.sqrt(typeData.weight)));
             foxes.set(type, (foxes.get(type) ?? 0) + newFoxes);
+            user.stats.dryStreak = 0;
+        }
+        else if (!isMinion) {
+            user.stats.dryStreak = (user.stats.dryStreak ?? 0) + 1;
         }
     }
 
     user.foxes ??= {};
-    user.stats ??= {};
     user.stats.foxesFound ??= {};
     for (const [type, num] of foxes) {
         user.foxes[type] = (user.foxes[type] ?? 0) + num;
