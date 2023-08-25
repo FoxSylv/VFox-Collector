@@ -23,14 +23,17 @@ module.exports = {
         }, "**Exchange Rates:**\n");
         let status;
         if (newCoins === 0) {status = "You need at least **100**:fox: foxes to start selling!";}
-        else if (oldCoins === newCoins) {status = `Since you have **${oldCoins}**:coin:, you must sell at least **${(oldCoins + 1) * 100}**:fox: to get another coin :coin:!`;}
-        else {status = `Since you have **${oldFoxes}**:fox: and **${oldCoins}**:coin:, selling now will give **${newCoins - oldCoins}**:coin:!`;}
+        else if (oldCoins === newCoins) {status = `Since you have **${oldCoins}**:coin:, you must sell at least **${(oldCoins + 1) * 100}**:fox: to get another coin :coin:!
+As you use your coins, this fox requirement will revert back to **100**:fox:`;}
+        else if (oldCoins === 0) {status = `Since you have **${oldFoxes}**:fox:, selling now will give **${newCoins}**:coin:!`}
+        else {status = `Since you have **${oldFoxes}**:fox: and **${oldCoins}**:coin:, selling now will give **${newCoins - oldCoins}**:coin:!
+You can sell for up to **${newCoins}**:coin: if you use all of your current coins`;}
         const sellEmbed = new EmbedBuilder()
             .setColor(getColor(user))
             .setTitle("Sell your foxes?")
             .setDescription(description)
             .addFields({name: '\u200b', value: '\u200b'},
-                       {name: `This will reset${hasDonation ? "" : " your shrine upgrades and"} fox count`, value: status})
+                       {name: `This will reset your${hasDonation ? "" : " shrine upgrades and"} fox count`, value: status})
             .setFooter({text: `You have ${user.coins ?? 0} coin${user.coins === 1 ? "" : "s"}`});
 
         const confirm = new ButtonBuilder()
