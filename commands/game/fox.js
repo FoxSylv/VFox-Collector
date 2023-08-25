@@ -3,6 +3,7 @@ const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
 const { foxData } = require('../../data/foxData.js');
 const { shrineData } = require('../../data/shrineData.js');
+const { tutorialData } = require('../../data/tutorialData.js');
 const { items } = require('../../utilities/items.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
 const { msToSec } = require('../../utilities/msToSec.js');
@@ -204,10 +205,15 @@ module.exports = {
             user.tutorials ??= {};
             user.tutorials.start = true;
 
-            await interaction.followUp({content: `Welcome to VFox!\n
-In this game, the goal is to collect as many foxes as possible. The twist is that the more foxes you have, the harder they are to find!\n
-Luckily, you can forfeit foxes at the \`shrine\` to gain upgrades! Or you can \`sell\` them for coins to use at the \`shop\` for better equipment\n
-Either way, the choice is yours! Good luck hunting!`, ephemeral: true});
+            await interaction.followUp({content: tutorialData.start.tutorial, ephemeral: true});
+        }
+
+        /* Coins Tutorial */
+        if (!user.tutorials?.coins && (user.foxes?.orange ?? 0) >= 100) {
+            user.tutorials ??= {};
+            user.tutorials.coins = true;
+
+            await interaction.followUp({content: tutorialData.coins.tutorial, ephemeral: true});
         }
 
         /* Item Tutorial */
@@ -215,10 +221,7 @@ Either way, the choice is yours! Good luck hunting!`, ephemeral: true});
             user.tutorials ??= {};
             user.tutorials.items = true;
 
-            await interaction.followUp({content: `Congratulations! You just got your first item\n
-\`items\` give small boosts to your fox-finding capabilties\n
-Some give temporary effects that can last until you next find an item or beyond!\n
-(You can view all active effects in your \`equips\` screen)`, ephemeral: true});
+            await interaction.followUp({content: tutorialData.items.tutorial, ephemeral: true});
         }
 
         /* Rare Fox Tutorial */
@@ -226,10 +229,7 @@ Some give temporary effects that can last until you next find an item or beyond!
             user.tutorials ??= {};
             user.tutorials.rarefox = true;
 
-            await interaction.followUp({content: `Congratulations! You just got your first rare fox\n
-When \`sell\`ing, rare foxes are valued higher than normal foxes\n
-Rare foxes aren't worth more at the \`shrine\`, however\n
-You can view the breakdown of your foxes in your \`pen\``, ephemeral: true});
+            await interaction.followUp({content: tutorialData.rarefox.tutorial, ephemeral: true});
         }
 
 
