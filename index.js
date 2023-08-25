@@ -1,4 +1,4 @@
-const { Client, Collection, Events, GatewayIntentBits } = require('discord.js');
+const { Client, Events, GatewayIntentBits, ActivityType } = require('discord.js');
 const { token } = require('./config.json');
 const { dbInit } = require('./utilities/db.js');
 const getCommands = require('./utilities/getCommands.js');
@@ -78,5 +78,6 @@ client.on(Events.InteractionCreate, async interaction => {
 /* Log in */
 client.once(Events.ClientReady, c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
+    client.user.setActivity("/fox", { type: ActivityType.Playing });
 });
 client.login(token);
