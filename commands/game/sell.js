@@ -31,7 +31,7 @@ module.exports = {
             .setDescription(description)
             .addFields({name: '\u200b', value: '\u200b'},
                        {name: `This will reset${hasDonation ? "" : " your shrine upgrades and"} fox count`, value: status})
-            .setFooter({text: `You have ${user.coins ?? 0}🪙`});
+            .setFooter({text: `You have ${user.coins ?? 0} coin${user.coins === 1 ? "" : "s"}`});
 
         const confirm = new ButtonBuilder()
             .setCustomId("confirm")

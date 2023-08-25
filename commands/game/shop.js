@@ -31,7 +31,7 @@ function getShopEmbed(user, currentLocation) {
         .setColor(getColor(user))
         .setTitle(`The Shop${currentLocation === "back" ? "": ` - ${currentLocation.charAt(0).toUpperCase().concat(currentLocation.slice(1))}`}`)
         .setDescription(description)
-        .setFooter({text: `You have ${user.coins ?? 0}🪙`});
+        .setFooter({text: `You have ${user.coins ?? 0} coin${user.coins === 1 ? "" : "s"}`});
 }
 
 

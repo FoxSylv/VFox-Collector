@@ -19,7 +19,7 @@ function getPenScreen(user) {
         .setColor(getColor(user))
         .setTitle(user.equips?.pens ? `${pen.name} -` : "Your Pen - ")
         .setDescription(description)
-        .setFooter({text: `You have ${user.coins ?? 0}🪙`});;
+        .setFooter({text: `You have ${user.coins ?? 0} coin${user.coins === 1 ? "" : "s"}`});;
 
     return {embeds: [embed]};
 }
