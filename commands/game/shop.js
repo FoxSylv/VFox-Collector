@@ -38,11 +38,12 @@ function getShopEmbed(user, currentLocation) {
 const buttons = [new ButtonBuilder({
     custom_id: "back",
     style: ButtonStyle.Secondary,
-    label: "⬅️ Back"
+    label: "Back"
 })].concat(shopData.map(category => new ButtonBuilder({
     custom_id: category.value,
     style: ButtonStyle.Primary,
-    label: `${category.emoji} ${category.value.charAt(0).toUpperCase().concat(category.value.slice(1))}`
+    label: `${category.value.charAt(0).toUpperCase().concat(category.value.slice(1))}`,
+    emoji: {name: category.emoji}
 })));
 function getNavbar(currentLocation) {
     const usedButtons = buttons.filter(b => b.data.custom_id !== currentLocation);
