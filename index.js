@@ -15,10 +15,17 @@ client.on(Events.InteractionCreate, async interaction => {
     try {
         /* Remove components from previous interaction */
         const prev = prevInteractions.get(interaction.user.id);
-        if (prev?.replied) {
-            await prev.editReply({components: []});
+        clearTimeout(prev?.timeout);
+        if (prev?.interaction?.replied) {
+            await prev.interaction.editReply({components: []});
         }
-        prevInteractions.set(interaction.user.id, interaction);
+        const timeout = setTimeout((prevInteractions, interaction) => {
+            prevInteractions.delete(interaction.user.id);
+            if (interaction.replied) {
+                interaction.editReply({components: []});
+            }
+        }, 600000, prevInteractions, interaction);
+        prevInteractions.set(interaction.user.id, {interaction: interaction, timeout: timeout});
 
         /* Multi-hit Button Handler */
         if (interaction.isButton()) {
