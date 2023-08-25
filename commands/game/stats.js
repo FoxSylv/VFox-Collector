@@ -2,6 +2,8 @@ const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { getProfile } = require('../../utilities/db.js');
 const { foxData } = require('../../data/foxData.js');
 const { getColor } = require('../../utilities/getColor.js');
+const { countFoxes } = require('../../utilities/countFoxes.js');
+const { canItems, canRareFox, canKitsune, getFoxChance, getFoxQuantity, getFoxQuality, getKitsuneBonus, getItemChance, getItemQuality, getBaitUseChance } = require('../../utilities/userStats.js');
 
 function toFoxVisual(foxes) {
     if (!foxes) {
@@ -12,6 +14,9 @@ function toFoxVisual(foxes) {
         return `**${foxes[type.dbvalue]}**${type.emoji}`;
     }).filter(f => f).join("/");
 }
+function toPercent(chance) {
+    return `${Math.ceil(chance * 1000) / 10}%`;
+}
 
 function getStatScreen(user) {
     const hasDetails = user.equips?.activeEffects?.includes("stats") ?? false;
@@ -19,7 +24,15 @@ function getStatScreen(user) {
     let description = "";
     
     if (hasDetails) {
-        description = description.concat("Detailed Stats - TODO!\n\n");
+        const foxCount = countFoxes(user.foxes);
+        const tailCount = (user.items ?? []).filter(i => i === "tail").length;
+        description = description.concat(`Fox-Finding Chance: ${toPercent(getFoxChance(user, foxCount, false, tailCount))}
+Fox Quantity: ${getFoxQuantity(user, foxCount, false, tailCount)}
+Fox Quality: ${canRareFox(user) ? `${getFoxQuality(user, foxCount, false, tailCount)}` : "N/A"}
+Kitsune Bonus: ${canKitsune(user) ? `${getKitsuneBonus(user, tailCount, false, tailCount)}x` : "N/A"}
+Item Chance: ${canItems(user) ? `${toPercent(getItemChance(user, tailCount))}` : "N/A"}
+Item Quality: ${canItems(user) ? `${getItemQuality(user, tailCount)}` : "N/A"}
+Bait Conservation Chance: ${toPercent(1 - getBaitUseChance(user, true))}\n\n`);
     }
 
     description = description.concat(`Total Hunts: **${userStats.numSearches ?? "None!"}**
