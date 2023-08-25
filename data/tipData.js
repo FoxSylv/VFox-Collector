@@ -17,7 +17,9 @@ const tipData = [
     "The doppelganger item uses an item without consuming it",
     "The chance to find foxes is capped at 90%",
     "With a very high fox-finding chance, you will always have a small probability to find foxes",
-    "Kitsune's Minions cannot find kitsunes"
+    "Kitsune's Minions cannot find kitsunes",
+    "The detailed stat screen is extremely valuable to determine the worth of items and equipment",
+    "Pressing the up arrow after executing a slash command in discord copies the command"
 ];
 
 module.exports = {tipData};
