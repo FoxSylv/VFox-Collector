@@ -4,7 +4,6 @@ const tipData = [
     "Kitsune's Minions have 40% fox quality and 60% fox quantity relative to your stats",
     "Items that give foxes do not trigger your cooldown",
     "All stat-changing effects are stackable",
-    "You can see how much of each bait you have in the shop",
     "High quality items are extremely valuable",
     "The trash can gets rid of items that would be harmful to use",
     "The items in the shop can *only* be acquired from the shop",

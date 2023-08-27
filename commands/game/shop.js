@@ -106,6 +106,7 @@ function getUpgradeDescription(upgrade) {
         switch (key) {
             case "name":
             case "value":
+            case "emoji":
             case "price":
             case "flavor":
             case "quantity":
@@ -162,6 +163,7 @@ function getUpgradeMessage(user, category, upgrade) {
 }
 
 async function executePurchase(interaction, user, category, upgrade) {
+    console.log(interaction);
     const response = await interaction.reply(getUpgradeMessage(user, category, upgrade));
     try {
 	    const confirmation = await response.awaitMessageComponent({filter: i => i.user.id === interaction.user.id, time: 60000});

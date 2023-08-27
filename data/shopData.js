@@ -24,10 +24,10 @@ const shopData = [
         {name: "Blessed Land", value: "blessed", price: 9, flavor: "Nine-tailed Land", chance: 0.09, foxQuantity: 4, foxQuality: 4, itemQuantity: -1000, kitsune: 2}
     ]}, 
     {name: "Bait Catalogue", value: "bait", emoji: "🍎", description: "Lure even more foxes with temporary bait!", upgrades: [
-        {name: "Basic Bait", value: "basic", price: 2, quantity: 100, flavor: "C'mere foxy foxy foxy", chance: 0.1, foxQuantity: 1, itemQuality: 1}, 
-        {name: "Special Bait", value: "special", price: 4, quantity: 200, flavor: "Special bait for special foxes!", chance: 0.15, foxQuantity: 2, foxQuality: 2, itemQuantity: -1, itemQuality: 0.5},
-        {name: "Advanced Bait", value: "advanced", price: 7, quantity: 50, flavor: "Hand-crafted with love", chance: 0.3, foxQuantity: 1, foxQuality: 4, itemQuantity: 1, itemQuality: 2},
-        {name: "Blessed Bait", value: "blessed", price: 9, quantity: 9, flavor: "Use sparingly", chance: 0.9, foxQuantity: 4, foxQuality: 4, itemQuantity: -1000, kitsune: 2}
+        {name: "Basic Bait", value: "basic", emoji: "🥕", price: 2, quantity: 100, flavor: "C'mere foxy foxy foxy", chance: 0.1, foxQuantity: 1, itemQuality: 1}, 
+        {name: "Special Bait", value: "special", emoji: "🍓", price: 4, quantity: 200, flavor: "Special bait for special foxes!", chance: 0.15, foxQuantity: 2, foxQuality: 2, itemQuantity: -1, itemQuality: 0.5},
+        {name: "Advanced Bait", value: "advanced", emoji: "🍠", price: 7, quantity: 50, flavor: "Hand-crafted with love", chance: 0.3, foxQuantity: 1, foxQuality: 4, itemQuantity: 1, itemQuality: 2},
+        {name: "Blessed Bait", value: "blessed", emoji: "🍀", price: 9, quantity: 9, flavor: "Use sparingly", chance: 0.9, foxQuantity: 4, foxQuality: 4, itemQuantity: -1000, kitsune: 2}
     ]},
     {name: "Item Catalogue", value: "items", emoji: "📦", description: "Get one-time use items!", upgrades: [
         {name: "Refund Voucher", value: "voucher", price: 1, quantity: 1, flavor: "This is a terrible deal", extra: "Instantly gain ten foxes!\nRare foxes not included"},
