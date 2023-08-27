@@ -207,6 +207,8 @@ module.exports = {
         if (totalFoxes.size === 0 && !item) {
             counter = (user.counter ?? 0) + Math.floor(getFoxChance(user, foxCount, false, tailCount) * 333);
             user.counter = counter >= 1000 ? counter - 1000 : counter;
+            user.foxes ??= {};
+            user.foxes.orange = (user.foxes.orange ?? 0) + 1;
         }
     
         user.cooldown = now + getCooldown(user, foxCount);
