@@ -61,6 +61,7 @@ You can sell for up to **${newCoins}**:coin: if you use all of your current coin
                 });
 
                 user.foxes = {};
+                user.counter = 0;
                 user.coins = newCoins;
                 user.upgrades ??= {};
 
