@@ -93,7 +93,8 @@ const Tutorials = new mongoose.Schema({
 
 const User = mongoose.model("User", new mongoose.Schema({
     _id: String,
-    f: {type: Foxes, alias: "foxes"}, 
+    f: {type: Foxes, alias: "foxes"},
+    n: {type: Number, min: 0, alias: "counter"},
     c: {type: Number, min: 0, alias: "coins"},
     l: {type: Number, min: 0, alias: "cooldown"},
     s: {type: Stats, alias: "stats"},

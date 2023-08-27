@@ -20,7 +20,7 @@ function findFoxes(user, foxCount, isMinion, iterations, tailCount) {
     user.stats ??= {};
     let foxes = new Map();
     for (let i = 0; i < iterations; ++i) {
-        if (Math.random() < chance || (!user.upgrades?.coin && (user.stats?.dryStreak > 3))) {
+        if (Math.random() < chance || (user.stats?.dryStreak > (3 + Math.floor((user.stats?.shopPurchases ?? 0) / 2)))) {
             const quantity = 1 + Math.max(0, 0.7 + Math.random() * fquantityBonus);
             const quality = 1.6 + Math.max(0, Math.random() * fqualityBonus);
 
@@ -54,7 +54,7 @@ function findFoxes(user, foxCount, isMinion, iterations, tailCount) {
 }
 
 
-function foxMessage(user, foxes, baitEnded, item) {
+function foxMessage(user, foxes, baitEnded, item, counter) {
     /* Fox Tally */
     let description = foxData.reduce((acc, type) => {
         const num = foxes.get(type.value);
@@ -63,10 +63,17 @@ function foxMessage(user, foxes, baitEnded, item) {
         }
         return acc;
     }, "");
-    let foundFoxes = true;
-    if (description === "") {
-        description = "You found no foxes :(\n";
-        foundFoxes = false;
+    const foundFoxes = (description !== "");
+    if (!foundFoxes) {
+        description = `You found no foxes :(\n`;
+        if (counter) {
+            if (counter >= 1000) {
+                description = description.concat(`:hourglass: **100%** => **1** :fox:\n`);
+            }
+            else {
+                description = description.concat(`${counter < 500 ? ":hourglass_flowing_sand:" : ":hourglass:"} **${counter / 10}%**\n`);
+            }
+        }
     }
 
     /* Overpopulation */
@@ -194,11 +201,18 @@ module.exports = {
                 user.stats.itemsFound = (user.stats.itemsFound ?? 0) + 1;
             }
         }
+
+        /* Fox Counter */
+        let counter;
+        if (totalFoxes.size === 0 && !item) {
+            counter = (user.counter ?? 0) + Math.floor(getFoxChance(user, foxCount, false, tailCount) * 333);
+            user.counter = counter >= 1000 ? counter - 1000 : counter;
+        }
     
         user.cooldown = now + getCooldown(user, foxCount);
         user.stats ??= {};
         user.stats.numSearches = (user.stats.numSearches ?? 0) + 1;
-        await interaction.reply(foxMessage(user, totalFoxes, baitEnded, item));
+        await interaction.reply(foxMessage(user, totalFoxes, baitEnded, item, counter));
 
         /* Initial Tutorial */
         if (!user.tutorials?.start) {
