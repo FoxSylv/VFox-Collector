@@ -9,7 +9,7 @@ module.exports = {
         user.upgrades.coin ??= {};
         user.upgrades.coin.bait ??= {};
 
-        const gained = 7 + Math.floor(Math.random() * 5);
+        const gained = 4 + Math.floor(Math.random() * 4);
         user.upgrades.coin.bait.advanced = (user.upgrades.coin.bait.advanced ?? 0) + gained;
         return `You gained ${gained} Advanced Bait!`;
     }
