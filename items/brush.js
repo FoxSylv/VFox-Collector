@@ -22,10 +22,9 @@ module.exports = {
                         .setCustomId("color")
                         .setLabel("Input your new embed color's hex code:")
                         .setStyle(TextInputStyle.Short)
-                        .setPlaceholder("EA580C")
-                        .setMinLength(6)
+                        .setPlaceholder("Leave blank for no change")
                         .setMaxLength(6)
-                        .setRequired(true)
+                        .setRequired(false)
                 )
             );
 
@@ -34,6 +33,9 @@ module.exports = {
             .then(i => i.deferUpdate());
         try {
             let raw = response.interaction.fields.fields.get("color").value.toLowerCase();
+            if (raw === "") {
+                return "Your embed colors did not change"
+            }
             user.color = parseInt(raw, 16);
             return `Your embeds are now \`0x${raw}\`!`;
         }
