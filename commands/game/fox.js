@@ -112,11 +112,13 @@ function foxMessage(user, foxes, baitEnded, item, counter) {
 
 
     const net = shopData.find(c => c.value === "nets").upgrades.find(u => u.value === user.equips?.nets);
+    const wFoxCount = countFoxes(user.foxes, true);
+    const isNice = foxCount === 69 || foxCount === 420 || wFoxCount === 69 || wFoxCount === 420;
     const embed = new EmbedBuilder()
         .setColor(getColor(user))
         .setTitle(user.equips?.nets ? `${net.name} -` : "You found:")
         .setDescription(description)
-        .setFooter({text: `You ${foundFoxes ? "now ": ""}have ${foxCount} ${foxCount === 1 ? "fox" : "foxes"}! ${(foxCount === 69 || foxCount === 420) ? "Nice!" : ""}`});
+        .setFooter({text: `You ${foundFoxes ? "now ": ""}have ${foxCount}${foxCount !== wFoxCount ? ` (${wFoxCount})` : ""} ${foxCount === 1 ? "fox" : "foxes"}! ${isNice ? "Nice!" : ""}`});
     return {embeds: [embed]};
 }
 
