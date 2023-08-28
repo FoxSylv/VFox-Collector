@@ -28,6 +28,10 @@ module.exports = {
 
         interaction.deleteReply();
         const item = items[user.items[response.values[0]]];
+
+        if (item.rarity === -1000) {
+            return `The ${item.emoji} ${item.name} does not have a rarity! It can only be purchased!`;
+        }
         return `The ${item.emoji} ${item.name} has rarity ${item.rarity}`;
     }
 }
