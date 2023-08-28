@@ -13,6 +13,10 @@ You can view everything that you are currently using in the \`equips\` screen`},
 \`items\` give small boosts to your fox-finding capabilties
 Some give temporary effects that can last until you next find an item or beyond!\n
 (You can view all active effects in your \`equips\` screen)`},
+    bait: {title: "Bait", tutorial: `Congratulations! You just got your first bait\n
+Bait further improves your stats while hunting, but you only have a small amount of it!
+There is a small chance to conserve bait if you don't find foxes, though\n
+You can equip and unequip bait in the \`bait\` screen, or through the \`shop\` in the purchase menu`},
     rarefox: {title: "Rare Foxes", tutorial: `Congratulations! You just got your first rare fox\n
 When \`sell\`ing, rare foxes are valued higher than normal foxes
 Rare foxes aren't worth more at the \`shrine\`, however

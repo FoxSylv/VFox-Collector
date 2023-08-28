@@ -88,6 +88,7 @@ const Tutorials = new mongoose.Schema({
     s: {type: Boolean, alias: "start"},
     c: {type: Boolean, alias: "coins"},
     i: {type: Boolean, alias: "items"},
+    b: {type: Boolean, alias: "bait"},
     r: {type: Boolean, alias: "rarefox"}
 }, {_id: false});
 

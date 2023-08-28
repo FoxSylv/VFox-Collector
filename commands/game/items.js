@@ -3,6 +3,7 @@ const { getProfile } = require('../../utilities/db.js');
 const { items } = require('../../utilities/items.js');
 const { effectData } = require('../../data/effectData.js');
 const { getColor } = require('../../utilities/getColor.js');
+const { tutorialData } = require('../../data/tutorialData.js');
 
 function getItemEmbed(user) {
     let description = "";
@@ -72,8 +73,17 @@ module.exports = {
             user.stats ??= {};
             user.stats.itemsUsed = (user.stats.itemsUsed ?? 0) + 1;
             
-            await user.save();
             await interaction.editReply({content: `You used the ${item.emoji} **${item.name}**! ${useMessage}`, embeds: [], components: []});
+
+            /* Bait tutorial (first bait will almost certainly be from the Basic Bait Pack) */
+            if (!user.tutorials?.bait && itemVal === "bpack") {
+                user.tutorials ??= {};
+                user.tutorials.bait = true;
+
+                await interaction.followUp({content: tutorialData.bait.tutorial, ephemeral: true});
+            }
+
+            await user.save();
         }
         catch(e) {
             await interaction.editReply({components: []});
