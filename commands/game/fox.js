@@ -147,7 +147,7 @@ module.exports = {
         const cooldown = user.cooldown;
         const now = Date.now();
         if (now < cooldown) {
-            await interaction.reply(`You are still on cooldown for \`${msToSec(cooldown - now)}\``);
+            await interaction.reply({content: `You are still on cooldown for \`${msToSec(cooldown - now)}\``, ephemeral: true});
             return;
         }
 
@@ -208,9 +208,14 @@ module.exports = {
         let counter;
         if (totalFoxes.size === 0 && !item) {
             counter = (user.counter ?? 0) + Math.floor(getFoxChance(user, foxCount, false, tailCount) * 333);
-            user.counter = counter >= 1000 ? counter - 1000 : counter;
-            user.foxes ??= {};
-            user.foxes.orange = (user.foxes.orange ?? 0) + 1;
+            if (counter >= 1000) {
+                user.counter = counter - 1000;
+                user.foxes ??= {};
+                user.foxes.orange = (user.foxes.orange ?? 0) + 1;
+            }
+            else {
+                user.counter = counter;
+            }
         }
     
         user.cooldown = now + getCooldown(user, foxCount);
