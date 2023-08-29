@@ -10,7 +10,7 @@ function getShopEmbed(user, currentLocation) {
     currentLocation ??= "back";
     if (currentLocation === "back") {
         description = shopData.reduce((acc, category) => {
-            return acc.concat(`• ${category.emoji} **${category.name}**: ${category.description}\n`);
+            return acc.concat(`${category.emoji} **${category.name}**: ${category.description}\n`);
         }, "");
     }
     else {
@@ -23,7 +23,7 @@ function getShopEmbed(user, currentLocation) {
             if (user.equips?.[category.value] === upgrade.value) {
                 price = ":ballot_box_with_check:";
             }
-            return acc.concat(`• **${upgrade.name}** (${price}): ${upgrade.flavor}\n`);
+            return acc.concat(`• **${upgrade.name}** (${price}): ${upgrade.minidesc}\n`);
         }, "");
     }
     
@@ -58,7 +58,7 @@ function getCatalogueSelector(categoryValue) {
             .setPlaceholder("View a shop upgrade")
             .addOptions(...category.upgrades.map(upgrade => new StringSelectMenuOptionBuilder()
                 .setLabel(upgrade.name)
-                .setDescription(upgrade.flavor)
+                .setDescription(upgrade.minidesc)
                 .setValue(`${category.value}.${upgrade.value}`)
             ))
         );
@@ -90,6 +90,8 @@ function getUpgradePower(power) {
             return "Drastically increases";
         case 4:
             return "Absurdly increases";
+        case 8:
+            return "Ludicrously increases";
         default:
             return "Does not change";
     }
@@ -107,6 +109,7 @@ function getUpgradeDescription(upgrade) {
             case "name":
             case "value":
             case "emoji":
+            case "minidesc":
             case "price":
             case "flavor":
             case "quantity":
