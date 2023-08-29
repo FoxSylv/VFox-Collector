@@ -12,10 +12,15 @@ function getPrice(user, purchase) {
 
 function getShrineShopEmbed(user) {
     let description = shrineData.reduce((acc, purchase) => {
-            return acc.concat(`• **${purchase.name}** (${getPrice(user, purchase)}:fox:): ${purchase.description}\n`);
+            return acc.concat(`${purchase.emoji} **${purchase.name}** (${getPrice(user, purchase).toLocaleString("en-US")}:fox:): ${purchase.description}\n`);
         }, "");
     const tailCount = (user.items ?? []).filter(i => i === "tail").length;
-    description = description.concat(`• **${tailCount === 0 ? "?????????" : "Kitsune's Tail"}** (${tailCount >= 9 ? "**MAX**" : `${1111 * (tailCount + 1)}:fox:`}): ${tailCount === 0 ? "?????????" : "A blessing bestowed by the fluffy deities"}`);
+    if (tailCount === 0) {
+        description = description.concat(":question: **????????** (1,111:fox:): ????????");
+    }
+    else {
+        description = description.concat(`:sewing_needle: **Kitsune's Tail** (${tailCount >= 9 ? "**MAX**" : `${(1111 * (tailCount + 1)).toLocaleString("en-US")}:fox:`}): A blessing bestowed by the fluffy deities`);
+    }
 
     return new EmbedBuilder()
         .setColor(getColor(user))
@@ -109,10 +114,10 @@ module.exports = {
 
                 user.stats ??= {};
                 user.stats.shrinePurchases = (user.stats.shrinePurchases ?? 0) + 1;
-                interaction.editReply({content: `You got a **${purchase.name}**! (You now have ${user.upgrades.shrine[upgrade]})`, embeds: [], components: []});
+                interaction.editReply({content: `You got a ${purchase.emoji} **${purchase.name}**! (You now have **${user.upgrades.shrine[upgrade]}**)`, embeds: [], components: []});
             }
             else {
-                interaction.editReply({content: `You do not have enough foxes for a **${purchase.name}**... (${countFoxes(user.foxes)}/${price})`, embeds: [], components: []});
+                interaction.editReply({content: `You do not have enough foxes for a ${purchase.emoji} **${purchase.name}**... (${countFoxes(user.foxes)}/${price})`, embeds: [], components: []});
             }
             await user.save();
         }
