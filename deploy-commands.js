@@ -2,7 +2,7 @@ const { REST, Routes } = require('discord.js');
 const { clientId, devGuildId, token } = require('./config.json');
 const fs = require('node:fs');
 const path = require('node:path');
-const getCommands = require('./utilities/getCommands.js');
+const getCommands = require('../utilities/getCommands.js');
 
 /* Differentiate commands */
 let allCommands = getCommands();

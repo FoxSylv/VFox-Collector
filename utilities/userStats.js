@@ -20,8 +20,11 @@ function hasEffect(user, activeEffect) {
     return user.equips?.activeEffects?.filter(e => e === activeEffect).length ?? 0;
 }
 
+function canMiss(user) {
+    return ((user.stats?.numSearches ?? 0) > 8) && ((user.stats?.dryStreak ?? 0) < (4 + Math.floor((user.stats?.shopPurchases ?? 0) / 2)));
+}
 function canItems(user) {
-    return user.upgrades?.coin?.nets?.shoddy === true;
+    return (user.stats?.numSearches ?? 0) > 20;
 }
 function canRareFox(user) {
     return user.upgrades?.coin?.nets?.basic === true;
@@ -118,6 +121,7 @@ function getBaitUseChance(user, hasFoundFoxes) {
 }
 
 module.exports = {
+    canMiss,
     canItems,
     canRareFox,
     canKitsune,

@@ -3,7 +3,7 @@ const { getProfile } = require('../../utilities/db.js');
 const { foxData } = require('../../data/foxData.js');
 const { getColor } = require('../../utilities/getColor.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
-const { canItems, canRareFox, canKitsune, getFoxChance, getFoxQuantity, getFoxQuality, getKitsuneBonus, getItemChance, getItemQuality, getBaitUseChance } = require('../../utilities/userStats.js');
+const { canMiss, canItems, canRareFox, canKitsune, getFoxChance, getFoxQuantity, getFoxQuality, getKitsuneBonus, getItemChance, getItemQuality, getBaitUseChance } = require('../../utilities/userStats.js');
 
 function toFoxVisual(foxes) {
     if (!foxes) {
@@ -26,7 +26,7 @@ function getStatScreen(user) {
     if (hasDetails) {
         const foxCount = countFoxes(user.foxes);
         const tailCount = (user.items ?? []).filter(i => i === "tail").length;
-        description = description.concat(`Fox-Finding Chance: ${toPercent(getFoxChance(user, foxCount, false, tailCount))}
+        description = description.concat(`Fox-Finding Chance: ${canMiss(user) ? toPercent(getFoxChance(user, foxCount, false, tailCount)) : "100%"}
 Fox Quantity: ${getFoxQuantity(user, foxCount, false, tailCount)}
 Fox Quality: ${canRareFox(user) ? `${getFoxQuality(user, foxCount, false, tailCount)}` : "N/A"}
 Kitsune Bonus: ${canKitsune(user) ? `${getKitsuneBonus(user, tailCount, false, tailCount)}x` : "N/A"}

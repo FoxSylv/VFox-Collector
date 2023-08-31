@@ -3,6 +3,7 @@ const { token } = require('./config.json');
 const { dbInit } = require('./utilities/db.js');
 const getCommands = require('./utilities/getCommands.js');
 const { getProfile } = require('./utilities/db.js');
+const { getCommandTag } = require('./utilities/getCommandTag.js');
 
 /* Initialization */
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });

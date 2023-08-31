@@ -8,7 +8,7 @@ const { items } = require('../../utilities/items.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
 const { msToSec } = require('../../utilities/msToSec.js');
 const { getColor } = require('../../utilities/getColor.js');
-const { canItems, canRareFox, canKitsune, getFoxChance, getFoxQuantity, getFoxQuality, getKitsuneBonus, getItemChance, getItemQuality, getPenCapacity, getCooldown, getBaitUseChance } = require('../../utilities/userStats.js');
+const { canMiss, canItems, canRareFox, canKitsune, getFoxChance, getFoxQuantity, getFoxQuality, getKitsuneBonus, getItemChance, getItemQuality, getPenCapacity, getCooldown, getBaitUseChance } = require('../../utilities/userStats.js');
 
 
 function findFoxes(user, foxCount, isMinion, iterations, tailCount) {
@@ -16,11 +16,14 @@ function findFoxes(user, foxCount, isMinion, iterations, tailCount) {
     const fquantityBonus = getFoxQuantity(user, foxCount, isMinion, tailCount);
     const fqualityBonus = getFoxQuality(user, foxCount, isMinion, tailCount);
     const kitsuneBonus = getKitsuneBonus(user, foxCount, isMinion, tailCount);
-
     user.stats ??= {};
     let foxes = new Map();
+    if ((user.stats.numSearches ?? 0) === 8) {
+        return foxes;
+    }
+
     for (let i = 0; i < iterations; ++i) {
-        if (Math.random() < chance || (user.stats?.dryStreak > (3 + Math.floor((user.stats?.shopPurchases ?? 0) / 2)))) {
+        if (Math.random() < chance || !canMiss(user)) {
             const quantity = 1 + Math.max(0, 0.7 + Math.random() * fquantityBonus);
             const quality = 1.6 + Math.max(0, Math.random() * fqualityBonus);
 
@@ -123,6 +126,16 @@ function foxMessage(user, foxes, baitEnded, item, counter) {
 }
 
 
+function runTutorial(user, tutorial, condition, interaction) {
+    if (!user.tutorials?.[tutorial] && condition) {
+        user.tutorials ??= {};
+        user.tutorials[tutorial] = true;
+
+        interaction.followUp({content: tutorialData[tutorial].tutorial, ephemeral: true});
+    }
+}
+
+
 const effectsRemovedOnItem = [
     "glass",
     "sslag",
@@ -186,22 +199,36 @@ module.exports = {
             if (getItemChance(user, tailCount) > Math.random()) {
                 const iquality = getItemQuality(user, tailCount);
                 const filteredItems = Object.keys(items).filter(itemVal => items[itemVal].rarity <= iquality && items[itemVal].rarity + 3 > iquality);
-                const newItem = filteredItems[Math.floor(Math.random() * filteredItems.length)];
-
-                const userItems = user.items ?? {};
-                let slot = userItems.findIndex(s => !s);
-                if (slot === -1) { //if (findIndex fails)
-                    slot = userItems.length;
-                }
-                if (slot < 9) { //Max 9 items
-                    user.items ??= {};
-                    user.items[slot] = newItem;
-                }
-                item = `${slot}.${newItem}`;
-
-                user.stats ??= {};
-                user.stats.itemsFound = (user.stats.itemsFound ?? 0) + 1;
+                item = filteredItems[Math.floor(Math.random() * filteredItems.length)];
             }
+        }
+        /* Hard-code first items as a "tutorial" */
+        switch(user.stats?.numSearches ?? 0) {
+            case 4:
+                item = "fbox";
+                break;
+            case 11:
+                item = "shoe";
+                break;
+            case 19:
+                item = "bpack";
+                break;
+        }
+        /* Get slot */
+        if (item) {
+            const userItems = user.items ?? {};
+            let slot = userItems.findIndex(s => !s);
+            if (slot === -1) { //if (findIndex fails)
+                slot = userItems.length;
+            }
+            if (slot < 9) { //Max 9 items
+                user.items ??= {};
+                user.items[slot] = item;
+            }
+            item = `${slot}.${item}`;
+
+            user.stats ??= {};
+            user.stats.itemsFound = (user.stats.itemsFound ?? 0) + 1;
         }
 
         /* Fox Counter */
@@ -212,6 +239,9 @@ module.exports = {
                 user.counter = counter - 1000;
                 user.foxes ??= {};
                 user.foxes.orange = (user.foxes.orange ?? 0) + 1;
+                user.stats ??= {};
+                user.stats.foxesFound ??= {};
+                user.stats.foxesFound.orange = (user.stats.foxesFound.orange ?? 0) + 1;
             }
             else {
                 user.counter = counter;
@@ -223,38 +253,13 @@ module.exports = {
         user.stats.numSearches = (user.stats.numSearches ?? 0) + 1;
         await interaction.reply(foxMessage(user, totalFoxes, baitEnded, item, counter));
 
-        /* Initial Tutorial */
-        if (!user.tutorials?.start) {
-            user.tutorials ??= {};
-            user.tutorials.start = true;
-
-            await interaction.followUp({content: tutorialData.start.tutorial, ephemeral: true});
-        }
-
-        /* Coins Tutorial */
-        if (!user.tutorials?.coins && (user.foxes?.orange ?? 0) >= 100) {
-            user.tutorials ??= {};
-            user.tutorials.coins = true;
-
-            await interaction.followUp({content: tutorialData.coins.tutorial, ephemeral: true});
-        }
-
-        /* Item Tutorial */
-        if (!user.tutorials?.items && item) {
-            user.tutorials ??= {};
-            user.tutorials.items = true;
-
-            await interaction.followUp({content: tutorialData.items.tutorial, ephemeral: true});
-        }
-
-        /* Rare Fox Tutorial */
-        if (!user.tutorials?.rarefox && totalFoxes.has("grey")) {
-            user.tutorials ??= {};
-            user.tutorials.rarefox = true;
-
-            await interaction.followUp({content: tutorialData.rarefox.tutorial, ephemeral: true});
-        }
-
+        /* Do tutorials */
+        runTutorial(user, "start", true, interaction);
+        runTutorial(user, "items", item !== undefined, interaction);
+        runTutorial(user, "hourglass", totalFoxes.size === 0, interaction);
+        runTutorial(user, "shrine", (user.foxes?.orange ?? 0) >= 30, interaction);
+        runTutorial(user, "coins", (user.foxes?.orange ?? 0) >= 100, interaction);
+        runTutorial(user, "rarefox", totalFoxes.has("grey"), interaction);
 
         await user.save();
 	}

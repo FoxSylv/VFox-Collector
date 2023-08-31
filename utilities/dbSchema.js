@@ -86,9 +86,11 @@ const Equips = new mongoose.Schema({
 
 const Tutorials = new mongoose.Schema({
     s: {type: Boolean, alias: "start"},
-    c: {type: Boolean, alias: "coins"},
+    h: {type: Boolean, alias: "hourglass"},
     i: {type: Boolean, alias: "items"},
     b: {type: Boolean, alias: "bait"},
+    n: {type: Boolean, alias: "shrine"},
+    c: {type: Boolean, alias: "coins"},
     r: {type: Boolean, alias: "rarefox"}
 }, {_id: false});
 
