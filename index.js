@@ -1,9 +1,8 @@
 const { Client, Events, GatewayIntentBits, ActivityType } = require('discord.js');
-const { token } = require('./config.json');
+const { token, devToken } = require('./config.json');
 const { dbInit } = require('./utilities/db.js');
 const getCommands = require('./utilities/getCommands.js');
 const { getProfile } = require('./utilities/db.js');
-const { getCommandTag } = require('./utilities/getCommandTag.js');
 
 /* Initialization */
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -81,4 +80,4 @@ client.once(Events.ClientReady, c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
     client.user.setActivity("/fox", { type: ActivityType.Playing });
 });
-client.login(token);
+client.login(process.argv.includes("--dev") ? devToken : token);
