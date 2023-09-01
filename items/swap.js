@@ -30,6 +30,7 @@ module.exports = {
     value: "swap",
     description: "Moves another item into this slot",
     rarity: 6.5,
+    weight: 2,
     async onUse(user, interaction, items, slot) {
         if (user.items.length === 1) {
             return "You did not have any items to swap";

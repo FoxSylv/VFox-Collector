@@ -21,9 +21,9 @@ Bait further improves your stats while hunting, but you only have a small amount
 There is a small chance to conserve bait if you don't find foxes, though\n
 You can equip and unequip bait in the ${getCommandTag("bait")} screen, or through the ${getCommandTag("shop")} in the purchase menu`},
     shrine: {title: "Shrine", tutorial: `Congratulations! You have enough foxes for your first ${getCommandTag("shrine")} upgrade!
-Shrine upgrades are infinitely upgradable, although the effectiveness slowly decreases at higher levels\n
+Shrine upgrades are infinitely upgradable, although the effectiveness slowly degrades at higher levels\n
 When you ${getCommandTag("sell")} to get permanent equipment, you will lose your shrine upgrades
-It is a worthwhile trade once you reach 100 foxes, though!`},
+It is a worthwhile trade, though!`},
     coins: {title: "Coins", tutorial: `Congratulations! You just got 100 foxes at once!
 You can now ${getCommandTag("sell")} them to get coins\n
 Coins are used in the ${getCommandTag("shop")} to acquire better fox-finding gear

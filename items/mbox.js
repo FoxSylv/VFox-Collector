@@ -4,6 +4,7 @@ module.exports = {
     value: "mbox",
     description: "An extreme number of every type of fox",
     rarity: 8.5,
+    weight: 6,
     async onUse(user) {
         user.foxes ??= {};
         user.foxes.orange = (user.foxes.kitsune ?? 0) + (10 + Math.floor(Math.random() * 20));

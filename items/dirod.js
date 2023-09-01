@@ -6,6 +6,7 @@ module.exports = {
     value: "dirod",
     description: "Determine the exact rarity of an item",
     rarity: 6,
+    weight: 1,
     async onUse(user, interaction, items, slot) {
         const userItems = user.items.map((item, index) => {
             if (!item || (index === slot)) {

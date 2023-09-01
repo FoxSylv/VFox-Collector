@@ -4,6 +4,7 @@ module.exports = {
     value: "kpack",
     description: "A very small amount of Blessed Bait",
     rarity: 5.5,
+    weight: 1,
     async onUse(user) {
         user.upgrades ??= {};
         user.upgrades.coin ??= {};

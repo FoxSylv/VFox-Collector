@@ -6,6 +6,7 @@ module.exports = {
     value: "brush",
     description: "Colors embeds to a custom color",
     rarity: 0.5,
+    weight: 1,
     async onUse(user, interaction) {
         user.equips ??= {};
         user.equips.activeEffects ??= [];

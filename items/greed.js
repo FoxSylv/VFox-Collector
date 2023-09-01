@@ -4,6 +4,7 @@ module.exports = {
     value: "greed",
     description: "Greatly boosts item quality and quantity temporarily",
     rarity: 8,
+    weight: 2,
     activeEffects: ["greed"],
     async onUse(user) {
         return "You're sure to find what you're looking for now!";

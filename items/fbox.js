@@ -4,6 +4,7 @@ module.exports = {
     value: "fbox",
     description: "A fox in a box",
     rarity: 0,
+    weight: 4,
     async onUse(user) {
         user.foxes ??= {};
         user.foxes.orange = (user.foxes.orange ?? 0) + 1;

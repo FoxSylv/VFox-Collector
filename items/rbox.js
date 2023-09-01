@@ -4,6 +4,7 @@ module.exports = {
     value: "rbox",
     description: "A rare fox in a box",
     rarity: 2,
+    weight: 4,
     async onUse(user) {
         user.foxes ??= {};
         user.foxes.grey = (user.foxes.grey ?? 0) + 1;

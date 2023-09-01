@@ -4,6 +4,7 @@ module.exports = {
     value: "faith",
     description: "Boosts fox-finding chance",
     rarity: 9,
+    weight: 1,
     activeEffects: ["chance"],
     async onUse(user) {
         return "You're in the endgame now";

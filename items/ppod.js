@@ -4,6 +4,7 @@ module.exports = {
     value: "ppod",
     description: "Copies the effect from the item directly below this one",
     rarity: 4.5,
+    weight: 2,
     async onUse(user, interaction, items, slot) {
         const itemVal = user.items[slot + 1];
         if (itemVal === undefined) {

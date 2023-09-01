@@ -21,10 +21,10 @@ function hasEffect(user, activeEffect) {
 }
 
 function canMiss(user) {
-    return ((user.stats?.numSearches ?? 0) > 8) && ((user.stats?.dryStreak ?? 0) < (4 + Math.floor((user.stats?.shopPurchases ?? 0) / 2)));
+    return ((user.stats?.numSearches ?? 0) > 8) && ((user.stats?.dryStreak ?? 0) < (3 + Math.floor((user.stats?.shopPurchases ?? 0) / 2)));
 }
 function canItems(user) {
-    return (user.stats?.numSearches ?? 0) > 20;
+    return (user.stats?.numSearches ?? 0) > 60;
 }
 function canRareFox(user) {
     return user.upgrades?.coin?.nets?.basic === true;
@@ -73,14 +73,14 @@ function getKitsuneBonus(user, foxCount, isMinion, tailCount) {
 }
 function getItemChance(user, tailCount) {
     let chance = getAllBonuses(user, "itemQuantity");
-    chance += invSum(2, user.upgrades?.shrine?.eyesightCount ?? 0);
+    chance += invSum(3, user.upgrades?.shrine?.eyesightCount ?? 0);
     chance += invSum(2, hasEffect(user, "glass"));
     chance -= invSum(2, hasEffect(user, "sslag"));
     chance -= invSum(2, hasEffect(user, "ball"));
     chance -= hasEffect(user, "micro");
     chance += hasEffect(user, "greed");
     chance += tailCount / 2;
-    return 0.01 + Math.max(0, 0.08 + (chance / 20));
+    return 0.01 + Math.max(0, 0.08 + (chance / 10));
 }
 function getItemQuality(user, tailCount) {
     let quality = getAllBonuses(user, "itemQuality");

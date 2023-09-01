@@ -4,6 +4,7 @@ module.exports = {
     value: "pbox",
     description: "A bunch of kitsunes",
     rarity: 7,
+    weight: 5,
     async onUse(user) {
         const num = 1 + Math.floor(Math.random() * 3);
         user.foxes ??= {};

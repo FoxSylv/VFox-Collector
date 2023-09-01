@@ -4,6 +4,7 @@ module.exports = {
     value: "shoe",
     description: "JUNK! Might as well use it to free up a slot",
     rarity: -3,
+    weight: 5,
     async onUse(user) {
         return "Good riddance!";
     }

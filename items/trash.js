@@ -6,6 +6,7 @@ module.exports = {
     value: "trash",
     description: "Removes unwanted items without using them",
     rarity: 0.5,
+    weight: 5,
     async onUse(user, interaction, items, slot) {
         const userItems = user.items.map((item, index) => {
             if (!item || (index === slot)) {

@@ -4,6 +4,7 @@ module.exports = {
     value: "glass",
     description: "Temporarily increases item quantity until an item is found",
     rarity: 1,
+    weight: 2,
     activeEffects: ["glass"],
     async onUse(user) {
         return "You now have increased item quantity";

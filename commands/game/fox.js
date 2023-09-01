@@ -199,18 +199,24 @@ module.exports = {
             if (getItemChance(user, tailCount) > Math.random()) {
                 const iquality = getItemQuality(user, tailCount);
                 const filteredItems = Object.keys(items).filter(itemVal => items[itemVal].rarity <= iquality && items[itemVal].rarity + 3 > iquality);
-                item = filteredItems[Math.floor(Math.random() * filteredItems.length)];
+                const totalWeights = filteredItems.reduce((acc, i) => acc + items[i].weight, 0);
+                for (let weight = totalWeights * Math.random(), index = 0; weight >= 0; weight -= items[filteredItems[index++]].weight) {
+                    item = filteredItems[index];
+                }
             }
         }
         /* Hard-code first items as a "tutorial" */
         switch(user.stats?.numSearches ?? 0) {
-            case 4:
+            case 16:
                 item = "fbox";
                 break;
-            case 11:
+            case 33:
                 item = "shoe";
                 break;
-            case 19:
+            case 42:
+                item = "fbox";
+                break;
+            case 59:
                 item = "bpack";
                 break;
         }
