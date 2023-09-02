@@ -3,6 +3,8 @@ const { token, devToken } = require('./config.json');
 const { dbInit } = require('./utilities/db.js');
 const getCommands = require('./utilities/getCommands.js');
 const { getProfile } = require('./utilities/db.js');
+const { initTags } = require('./utilities/getCommandTag.js');
+const { initTutorialCommandTags } = require('./data/tutorialData.js');
 
 /* Initialization */
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -76,8 +78,10 @@ client.on(Events.InteractionCreate, async interaction => {
 
 
 /* Log in */
-client.once(Events.ClientReady, c => {
+client.once(Events.ClientReady, async c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
     client.user.setActivity("/fox", { type: ActivityType.Playing });
+    await initTags(client);
+    initTutorialCommandTags(Object.keys(client.commands));
 });
 client.login(process.argv.includes("--dev") ? devToken : token);
