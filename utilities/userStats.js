@@ -1,5 +1,5 @@
 const { shopData } = require('../data/shopData.js');
-
+const { shrineData } = require('../data/shrineData.js');
 
 
 function invSum(start, span) {
