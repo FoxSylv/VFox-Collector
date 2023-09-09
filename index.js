@@ -13,10 +13,28 @@ client.commands = {};
 getCommands().forEach(command => client.commands[command.data.name] = command);
 const prevInteractions = new Map();
 
+
+/* Lock handling */
+function lock(id) {
+    const prev = prevInteractions.get(id);
+    prevInteractions.set(id, {interaction: prev?.interaction, timeout: prev?.timeout, isLocked: true});
+}
+function unlock(id) {
+    const prev = prevInteractions.get(id);
+    prevInteractions.set(id, {interaction: prev?.interaction, timeout: prev?.timeout, isLocked: false});
+}
+
 client.on(Events.InteractionCreate, async interaction => {
     try {
-        /* Remove components from previous interaction */
+        /* Test for spam */
         const prev = prevInteractions.get(interaction.user.id);
+        if (prev?.isLocked) {
+            interaction.reply({content: "You are spamming inputs too fast!", ephemeral: true});
+            return;
+        }
+        lock(interaction.user.id);
+    
+        /* Clear previous interaction's components */
         clearTimeout(prev?.timeout);
         if (prev?.interaction?.replied) {
             await prev.interaction.editReply({components: []});
@@ -27,7 +45,8 @@ client.on(Events.InteractionCreate, async interaction => {
                 interaction.editReply({components: []});
             }
         }, 600000, prevInteractions, interaction);
-        prevInteractions.set(interaction.user.id, {interaction: interaction, timeout: timeout});
+        prevInteractions.set(interaction.user.id, {interaction: interaction, timeout: timeout, isLocked: true});
+
 
         /* Multi-hit Button Handler */
         if (interaction.isButton()) {
@@ -38,6 +57,7 @@ client.on(Events.InteractionCreate, async interaction => {
             const command = client.commands[commandName];
 
             const user = await getProfile(interaction.user.id);
+            unlock(interaction.user.id);
             await interaction.reply(await command.buttonPress(user, interaction.customId));
         }
 
@@ -50,6 +70,7 @@ client.on(Events.InteractionCreate, async interaction => {
             const command = client.commands[commandName];
 
             const user = await getProfile(interaction.user.id);
+            unlock(interaction.user.id);
             await command.stringSelect(interaction, user, interaction.values[0]);
         }
 
@@ -61,18 +82,20 @@ client.on(Events.InteractionCreate, async interaction => {
 	        	return;
         	}
 
+            unlock(interaction.user.id);
     		await command.execute(interaction);
         }
     }
     catch(error) {
         console.error(error);
+        unlock(interaction.user.id);
         if (interaction.replied || interaction.deferred) {
             await interaction.followUp({ content: 'An error occurred while responding to this interaction!', ephemeral: true });
         }
         else {
             await interaction.reply({ content: 'An error occurred while responding to this interaction!', ephemeral: true });
         }
-    }
+    }        
 });
 
 
