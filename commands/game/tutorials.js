@@ -11,23 +11,18 @@ function getTutorialScreen(user, tutorialNum) {
         .setColor(getColor(user))
         .setTitle(`${currentTutorial.title} Tutorial`)
         .setDescription(currentTutorial.tutorial)
-    const buttons = new ActionRowBuilder();
-    if (tutorialNum > 0) {
-        buttons.addComponents(
-            new ButtonBuilder()
-                .setCustomId(`tutorials.${tutorialNum - 1}`)
-                .setLabel("Previous")
-                .setStyle(ButtonStyle.Primary)
+    const buttons = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId(`tutorials.${tutorialNum - 1}`)
+            .setLabel("Previous")
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(tutorialNum <= 0),
+        new ButtonBuilder()
+            .setCustomId(`tutorials.${tutorialNum + 1}`)
+            .setLabel("Next")
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(tutorialNum >= unlockedTutorials.length - 1)
         )
-    }
-    if (tutorialNum < unlockedTutorials.length - 1) {
-        buttons.addComponents(
-            new ButtonBuilder()
-                .setCustomId(`tutorials.${tutorialNum + 1}`)
-                .setLabel("Next")
-                .setStyle(ButtonStyle.Primary)
-        )
-    }
 
     return unlockedTutorials.length === 1 ? {embeds: [embed]} : {embeds: [embed], components: [buttons]};
 }

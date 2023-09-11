@@ -9,24 +9,17 @@ function getTipScreen(user, tipNum) {
         .setColor(getColor(user))
         .setTitle(`Tip #${tipNum + 1}`)
         .setDescription(tipData[tipNum])
-    const buttons = new ActionRowBuilder();
-    if (tipNum > 0) {
-        buttons.addComponents(
-            new ButtonBuilder()
-                .setCustomId(`tips.${tipNum - 1}`)
-                .setLabel("Previous")
-                .setStyle(ButtonStyle.Primary)
-        )
-    }
-    if (tipNum < tipData.length - 1) {
-        buttons.addComponents(
-            new ButtonBuilder()
-                .setCustomId(`tips.${tipNum + 1}`)
-                .setLabel("Next")
-                .setStyle(ButtonStyle.Primary)
-        )
-    }
-    buttons.addComponents(
+    const buttons = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+            .setCustomId(`tips.${tipNum - 1}`)
+            .setLabel("Previous")
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(tipNum <= 0),
+        new ButtonBuilder()
+            .setCustomId(`tips.${tipNum + 1}`)
+            .setLabel("Next")
+            .setStyle(ButtonStyle.Primary)
+            .setDisabled(tipNum >= tipData.length - 1),
         new ButtonBuilder()
             .setCustomId(`tips.randomtip`)
             .setLabel("Random Tip")
