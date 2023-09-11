@@ -36,17 +36,17 @@ function getShopEmbed(user, currentLocation) {
 
 
 const buttons = [new ButtonBuilder({
-    custom_id: "back",
+    custom_id: "shop.back",
     style: ButtonStyle.Secondary,
     label: "Back"
 })].concat(shopData.map(category => new ButtonBuilder({
-    custom_id: category.value,
+    custom_id: `shop.${category.value}`,
     style: ButtonStyle.Primary,
     label: `${category.value.charAt(0).toUpperCase().concat(category.value.slice(1))}`,
     emoji: {name: category.emoji}
 })));
 function getNavbar(currentLocation) {
-    const usedButtons = buttons.filter(b => b.data.custom_id !== currentLocation);
+    const usedButtons = buttons.filter(b => b.data.custom_id !== `shop.${currentLocation}`);
     return new ActionRowBuilder({components: usedButtons});
 }
 
@@ -59,7 +59,7 @@ function getCatalogueSelector(categoryValue) {
             .addOptions(...category.upgrades.map(upgrade => new StringSelectMenuOptionBuilder()
                 .setLabel(upgrade.name)
                 .setDescription(upgrade.minidesc)
-                .setValue(`${category.value}.${upgrade.value}`)
+                .setValue(`shop.${category.value}.${upgrade.value}`)
             ))
         );
 }
@@ -140,21 +140,29 @@ function getUpgradeMessage(user, category, upgrade) {
         .addFields({name: '\u200b', value: '\u200b'},
                    {name: `Price: **${upgrade.price}**:coin:`, value: `You have: **${user.coins ?? 0}**:coin:`})
         .setFooter({text: upgrade.flavor});
+    if (category.value === "items") {
+        const userItems = user.items ?? [];
+        let slots = "";
+        for (let i = 0; i < 9; ++i) {
+            slots = slots.concat(userItems[i] ? ":white_check_mark:" : ":green_square:");
+        }
+        embed.addFields({name: `Item Slots:`, value: slots});
+    }
 
     let buttons = [new ButtonBuilder()
-            .setCustomId(isOwned ? (isEquipped ? "unequip" : "equip") : "purchase")
+            .setCustomId(isOwned ? (isEquipped ? `shop.${category.value}.${upgrade.value}.unequip` : `shop.${category.value}.${upgrade.value}.equip`) : `shop.${category.value}.${upgrade.value}.purchase`)
             .setLabel(isOwned ? (isEquipped ? "Unequip" : "Equip") : "Purchase")
             .setStyle(ButtonStyle.Primary)
             .setDisabled(((user.coins ?? 0) < upgrade.price) && !isOwned),
         new ButtonBuilder()
-            .setCustomId(category.value)
+            .setCustomId(`shop.${category.value}`)
             .setLabel("Cancel")
             .setStyle(ButtonStyle.Secondary)
     ];
     if (category.value === "bait") {
         const baitCount = user.upgrades?.coin?.bait?.[upgrade.value] ?? 0;
         buttons.splice(1, 0, new ButtonBuilder()
-            .setCustomId(isEquipped ? "unequip" : "equip")
+            .setCustomId(isEquipped ? `shop.${category.value}.${upgrade.value}.unequip` : `shop.${category.value}.${upgrade.value}.equip`)
             .setLabel(`${isEquipped ? "Unequip" : "Equip"} (${baitCount})`)
             .setStyle(ButtonStyle.Primary)
             .setDisabled(baitCount <= 0)
@@ -165,66 +173,62 @@ function getUpgradeMessage(user, category, upgrade) {
     return {embeds: [embed], components: [actionRow]};
 }
 
-async function executePurchase(interaction, user, category, upgrade) {
-    console.log(interaction);
-    const response = await interaction.reply(getUpgradeMessage(user, category, upgrade));
-    try {
-	    const confirmation = await response.awaitMessageComponent({filter: i => i.user.id === interaction.user.id, time: 60000});
-        if (confirmation.customId === "equip") {
-            user.equips ??= {};
-            user.equips[category.value] = upgrade.value;
-            await user.save();
-            await confirmation.update({content: `${category.value === "items" ? "" : "The "}${upgrade.name} was equipped!`, embeds: [], components: []});
-            return;
-        }
-        else if (confirmation.customId === "unequip") {
-            user.equips ??= {};
-            user.equips[category.value] = undefined;
-            await user.save();
-            await confirmation.update({content: `${category.value === "items" ? "" : "The "}${upgrade.name} was unequipped!`, embeds: [], components: []});
-            return;
-        }
-        else if(confirmation.customId === "purchase") {
-            if (category.value === "items") {
-                const userItems = user.items ?? [];
-                let slot = userItems.findIndex(i => !i);
-                if (slot === -1) { //if(findIndex fails)
-                    slot = userItems.length;
-                }
-                if (slot >= 9) {
-                    await confirmation.update({content: "You do not have any free item slots!", embeds: [], components: []});
-                    return;
-                }
-                const item = items[upgrade.value];
-                await confirmation.update({content: `You purchased a ${item.emoji} ${item.name}! It has gone into slot ${slot + 1}`, embeds: [], components: []});
-                userItems[slot] = item.value;
-                user.items = userItems;
-            }
-            else {
-                user.upgrades ??= {};
-                user.upgrades.coin ??= {};
-                user.upgrades.coin[category.value] ??= {};
-                const oldValue = user.upgrades.coin[category.value][upgrade.value];
-                if (upgrade.quantity) {
-                    user.upgrades.coin[category.value][upgrade.value] = (oldValue ?? 0) + upgrade.quantity;
-                }
-                else {
-                    user.upgrades.coin[category.value][upgrade.value] = true;
-                }
-        
-                user.equips ??= {};
-                user.equips[category.value] = upgrade.value;
-                await confirmation.update({content: `You purchased ${upgrade.quantity ? `${upgrade.quantity} ` : ``}${upgrade.name} for **${upgrade.price}**:coin:!\nIt has automatically been equipped`, embeds: [], components: []});
-            }
-        
-            user.coins = (user.coins ?? 0) - upgrade.price;
-            user.stats ??= {};
-            user.stats.shopPurchases = (user.stats.shopPurchases ?? 0) + 1;
-            await user.save();
-        }
+async function executePurchase(user, category, upgrade, purchaseType) {
+    if (purchaseType === "equip") {
+        user.equips ??= {};
+        user.equips[category.value] = upgrade.value;
+        await user.save();
+        return getUpgradeMessage(user, category, upgrade);
     }
-    catch (e) {
-        await interaction.editReply({components: []});
+    else if (purchaseType === "unequip") {
+        user.equips ??= {};
+        user.equips[category.value] = undefined;
+        await user.save();
+        return getUpgradeMessage(user, category, upgrade);
+    }
+
+    /* Actual purchasing */
+    if (category.value === "items") {
+        const userItems = user.items ?? [];
+        let slot = userItems.findIndex(i => !i);
+        if (slot === -1) { //if(findIndex fails)
+            slot = userItems.length;
+        }
+        if (slot >= 9) {
+            const upgradeScreen = getUpgradeMessage(user, category, upgrade);
+            return {content: "**You do not have any free item slots!**", embeds: upgradeScreen.embeds, components: upgradeScreen.components};
+        }
+        const item = items[upgrade.value];
+        userItems[slot] = item.value;
+        user.items = userItems;
+        user.coins = (user.coins ?? 0) - upgrade.price;
+        user.stats ??= {};
+        user.stats.shopPurchases = (user.stats.shopPurchases ?? 0) + 1;
+        await user.save();
+
+        const upgradeScreen = getUpgradeMessage(user, category, upgrade);
+        return {content: `You purchased a ${item.emoji} **${item.name}**! It has gone into slot **${slot + 1}**`, embeds: upgradeScreen.embeds, components: upgradeScreen.components};
+    }
+    else {
+        user.upgrades ??= {};
+        user.upgrades.coin ??= {};
+        user.upgrades.coin[category.value] ??= {};
+        const oldValue = user.upgrades.coin[category.value][upgrade.value];
+        if (upgrade.quantity) {
+            user.upgrades.coin[category.value][upgrade.value] = (oldValue ?? 0) + upgrade.quantity;
+        }
+        else {
+            user.upgrades.coin[category.value][upgrade.value] = true;
+        }
+        
+        user.equips ??= {};
+        user.equips[category.value] = upgrade.value;
+        user.coins = (user.coins ?? 0) - upgrade.price;
+        user.stats ??= {};
+        user.stats.shopPurchases = (user.stats.shopPurchases ?? 0) + 1;
+        await user.save();
+
+        return getUpgradeMessage(user, category, upgrade);
     }
 }
 
@@ -233,15 +237,22 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("shop")
 		.setDescription("Purchase permanent upgrades!"),
-    buttonValues: ["back"].concat(shopData.map(c => c.value)),
     async buttonPress(user, customId) {
-        return getShopMessage(user, customId);
+        const buttonVals = customId.split('.');
+        if (buttonVals.length === 2) {
+            return getShopMessage(user, buttonVals[1]);
+        }
+        else {
+            const category = shopData.find(c => c.value === buttonVals[1]);
+            const upgrade = category.upgrades.find(u => u.value === buttonVals[2]);
+            return await executePurchase(user, category, upgrade, buttonVals[3]);
+        }
     },
-    stringSelectValues: shopData.flatMap(c => c.upgrades.map(u => `${c.value}.${u.value}`)),
-    async stringSelect(interaction, user, customId) {
-        const [categoryValue, upgradeValue] = customId.split('.');
+    async stringSelect(user, customId) {
+        const [shopPreface, categoryValue, upgradeValue] = customId.split('.');
         const category = shopData.find(c => c.value === categoryValue);
-        await executePurchase(interaction, user, category, category.upgrades.find(u => u.value === upgradeValue));
+        const upgrade = category.upgrades.find(u => u.value === upgradeValue);
+        return getUpgradeMessage(user, category, upgrade);
     },
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);

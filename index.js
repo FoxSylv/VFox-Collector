@@ -2,6 +2,7 @@ const { Client, Events, GatewayIntentBits, ActivityType } = require('discord.js'
 const { token, devToken } = require('./config.json');
 const { dbInit } = require('./utilities/db.js');
 const getCommands = require('./utilities/getCommands.js');
+const { items } = require('./utilities/items.js');
 const { getProfile } = require('./utilities/db.js');
 const { initTags } = require('./utilities/getCommandTag.js');
 const { initTutorialCommandTags } = require('./data/tutorialData.js');
@@ -13,26 +14,15 @@ client.commands = {};
 getCommands().forEach(command => client.commands[command.data.name] = command);
 const prevInteractions = new Map();
 
-
-/* Lock handling */
-function lock(id) {
-    const prev = prevInteractions.get(id);
-    prevInteractions.set(id, {interaction: prev?.interaction, timeout: prev?.timeout, isLocked: true});
-}
-function unlock(id) {
-    const prev = prevInteractions.get(id);
-    prevInteractions.set(id, {interaction: prev?.interaction, timeout: prev?.timeout, isLocked: false});
-}
-
 client.on(Events.InteractionCreate, async interaction => {
     try {
-        /* Test for spam */
+        /* Test if inputs locked (spam prevention) */
         const prev = prevInteractions.get(interaction.user.id);
         if (prev?.isLocked) {
             interaction.reply({content: "You are spamming inputs too fast!", ephemeral: true});
             return;
         }
-        lock(interaction.user.id);
+        prevInteractions.set(interaction.user.id, {interaction: prev?.interaction, timeout: prev?.timeout, isLocked: true}); //Lock inputs
     
         /* Clear previous interaction's components */
         clearTimeout(prev?.timeout);
@@ -45,50 +35,37 @@ client.on(Events.InteractionCreate, async interaction => {
                 interaction.editReply({components: []});
             }
         }, 600000, prevInteractions, interaction);
-        prevInteractions.set(interaction.user.id, {interaction: interaction, timeout: timeout, isLocked: true});
 
-
-        /* Multi-hit Button Handler */
-        if (interaction.isButton()) {
-            const commandName = Object.keys(client.commands).find(c => client.commands[c].buttonValues?.includes(interaction.customId));
-            if (!commandName) {
-                return;
-            }
-            const command = client.commands[commandName];
-
-            const user = await getProfile(interaction.user.id);
-            unlock(interaction.user.id);
-            await interaction.reply(await command.buttonPress(user, interaction.customId));
+        
+        /* Respond to interaction */
+        let useType = "";
+        let input = "";
+        if (interaction.isChatInputCommand()) {
+            /* Special case due to the tutorial follow-ups */
+            prevInteractions.set(interaction.user.id, {interaction: interaction, timeout: timeout, isLocked: false});
+            client.commands[interaction.commandName]?.execute(interaction);
+            return;
         }
-
-        /* Multi-Hit String Select Menu Handler */
-        if (interaction.isStringSelectMenu()) {
-            const commandName = Object.keys(client.commands).find(c => client.commands[c].stringSelectValues?.includes(interaction.values[0]));
-            if (!commandName) {
-                return;
-            }
-            const command = client.commands[commandName];
-
-            const user = await getProfile(interaction.user.id);
-            unlock(interaction.user.id);
-            await command.stringSelect(interaction, user, interaction.values[0]);
+        else if (interaction.isButton()) {
+            useType = "buttonPress";
+            input = interaction.customId;
         }
-
-        /* Slash Command Handler */
-	    if (interaction.isChatInputCommand()) {
-	        const command = client.commands[interaction.commandName];
-        	if (!command) {
-	    	    console.error(`No command matching ${interaction.commandName} was found.`);
-	        	return;
-        	}
-
-            unlock(interaction.user.id);
-    		await command.execute(interaction);
+        else if (interaction.isStringSelectMenu()) {
+            useType = "stringSelect";
+            input = interaction.values[0];
         }
+        else {
+            return;
+        }
+        const user = await getProfile(interaction.user.id);
+        const name = input.split('.')[0];
+        await interaction.reply(Object.keys(client.commands).includes(name) ? await client.commands[name]?.[useType](user, input) : await items[name]?.[useType](user, input));
+
+        prevInteractions.set(interaction.user.id, {interaction: interaction, timeout: timeout, isLocked: false}); //Unlock inputs
     }
     catch(error) {
         console.error(error);
-        unlock(interaction.user.id);
+        prevInteractions.delete(interaction.user.id);
         if (interaction.replied || interaction.deferred) {
             await interaction.followUp({ content: 'An error occurred while responding to this interaction!', ephemeral: true });
         }

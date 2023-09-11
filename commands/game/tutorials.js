@@ -15,7 +15,7 @@ function getTutorialScreen(user, tutorialNum) {
     if (tutorialNum > 0) {
         buttons.addComponents(
             new ButtonBuilder()
-                .setCustomId(`tutorial.${tutorialNum - 1}`)
+                .setCustomId(`tutorials.${tutorialNum - 1}`)
                 .setLabel("Previous")
                 .setStyle(ButtonStyle.Primary)
         )
@@ -23,7 +23,7 @@ function getTutorialScreen(user, tutorialNum) {
     if (tutorialNum < unlockedTutorials.length - 1) {
         buttons.addComponents(
             new ButtonBuilder()
-                .setCustomId(`tutorial.${tutorialNum + 1}`)
+                .setCustomId(`tutorials.${tutorialNum + 1}`)
                 .setLabel("Next")
                 .setStyle(ButtonStyle.Primary)
         )
@@ -36,7 +36,6 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("tutorials")
 		.setDescription("Review previously seen tutorials"),
-    buttonValues: Object.keys(tutorialData).map((tutorial, index) => `tutorial.${index}`),
     async buttonPress(user, customId) {
         let currentTutorial = customId.split('.')[1];
         return await getTutorialScreen(user, parseInt(currentTutorial))

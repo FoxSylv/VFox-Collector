@@ -13,7 +13,7 @@ function getTipScreen(user, tipNum) {
     if (tipNum > 0) {
         buttons.addComponents(
             new ButtonBuilder()
-                .setCustomId(`tip.${tipNum - 1}`)
+                .setCustomId(`tips.${tipNum - 1}`)
                 .setLabel("Previous")
                 .setStyle(ButtonStyle.Primary)
         )
@@ -21,14 +21,14 @@ function getTipScreen(user, tipNum) {
     if (tipNum < tipData.length - 1) {
         buttons.addComponents(
             new ButtonBuilder()
-                .setCustomId(`tip.${tipNum + 1}`)
+                .setCustomId(`tips.${tipNum + 1}`)
                 .setLabel("Next")
                 .setStyle(ButtonStyle.Primary)
         )
     }
     buttons.addComponents(
         new ButtonBuilder()
-            .setCustomId(`randomtip`)
+            .setCustomId(`tips.randomtip`)
             .setLabel("Random Tip")
             .setStyle(ButtonStyle.Success)
     );
@@ -40,10 +40,9 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("tips")
 		.setDescription("Get helpful hints about the game and how to play it"),
-    buttonValues: ["randomtip"].concat(tipData.map((tip, index) => `tip.${index}`)),
     async buttonPress(user, customId) {
         let currentTip;
-        if (customId === "randomtip") {
+        if (customId === "tips.randomtip") {
             currentTip = Math.floor(Math.random() * tipData.length);
         }
         else {

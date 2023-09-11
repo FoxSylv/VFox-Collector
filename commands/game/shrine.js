@@ -10,11 +10,10 @@ function getPrice(user, purchase) {
     return purchase.basePrice * ((user.upgrades?.shrine?.[purchase.value] ?? 0) + 1);
 }
 
-function getShrineShopEmbed(user) {
+function getShrineShopEmbed(user, tailCount) {
     let description = shrineData.reduce((acc, purchase) => {
             return acc.concat(`${purchase.emoji} **${purchase.name}** (${getPrice(user, purchase).toLocaleString("en-US")}:fox:): ${purchase.description}\n`);
         }, "");
-    const tailCount = (user.items ?? []).filter(i => i === "tail").length;
     if (tailCount === 0) {
         description = description.concat(":question: **????????** (1,111:fox:): ????????");
     }
@@ -33,12 +32,12 @@ function getPurchaseSelector(tailCount) {
     let options = shrineData.map(p => new StringSelectMenuOptionBuilder()
         .setLabel(p.name)
         .setDescription(p.description)
-        .setValue(p.value)
+        .setValue(`shrine.${p.value}`)
     );
     options = options.concat(new StringSelectMenuOptionBuilder()
         .setLabel(tailCount === 0 ? "?????????" : "Kitsune's Tail")
         .setDescription(tailCount === 0 ? "?????????" : "A blessing bestowed by the fluffy deities")
-        .setValue("tail")
+        .setValue("shrine.tail")
     );
 
     return new ActionRowBuilder()
@@ -65,65 +64,61 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("shrine")
 		.setDescription("Release foxes at the shrine for rewards!"),
+    async stringSelect(user, customId) {
+        const upgrade = customId.split('.')[1];
+        const tailCount = (user.items ?? []).filter(i => i === "tail").length;
+
+        let price = 1111 * (tailCount + 1);
+        if (upgrade === "tail") {
+            if (countFoxes(user.foxes) < price) {
+                return {content: `You do not have enough foxes for ${tailCount === 0 ? "this" : "another tail"}... (${countFoxes(user.foxes)}/${price})`, embeds: [], components: []};
+            }
+
+            const userItems = user.items ?? [];
+            let slot = userItems.findIndex(i => !i);
+            if (slot === -1) { //if(findIndex fails)
+                slot = userItems.length;
+            }
+            if (slot >= 9) {
+                return {content: "You need a free item slot to acquire this!", embeds: [], components: []};
+            }
+
+            user.items ??= [];
+            user.items[slot] = "tail";
+            await user.save();
+            return {content: `${tailMessages[tailCount]}`, embeds: [], components: []};
+        }
+
+        const purchase = shrineData.find(p => p.value === upgrade);
+        price = getPrice(user, purchase);
+        const userUpgrade = user.upgrades?.shrine?.[upgrade] ?? 0;
+        if (countFoxes(user.foxes) >= price) {
+            user.upgrades ??= {};
+            user.upgrades.shrine ??= {};
+            user.upgrades.shrine[upgrade] = userUpgrade + 1;
+
+            let priceLeft = price;
+            foxData.forEach(type => {
+                if (!user.foxes[type.value]) return;
+                const delta = Math.min(priceLeft, user.foxes[type.value]);
+                user.foxes[type.value] -= delta;
+                priceLeft -= delta;
+            });
+
+            user.stats ??= {};
+            user.stats.shrinePurchases = (user.stats.shrinePurchases ?? 0) + 1;
+            await user.save();
+            return {content: `You got a ${purchase.emoji} **${purchase.name}**! (You now have **${user.upgrades.shrine[upgrade]}**)`, embeds: [], components: []};
+        }
+        else {
+            return {content: `You do not have enough foxes for a ${purchase.emoji} **${purchase.name}**... (${countFoxes(user.foxes)}/${price})`, embeds: [], components: []};
+        }
+    },
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);
         const tailCount = (user.items ?? []).filter(i => i === "tail").length;
 
-        const response = await interaction.reply({embeds: [getShrineShopEmbed(user)], components: [getPurchaseSelector(tailCount)]});
-        try {
-            const upgrade = (await response.awaitMessageComponent({filter: i => i.user.id === interaction.user.id, time: 60000})).values[0];
-            let price = 1111 * (tailCount + 1);
-            if (upgrade === "tail") {
-                if (countFoxes(user.foxes) < price) {
-                    interaction.editReply({content: `You do not have enough foxes for ${tailCount === 0 ? "this" : "another tail"}... (${countFoxes(user.foxes)}/${price})`, embeds: [], components: []});
-                    return;
-                }
-
-                const userItems = user.items ?? [];
-                let slot = userItems.findIndex(i => !i);
-                if (slot === -1) { //if(findIndex fails)
-                    slot = userItems.length;
-                }
-                if (slot >= 9) {
-                    await interaction.editReply({content: "You need a free item slot to acquire this!", embeds: [], components: []});
-                    return;
-                }
-
-                user.items ??= [];
-                user.items[slot] = "tail";
-                await user.save();
-                await interaction.editReply({content: `${tailMessages[tailCount]}`, embeds: [], components: []});
-                return;
-            }
-
-            const purchase = shrineData.find(p => p.value === upgrade);
-            price = getPrice(user, purchase);
-            const userUpgrade = user.upgrades?.shrine?.[upgrade] ?? 0;
-            if (countFoxes(user.foxes) >= price) {
-                user.upgrades ??= {};
-                user.upgrades.shrine ??= {};
-                user.upgrades.shrine[upgrade] = userUpgrade + 1;
-
-                let priceLeft = price;
-                foxData.forEach(type => {
-                    if (!user.foxes[type.value]) return;
-                    const delta = Math.min(priceLeft, user.foxes[type.value]);
-                    user.foxes[type.value] -= delta;
-                    priceLeft -= delta;
-                });
-
-                user.stats ??= {};
-                user.stats.shrinePurchases = (user.stats.shrinePurchases ?? 0) + 1;
-                interaction.editReply({content: `You got a ${purchase.emoji} **${purchase.name}**! (You now have **${user.upgrades.shrine[upgrade]}**)`, embeds: [], components: []});
-            }
-            else {
-                interaction.editReply({content: `You do not have enough foxes for a ${purchase.emoji} **${purchase.name}**... (${countFoxes(user.foxes)}/${price})`, embeds: [], components: []});
-            }
-            await user.save();
-        }
-        catch(e) {
-            interaction.editReply({components: []});
-        }
+        await interaction.reply({embeds: [getShrineShopEmbed(user, tailCount)], components: [getPurchaseSelector(tailCount)]});
 	}
 };
 
