@@ -64,8 +64,8 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("shrine")
 		.setDescription("Release foxes at the shrine for rewards!"),
-    async stringSelect(user, customId) {
-        const upgrade = customId.split('.')[1];
+    async stringSelect(user, values) {
+        const upgrade = values[0].split('.')[1];
         const tailCount = (user.items ?? []).filter(i => i === "tail").length;
 
         let price = 1111 * (tailCount + 1);

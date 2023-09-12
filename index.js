@@ -2,7 +2,6 @@ const { Client, Events, GatewayIntentBits, ActivityType } = require('discord.js'
 const { token, devToken } = require('./config.json');
 const { dbInit } = require('./utilities/db.js');
 const getCommands = require('./utilities/getCommands.js');
-const { items } = require('./utilities/items.js');
 const { getProfile } = require('./utilities/db.js');
 const { initTags } = require('./utilities/getCommandTag.js');
 const { initTutorialCommandTags } = require('./data/tutorialData.js');
@@ -40,6 +39,7 @@ client.on(Events.InteractionCreate, async interaction => {
         /* Respond to interaction */
         let useType = "";
         let input = "";
+        let commandName = "";
         if (interaction.isChatInputCommand()) {
             /* Special case due to the tutorial follow-ups */
             prevInteractions.set(interaction.user.id, {interaction: interaction, timeout: timeout, isLocked: false});
@@ -49,17 +49,20 @@ client.on(Events.InteractionCreate, async interaction => {
         else if (interaction.isButton()) {
             useType = "buttonPress";
             input = interaction.customId;
+            commandName = interaction.customId.split('.')[0];
         }
         else if (interaction.isStringSelectMenu()) {
             useType = "stringSelect";
-            input = interaction.values[0];
+            input = interaction.values;
+            commandName = interaction.values[0].split('.')[0];
         }
         else {
             return;
         }
         const user = await getProfile(interaction.user.id);
-        const name = input.split('.')[0];
-        await interaction.reply(Object.keys(client.commands).includes(name) ? await client.commands[name]?.[useType](user, input) : await items[name]?.[useType](user, input));
+        const output = await client.commands[commandName]?.[useType](user, input);
+        if (!output) throw new Error(`Invalid interaction output!\nInteraction: ${interaction}\nInput: ${input}\nOutput: ${output}`);
+        await interaction.reply(output);
 
         prevInteractions.set(interaction.user.id, {interaction: interaction, timeout: timeout, isLocked: false}); //Unlock inputs
     }

@@ -248,8 +248,8 @@ module.exports = {
             return await executePurchase(user, category, upgrade, buttonVals[3]);
         }
     },
-    async stringSelect(user, customId) {
-        const [shopPreface, categoryValue, upgradeValue] = customId.split('.');
+    async stringSelect(user, values) {
+        const [shopPreface, categoryValue, upgradeValue] = values[0].split('.');
         const category = shopData.find(c => c.value === categoryValue);
         const upgrade = category.upgrades.find(u => u.value === upgradeValue);
         return getUpgradeMessage(user, category, upgrade);
