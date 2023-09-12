@@ -7,14 +7,12 @@ function getItemSelector(user, items, slot) {
             return undefined;
         }
         const item = items[userItem];
-        console.log(`${index}.${userItem}`);
         return new StringSelectMenuOptionBuilder()
             .setLabel(item.name)
             .setDescription(item.description)
             .setValue(`${index}.${item.value}`);
     }).filter(i => i);
 
-    console.log(itemList);
     return new ActionRowBuilder()
         .addComponents(new StringSelectMenuBuilder()
             .setCustomId("itemChoice")
