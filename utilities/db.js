@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const { dbURI } = require('../config.json');
-const { User } = require('./dbSchema.js');
+const { User } = require('../data/dbSchema.js');
 
 
 async function dbInit() {

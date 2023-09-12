@@ -1,5 +1,5 @@
 const { SlashCommandBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
-const { User } = require('../../utilities/dbSchema.js');
+const { User } = require('../../data/dbSchema.js');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -7,7 +7,6 @@ module.exports = {
 		.setDescription("Deletes your VFox profile. WARNING: You cannot undo this."),
     async buttonPress(user, customId) {
         if (customId === "reset.confirm") {
-            console.log(user);
             await User.findByIdAndDelete(user._id);
             return {content: "You have deleted your VFox Profile.", components: []};
         }
