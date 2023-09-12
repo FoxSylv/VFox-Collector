@@ -8,7 +8,8 @@ const { getColor } = require('../../utilities/getColor.js');
 
 function getPenScreen(user) {
     const counter = user.counter ?? 0;
-    let description = (countFoxes(user.foxes) === 0 && counter === 0) ? "You have no foxes :(\n" : `${counter < 500 ? ":hourglass_flowing_sand:" : ":hourglass:"} **${counter / 10}%**\n`.concat(foxData.reduce((acc, type) => {
+    const counterTxt = (counter === 0) ? "" : `${counter < 500 ? ":hourglass_flowing_sand:" : ":hourglass:"} **${counter / 10}%**\n`;
+    let description = ((countFoxes(user.foxes) === 0 && counter === 0) ? "You have no foxes :(\n" : counterTxt).concat(foxData.reduce((acc, type) => {
         if ((user.foxes[type.value] ?? 0) !== 0) {
             return acc.concat(`**${user.foxes[type.value]}** ${type.emoji}\n`);
         }   

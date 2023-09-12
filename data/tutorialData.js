@@ -12,7 +12,7 @@ Some give temporary effects that can last until you next find an item or beyond!
 (You can view all active effects in your ///equips screen)`},
     hourglass: {title: "Hourglass", tutorial: `Uh oh! You didn't find anything on your hunt!
 Don't worry, though! The fluffy deities shrine brightly on such misfortune\n
-When you fail to find anything, the hourglass slowly fills
+When you fail to find anything, your hourglass slowly fills
 The amount it fills is proportional to your fox-finding chance
 When the hourglass reaches 100%, you get a free orange fox!\n
 You can see your current hourglass progress in your ///pen`},
