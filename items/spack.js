@@ -5,13 +5,13 @@ module.exports = {
     description: "A small amount of Special Bait",
     rarity: 1.5,
     weight: 1,
-    async onUse(user) {
+    async onUse(user, getItemScreen) {
         user.upgrades ??= {};
         user.upgrades.coin ??= {};
         user.upgrades.coin.bait ??= {};
 
         const gained = 14 + Math.floor(Math.random() * 16);
         user.upgrades.coin.bait.special = (user.upgrades.coin.bait.special ?? 0) + gained;
-        return `You gained ${gained} Special Bait!`;
+        return getItemScreen(user, `You found ${gained} Special Bait :strawberry:`);
     }
 }

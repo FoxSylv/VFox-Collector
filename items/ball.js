@@ -6,7 +6,7 @@ module.exports = {
     rarity: 3,
     weight: 2,
     activeEffects: ["ball"],
-    async onUse(user) {
-        return "It's so pretty!";
+    async onUse(user, getItemScreen) {
+        return getItemScreen(user, "You now have boosted fox quality :mirror_ball:");
     }
 }

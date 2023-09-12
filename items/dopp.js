@@ -5,15 +5,19 @@ module.exports = {
     description: "Copies the effect from the item directly above this one",
     rarity: 4.5,
     weight: 2,
-    async onUse(user, interaction, items, slot) {
+    async onUse(user, getItemScreen, items, slot) {
         const itemVal = user.items[slot - 1];
+        let content = "";
         if (itemVal === undefined) {
-            return "You copied an empty slot!";
+            content = "You copied an empty slot!";
         }
         else if (itemVal === "ppod") {
-            return "You get a voice in your head mumbling something about infinite recursion"
+            content = "You get a voice in your head mumbling something about infinite recursion";
         }
-        const item = items[itemVal];
-        return `(Copied ${item.emoji} ${item.name}) ${await item.onUse(user, interaction, items, slot - 1)}`;
+        else {
+            const item = items[itemVal];
+            content = getItemScreen(user, `(Copied ${item.emoji} ${item.name}) ${(await item.onUse(user, interaction, items, slot - 1)).content}`);
+        }
+        return getItemScreen(user, content);
     }
 }

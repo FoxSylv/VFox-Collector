@@ -5,7 +5,7 @@ module.exports = {
     description: "JUNK! Some cultures find this item distasteful",
     rarity: -5,
     weight: 1,
-    async onUse(user) {
-        return "Good riddance!";
+    async onUse(user, getItemScreen) {
+        return getItemScreen(user, "Good riddance!");
     }
 }

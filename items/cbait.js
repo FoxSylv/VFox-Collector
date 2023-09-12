@@ -6,7 +6,7 @@ module.exports = {
     rarity: 2,
     weight: 3,
     activeEffects: ["cbait"],
-    async onUse(user) {
-        return "You now have a reduced chance to use bait";
+    async onUse(user, getItemScreen) {
+        return getItemScreen(user, "You now have a reduced chance to use bait :boomerang:");
     }
 }

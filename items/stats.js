@@ -5,7 +5,7 @@ module.exports = {
     description: "Unlocks the detailed stat screen",
     rarity: -1000,
     activeEffects: ["stats"],
-    async onUse(user) {
-        return "You now have access to the detailed stat screen!";
+    async onUse(user, getItemScreen) {
+        return getItemScreen(user, "You now have access to the detailed stat screen!");
     }
 }

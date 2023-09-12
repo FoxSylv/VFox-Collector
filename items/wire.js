@@ -5,12 +5,12 @@ module.exports = {
     description: "DANGEROUS! Only found with abysmal item quality",
     rarity: -7,
     weight: 2,
-    async onUse(user) {
+    async onUse(user, getItemScreen) {
         let foxes = user.foxes ?? {};
         for (key in Object.keys(foxes)) {
             foxes[key] -= Math.floor(Math.random() * 10);
             foxes[key] = Math.max(foxes[key], 0);
         }
-        return "Ouch! You lost some foxes!";
+        return getItemScreen(user, "Ouch! You lost some foxes!");
     }
 }

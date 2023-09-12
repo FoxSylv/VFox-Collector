@@ -6,7 +6,7 @@ module.exports = {
     rarity: 2.5,
     weight: 2,
     activeEffects: ["chain"],
-    async onUse(user) {
-        return "You have laid your trap";
+    async onUse(user, getItemScreen) {
+        return getItemScreen(user, "You now have increased fox quantity :chains:");
     }
 }

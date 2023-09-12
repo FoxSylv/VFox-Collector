@@ -6,7 +6,7 @@ module.exports = {
     rarity: 3,
     weight: 2,
     activeEffects: ["micro"],
-    async onUse(user) {
-        return "Lab coat and safety glasses not included";
+    async onUse(user, getItemScreen) {
+        return getItemScreen(user, "You now have increased item quality :microscope:");
     }
 }

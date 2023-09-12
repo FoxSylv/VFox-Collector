@@ -6,7 +6,7 @@ module.exports = {
     rarity: 8,
     weight: 2,
     activeEffects: ["greed"],
-    async onUse(user) {
-        return "You're sure to find what you're looking for now!";
+    async onUse(user, getItemChance) {
+        return getItemChance(user, "You now have greatly increased item-finding stats :moon_cake:");
     }
 }

@@ -38,17 +38,28 @@ function getItemSelector(user) {
         );
 }
 
-function getItemScreen(user) {
-    return {embeds: [getItemEmbed(user)], components: (user.items ?? {}).filter(i => i && i !== "tail").length === 0 ? [] : [getItemSelector(user)]}
+function getItemScreen(user, content) {
+    return {content: (content ?? ""), embeds: [getItemEmbed(user)], components: (user.items ?? {}).filter(i => i && i !== "tail").length === 0 ? [] : [getItemSelector(user)]}
 }
 
 
+/* We have `items` as an argument when feeding into item functions so as to avoid circular dependencies */
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("items")
 		.setDescription("View and use your items"),
-    async stringSelect(user, customId) {
-        const [itemsPrefix, slot, itemVal] = customId.split('.');
+    async buttonPress(user, customId) {
+        return items[customId.split('.')[1]]?.buttonPress(user, getItemScreen, items, customId);
+    },
+    async stringSelect(user, values) {
+        /* Pass-through if the interaction is for an item */
+        const split = values[0].split('.');
+        if (Object.keys(items).includes(split[1])) {
+            return items[split[1]]?.stringSelect(user, getItemScreen, items, values);
+        }
+
+        /* Use item */
+        const [itemsPrefix, slot, itemVal] = values[0].split('.');
         const item = items[itemVal];
 
         if (item.activeEffects) {
@@ -62,18 +73,17 @@ module.exports = {
             }
             item.activeEffects.forEach(effect => user.equips.activeEffects = user.equips.activeEffects.concat(effect));
         }
-        //We pass in `items` here since each item cannot `require()` the full list of items (would cause a circular `require()` dependency)
-        const useMessage = await item.onUse(user, items, parseInt(slot));
-        user.items ??= {};
         if (itemVal !== "swap") { //Special case
+            user.items ??= [];
             user.items[slot] = undefined;
         }
 
         user.stats ??= {};
         user.stats.itemsUsed = (user.stats.itemsUsed ?? 0) + 1;
+
+        const output = await item.onUse(user, getItemScreen, items, parseInt(slot));
         await user.save();
-        const itemScreen = getItemScreen(user);
-        return {content: `You used the ${item.emoji} **${item.name}**! ${useMessage}`, embeds: itemScreen.embeds, components: itemScreen.components};
+        return output;
     },
 	async execute(interaction) {
         const user = await getProfile(interaction.user.id);

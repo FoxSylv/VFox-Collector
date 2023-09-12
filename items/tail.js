@@ -4,7 +4,7 @@ module.exports = {
     value: "tail",
     description: "A blessing bestowed upon you from the fluffy deities",
     rarity: -1000,
-    async onUse(user) {
-        return "What a fluffy tail!";
+    async onUse(user, getItemScreen) {
+        return getItemScreen(user, "What a fluffy tail!");
     }
 }
