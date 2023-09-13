@@ -239,12 +239,12 @@ module.exports = {
 		.setDescription("Purchase permanent upgrades!"),
     async buttonPress(user, customId) {
         const buttonVals = customId.split('.');
-        if (buttonVals.length === 2) {
+        const category = shopData.find(c => c.value === buttonVals[1]);
+        const upgrade = category.upgrades.find(u => u.value === buttonVals[2]); //undefined only if in a catalogue page
+        if (!upgrade) {
             return getShopMessage(user, buttonVals[1]);
         }
         else {
-            const category = shopData.find(c => c.value === buttonVals[1]);
-            const upgrade = category.upgrades.find(u => u.value === buttonVals[2]);
             return await executePurchase(user, category, upgrade, buttonVals[3]);
         }
     },

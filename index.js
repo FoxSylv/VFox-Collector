@@ -15,6 +15,12 @@ const prevInteractions = new Map();
 
 client.on(Events.InteractionCreate, async interaction => {
     try {
+        /* Ensure that it is the right user */
+        if (interaction.customId && !interaction.customId?.endsWith(interaction.user.id)) {
+            interaction.reply({content: "This is not for you!", ephemeral: true});
+            return;
+        }
+
         /* Test if inputs locked (spam prevention) */
         const prev = prevInteractions.get(interaction.user.id);
         if (prev?.isLocked) {
@@ -72,6 +78,10 @@ client.on(Events.InteractionCreate, async interaction => {
         }
         else {
             if (!output) throw new Error(`Invalid interaction output!\nInteraction: ${interaction}\nInput: ${input}\nOutput: ${output}`);
+
+            /* Add user id to buttons/select menus so only they can interact with them */
+            output.components.forEach(row => console.log(row.components.forEach(r => r.data.customId = r.data.customId.concat(`.${interaction.user.id}`))));
+
             await interaction.reply(output);
         }
         prevInteractions.set(interaction.user.id, {interaction: interaction, timeout: timeout, isLocked: false}); //Unlock inputs
