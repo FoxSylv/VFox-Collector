@@ -85,7 +85,7 @@ You can sell for up to **${newCoins}**:coin: if you use all of your current coin
         const row = new ActionRowBuilder()
             .addComponents(confirm, cancel);
 
-        await interaction.reply({embeds: [sellEmbed], components: [row]});
+        return {embeds: [sellEmbed], components: [row]};
 	}
 };
 

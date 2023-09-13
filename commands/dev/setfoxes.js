@@ -15,12 +15,11 @@ foxData.forEach(f => data.addIntegerOption(option =>
 module.exports = {
     isDev: true,
 	data: data,
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
+	async execute(user, options) {
         user.foxes ??= {};
-        foxData.forEach(f => user.foxes[f.value] = (interaction.options.getInteger(f.value) ?? 0));
+        foxData.forEach(f => user.foxes[f.value] = (options.getInteger(f.value) ?? 0));
         await user.save();
-        await interaction.reply(`You now have ${countFoxes(user.foxes)} foxes!`);
+        return {content: `You now have ${countFoxes(user.foxes)} foxes!`};
 	}
 };
 

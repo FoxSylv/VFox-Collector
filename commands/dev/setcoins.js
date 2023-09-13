@@ -12,12 +12,11 @@ module.exports = {
                   .setRequired(true)
                   .setMinValue(0)
         ),
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
-        const newCoins = interaction.options.getInteger("coins");
+	async execute(user, options) {
+        const newCoins = options.getInteger("coins");
         user.coins = newCoins;
-        await interaction.reply(`You now have ${newCoins} :coin:!`);
         await user.save();
+        return {content: `You now have ${newCoins} :coin:!`};
 	}
 };
 

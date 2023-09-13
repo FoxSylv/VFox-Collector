@@ -28,6 +28,6 @@ module.exports = {
         const row = new ActionRowBuilder()
 			.addComponents(confirm, cancel);
 
-        await interaction.reply({content: "Are you sure you wish to delete your profile? **THIS CANNOT BE UNDONE!**", components: [row]});
+        return {content: "Are you sure you wish to delete your profile? **THIS CANNOT BE UNDONE!**", components: [row]};
 	}
 };

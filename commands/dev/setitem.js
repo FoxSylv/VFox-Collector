@@ -17,23 +17,21 @@ module.exports = {
                   .setMinValue(1)
                   .setMaxValue(9)
         ),
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
+	async execute(user, options) {
         let userItems = user.items ?? {};
-        const newItem = interaction.options.getString("item");
-        let slot = interaction.options.getInteger("slot") ?? (userItems.findIndex(i => !i) + 1);
+        const newItem = options.getString("item");
+        let slot = options.getInteger("slot") ?? (userItems.findIndex(i => !i) + 1);
         if (slot === 0) { //if (findIndex fails)
             slot = userItems.length + 1;
         }
 
         if (slot > 9) {
-            await interaction.reply("Item inventory full!");
-            return;
+            return {content: "Item inventory full!"};
         }
         userItems[slot - 1] = newItem;
         user.items = userItems;
-        await interaction.reply(`You now have ${newItem} in slot ${slot}`);
         await user.save();
+        return {content: `You now have ${newItem} in slot ${slot}`};
 	}
 };
 

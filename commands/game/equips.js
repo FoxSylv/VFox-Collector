@@ -51,9 +51,8 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("equips")
 		.setDescription("View what you have equipped"),
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
-        await interaction.reply({embeds: [getEquipEmbed(user)]});
+	async execute(user) {
+        return {embeds: [getEquipEmbed(user)]};
     }
 };
 

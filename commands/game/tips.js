@@ -43,9 +43,8 @@ module.exports = {
         }
         return await getTipScreen(user, parseInt(currentTip))
     },
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
-        await interaction.reply(getTipScreen(user, 0));
+	async execute(user) {
+        return getTipScreen(user, 0);
     }
 };
 

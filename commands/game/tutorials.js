@@ -24,7 +24,7 @@ function getTutorialScreen(user, tutorialNum) {
             .setDisabled(tutorialNum >= unlockedTutorials.length - 1)
         )
 
-    return unlockedTutorials.length === 1 ? {embeds: [embed]} : {embeds: [embed], components: [buttons]};
+    return {embeds: [embed], components: [buttons]};
 }
 
 module.exports = {
@@ -33,15 +33,13 @@ module.exports = {
 		.setDescription("Review previously seen tutorials"),
     async buttonPress(user, customId) {
         let currentTutorial = customId.split('.')[1];
-        return await getTutorialScreen(user, parseInt(currentTutorial))
+        return getTutorialScreen(user, parseInt(currentTutorial))
     },
 	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
         if (!user.tutorials) {
-            await interaction.reply("You have not yet viewed any tutorials! Use `/fox` to get started!");
-            return;
+            return {content: "You have not yet viewed any tutorials! Use `/fox` to get started!"};
         }
-        await interaction.reply(getTutorialScreen(user, 0));
+        return getTutorialScreen(user, 0);
     }
 };
 

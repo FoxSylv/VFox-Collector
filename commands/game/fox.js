@@ -126,16 +126,6 @@ function foxMessage(user, foxes, baitEnded, item, counter) {
 }
 
 
-function runTutorial(user, tutorial, condition, interaction) {
-    if (!user.tutorials?.[tutorial] && condition) {
-        user.tutorials ??= {};
-        user.tutorials[tutorial] = true;
-
-        interaction.followUp({content: tutorialData[tutorial].tutorial, ephemeral: true});
-    }
-}
-
-
 const effectsRemovedOnItem = [
     "glass",
     "sslag",
@@ -155,13 +145,11 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("fox")
 		.setDescription("Go searching for foxes!"),
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
+	async execute(user) {
         const cooldown = user.cooldown;
         const now = Date.now();
         if (now < cooldown) {
-            await interaction.reply({content: `You are still on cooldown for \`${msToSec(cooldown - now)}\``, ephemeral: true});
-            return;
+            return {content: `You are still on cooldown for \`${msToSec(cooldown - now)}\``, ephemeral: true};
         }
 
         /* Calculate foxes earned */
@@ -257,17 +245,10 @@ module.exports = {
         user.cooldown = now + getCooldown(user, foxCount);
         user.stats ??= {};
         user.stats.numSearches = (user.stats.numSearches ?? 0) + 1;
-        await interaction.reply(foxMessage(user, totalFoxes, baitEnded, item, counter));
 
-        /* Do tutorials */
-        runTutorial(user, "start", true, interaction);
-        runTutorial(user, "items", item !== undefined, interaction);
-        runTutorial(user, "hourglass", totalFoxes.size === 0, interaction);
-        runTutorial(user, "shrine", (user.foxes?.orange ?? 0) >= 30, interaction);
-        runTutorial(user, "coins", (user.foxes?.orange ?? 0) >= 100, interaction);
-        runTutorial(user, "rarefox", totalFoxes.has("grey"), interaction);
-
+        const output = foxMessage(user, totalFoxes, baitEnded, item, counter);
         await user.save();
+        return output;
 	}
 };
 

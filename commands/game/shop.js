@@ -35,17 +35,17 @@ function getShopEmbed(user, currentLocation) {
 }
 
 
-const buttons = [new ButtonBuilder({
-    custom_id: "shop.back",
-    style: ButtonStyle.Secondary,
-    label: "Back"
-})].concat(shopData.map(category => new ButtonBuilder({
-    custom_id: `shop.${category.value}`,
-    style: ButtonStyle.Primary,
-    label: `${category.value.charAt(0).toUpperCase().concat(category.value.slice(1))}`,
-    emoji: {name: category.emoji}
-})));
 function getNavbar(currentLocation) {
+    const buttons = [new ButtonBuilder({
+        custom_id: "shop.back",
+        style: ButtonStyle.Secondary,
+        label: "Back"
+    })].concat(shopData.map(category => new ButtonBuilder({
+        custom_id: `shop.${category.value}`,
+        style: ButtonStyle.Primary,
+        label: `${category.value.charAt(0).toUpperCase().concat(category.value.slice(1))}`,
+        emoji: {name: category.emoji}
+    })));
     const usedButtons = buttons.filter(b => b.data.custom_id !== `shop.${currentLocation}`);
     return new ActionRowBuilder({components: usedButtons});
 }
@@ -254,9 +254,8 @@ module.exports = {
         const upgrade = category.upgrades.find(u => u.value === upgradeValue);
         return getUpgradeMessage(user, category, upgrade);
     },
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
-        await interaction.reply(getShopMessage(user));
+	async execute(user) {
+        return getShopMessage(user);
 	}
 };
 

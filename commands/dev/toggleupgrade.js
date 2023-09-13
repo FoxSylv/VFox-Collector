@@ -13,9 +13,8 @@ module.exports = {
                   .setRequired(true)
                   .addChoices(...shopData.filter(c => c.value !== "items" && c.value !== "bait").flatMap(c => c.upgrades.map(p => JSON.parse(`{"name": "${p.name}", "value": "${c.value + '.' + p.value}"}`))))
         ),
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
-        const upgrade = interaction.options.getString("upgrade");
+	async execute(user, options) {
+        const upgrade = options.getString("upgrade");
         const split = upgrade.split('.');
         const category = shopData.find(c => c.value === split[0]);
         const upgradeData = category.upgrades.find(u => u.value === split[1]);
@@ -25,8 +24,8 @@ module.exports = {
         user.upgrades.coin ??= {};
         user.upgrades.coin[category.value] ??= {};
         user.upgrades.coin[category.value][upgradeData.value] = !hasUpgrade;
-        await interaction.reply(`Toggled ${upgradeData.name}!`);
         await user.save();
+        return {content: `Toggled ${upgradeData.name}!`};
 	}
 };
 

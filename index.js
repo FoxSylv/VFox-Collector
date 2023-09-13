@@ -47,10 +47,9 @@ client.on(Events.InteractionCreate, async interaction => {
         let input = "";
         let commandName = "";
         if (interaction.isChatInputCommand()) {
-            /* Special case due to the tutorial follow-ups */
-            prevInteractions.set(interaction.user.id, {interaction: interaction, timeout: timeout, isLocked: false});
-            client.commands[interaction.commandName]?.execute(interaction);
-            return;
+            useType = "execute";
+            input = interaction.options;
+            commandName = interaction.commandName;
         }
         else if (interaction.isModalSubmit()) {
             useType = "modalSubmit";
@@ -80,7 +79,9 @@ client.on(Events.InteractionCreate, async interaction => {
             if (!output) throw new Error(`Invalid interaction output!\nInteraction: ${interaction}\nInput: ${input}\nOutput: ${output}`);
 
             /* Add user id to buttons/select menus so only they can interact with them */
-            output.components.forEach(row => console.log(row.components.forEach(r => r.data.customId = r.data.customId.concat(`.${interaction.user.id}`))));
+            (output.components ?? []).forEach(row => (row.components ?? []).forEach(r => {
+                r.data.custom_id = r.data.custom_id.concat(`.${interaction.user.id}`);
+            }));
 
             await interaction.reply(output);
         }

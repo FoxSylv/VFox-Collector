@@ -88,9 +88,8 @@ module.exports = {
         await user.save();
         return output;
     },
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
-        await interaction.reply(getItemScreen(user));
+	async execute(user) {
+        return getItemScreen(user);
 	}
 };
 

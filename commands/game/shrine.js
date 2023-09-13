@@ -114,11 +114,9 @@ module.exports = {
             return {content: `You do not have enough foxes for a ${purchase.emoji} **${purchase.name}**... (${countFoxes(user.foxes)}/${price})`, embeds: [], components: []};
         }
     },
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
+	async execute(user) {
         const tailCount = (user.items ?? []).filter(i => i === "tail").length;
-
-        await interaction.reply({embeds: [getShrineShopEmbed(user, tailCount)], components: [getPurchaseSelector(tailCount)]});
+        return {embeds: [getShrineShopEmbed(user, tailCount)], components: [getPurchaseSelector(tailCount)]};
 	}
 };
 

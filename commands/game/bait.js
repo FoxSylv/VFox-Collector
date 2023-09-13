@@ -52,9 +52,8 @@ module.exports = {
         await user.save();
         return getBaitScreen(user);
     },
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
-        interaction.reply(getBaitScreen(user));
+	async execute(user) {
+        return getBaitScreen(user);
 	}
 };
 

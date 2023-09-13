@@ -30,9 +30,8 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("pen")
 		.setDescription("Look inside your fox pen!"),
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
-        await interaction.reply(getPenScreen(user));
+	async execute(user) {
+        return getPenScreen(user);
     }
 };
 

@@ -61,9 +61,8 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("stats")
 		.setDescription("Look at your info!"),
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
-        await interaction.reply(getStatScreen(user));
+	async execute(user) {
+        return getStatScreen(user);
     }
 };
 
