@@ -7,7 +7,13 @@ module.exports = {
     description: "Determine the exact rarity of an item",
     rarity: 6,
     weight: 1,
-    async onUse(user, interaction, items, slot) {
+    async stringSelect(user, getItemScreen, items, values) {
+        const [prefix1, prefix2, slot, itemVal] = values[0].split('.');
+        const item = items[itemVal];
+        const rarity = (Math.floor((Math.random() + item.rarity + 4.5 - item.weight) * 10) / 10);
+        return getItemScreen(user, `The ${item.emoji} **${item.name}** ${(item.rarity === -1000) ? "does not have a rarity! It can only be purchased!" : `has rarity **${rarity}**`}`);
+    },
+    async onUse(user, getItemScreen, items, slot) {
         const userItems = user.items.map((item, index) => {
             if (!item || (index === slot)) {
                 return undefined;
@@ -15,7 +21,7 @@ module.exports = {
             return new StringSelectMenuOptionBuilder()
                 .setLabel(items[item].name)
                 .setDescription(items[item].description)
-                .setValue(index.toString())
+                .setValue(`items.dirod.${index}.${item}`)
         }).filter(i => i);
 
         const select = new ActionRowBuilder()
@@ -24,15 +30,6 @@ module.exports = {
                 .setPlaceholder("Choose an item")
                 .addOptions(...userItems)
             );
-        const selection = await interaction.reply({content: "Select an item to divine", components: [select]});
-        const response = await selection.awaitMessageComponent({filter: i => i.user.id === interaction.user.id, time: 60000});
-
-        interaction.deleteReply();
-        const item = items[user.items[response.values[0]]];
-
-        if (item.rarity === -1000) {
-            return `The ${item.emoji} ${item.name} does not have a rarity! It can only be purchased!`;
-        }
-        return `The ${item.emoji} ${item.name} has rarity ${item.rarity}`;
+        return {content: "Select an item to divine", components: [select]};
     }
 }

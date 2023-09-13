@@ -73,7 +73,7 @@ module.exports = {
             }
             item.activeEffects.forEach(effect => user.equips.activeEffects = user.equips.activeEffects.concat(effect));
         }
-        if (itemVal !== "swap") { //Special case
+        if (!item.overridesDelete) {
             user.items ??= [];
             user.items[slot] = undefined;
         }
