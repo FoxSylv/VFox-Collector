@@ -7,6 +7,24 @@ module.exports = {
     description: "Colors embeds to a custom color",
     rarity: 0.5,
     weight: 1,
+    async modalSubmit(user, getItemScreen, items, fields) {
+        const raw = fields.get("color").value.toLowerCase();
+        let message = "";
+        if (raw === "") {
+            message = "Your embed colors did not change";
+        }
+        else {
+            try {
+                user.color = parseInt(raw, 16);
+                await user.save();
+                message = `Your embeds are now \`0x${raw}\``;
+            }
+            catch (e) {
+                message = "The paintbrush broke... Your embed colors remain unchanged";
+            }
+        }
+        return getItemScreen(user, message);
+    },
     async onUse(user, interaction) {
         user.equips ??= {};
         user.equips.activeEffects ??= [];
@@ -15,7 +33,7 @@ module.exports = {
         }
 
         const modal = new ModalBuilder()
-            .setCustomId("paintbrush")
+            .setCustomId("items.brush.color")
             .setTitle("Choose your color!")
             .addComponents(new ActionRowBuilder()
                 .addComponents(
@@ -28,21 +46,6 @@ module.exports = {
                         .setRequired(false)
                 )
             );
-
-        await interaction.showModal(modal);
-        const response = await interaction.awaitModalSubmit({filter: i => i.user.id === interaction.user.id, time: 240_000})
-            .then(i => i.deferUpdate());
-        try {
-            let raw = response.interaction.fields.fields.get("color").value.toLowerCase();
-            if (raw === "") {
-                return "Your embed colors did not change"
-            }
-            user.color = parseInt(raw, 16);
-            return `Your embeds are now \`0x${raw}\`!`;
-        }
-        catch (e) {
-            console.error(e);
-            return "Your paintbrush breaks";
-        }
+        return {modal: modal};
     }
 }

@@ -48,6 +48,9 @@ module.exports = {
 	data: new SlashCommandBuilder()
 		.setName("items")
 		.setDescription("View and use your items"),
+    async modalSubmit(user, fields, customId) {
+        return items[customId.split('.')[1]]?.modalSubmit(user, getItemScreen, items, fields);
+    },
     async buttonPress(user, customId) {
         return items[customId.split('.')[1]]?.buttonPress(user, getItemScreen, items, customId);
     },

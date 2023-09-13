@@ -46,6 +46,11 @@ client.on(Events.InteractionCreate, async interaction => {
             client.commands[interaction.commandName]?.execute(interaction);
             return;
         }
+        else if (interaction.isModalSubmit()) {
+            useType = "modalSubmit";
+            input = interaction.fields.fields;
+            commandName = interaction.customId.split('.')[0];
+        }
         else if (interaction.isButton()) {
             useType = "buttonPress";
             input = interaction.customId;
@@ -59,11 +64,16 @@ client.on(Events.InteractionCreate, async interaction => {
         else {
             return;
         }
-        const user = await getProfile(interaction.user.id);
-        const output = await client.commands[commandName]?.[useType](user, input);
-        if (!output) throw new Error(`Invalid interaction output!\nInteraction: ${interaction}\nInput: ${input}\nOutput: ${output}`);
-        await interaction.reply(output);
 
+        const user = await getProfile(interaction.user.id);
+        const output = await client.commands[commandName]?.[useType](user, input, interaction.customId); //Extra customId is only for modals
+        if (output.modal) {
+            interaction.showModal(output.modal);
+        }
+        else {
+            if (!output) throw new Error(`Invalid interaction output!\nInteraction: ${interaction}\nInput: ${input}\nOutput: ${output}`);
+            await interaction.reply(output);
+        }
         prevInteractions.set(interaction.user.id, {interaction: interaction, timeout: timeout, isLocked: false}); //Unlock inputs
     }
     catch(error) {
