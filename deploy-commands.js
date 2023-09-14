@@ -20,10 +20,10 @@ const rest = new REST().setToken(isDev ? devToken : token);
 			Routes.applicationCommands(isDev ? devClientId : clientId),
 			{ body: userCommands.map(c => c.data.toJSON()) }
 		);
-        const devData = await rest.put(
+        const devData = isDev ? await rest.put(
             Routes.applicationGuildCommands(isDev ? devClientId : clientId, devGuildId),
             { body: devCommands.map(c => c.data.toJSON()) }
-        );
+        ) : []; //Only deploy dev commands to the dev bot
 
 		console.log(`Successfully reloaded ${userData.length} user (/) commands and ${devData.length} dev (/) commands.`);
 	}
