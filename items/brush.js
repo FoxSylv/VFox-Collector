@@ -25,7 +25,7 @@ module.exports = {
         }
         return getItemScreen(user, message);
     },
-    async onUse(user, interaction) {
+    async onUse(user) {
         user.equips ??= {};
         user.equips.activeEffects ??= [];
         if (!user.equips.activeEffects.includes("color")) {
