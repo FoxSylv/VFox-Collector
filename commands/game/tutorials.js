@@ -35,7 +35,7 @@ module.exports = {
         let currentTutorial = customId.split('.')[1];
         return getTutorialScreen(user, parseInt(currentTutorial))
     },
-	async execute(interaction) {
+	async execute(user) {
         if (!user.tutorials) {
             return {content: "You have not yet viewed any tutorials! Use `/fox` to get started!"};
         }

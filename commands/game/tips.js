@@ -35,7 +35,7 @@ module.exports = {
 		.setDescription("Get helpful hints about the game and how to play it"),
     async buttonPress(user, customId) {
         let currentTip;
-        if (customId === "tips.randomtip") {
+        if (customId.split('.')[1] === "randomtip") {
             currentTip = Math.floor(Math.random() * tipData.length);
         }
         else {

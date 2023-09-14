@@ -9,7 +9,7 @@ module.exports = {
 		.setName("sell")
 		.setDescription("Sell foxes for coins!"),
     async buttonPress(user, customId) {
-        if (customId === "sell.confirm") {
+        if (customId.split('.')[1] === "confirm") {
             const oldFoxes = countFoxes(user.foxes, true);
             const oldCoins = user.coins ?? 0;
             const newCoins = Math.max(Math.floor(oldFoxes / 100), oldCoins);
@@ -43,8 +43,7 @@ module.exports = {
             return {content: "Selling cancelled!", embeds: [], components: []}
         }
     },
-	async execute(interaction) {
-        const user = await getProfile(interaction.user.id);
+	async execute(user) {
         const oldFoxes = countFoxes(user.foxes, true);
         const oldCoins = user.coins ?? 0;
         const newCoins = Math.max(Math.floor(oldFoxes / 100), oldCoins);
