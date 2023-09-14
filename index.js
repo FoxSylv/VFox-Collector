@@ -5,6 +5,7 @@ const getCommands = require('./utilities/getCommands.js');
 const { getProfile } = require('./utilities/db.js');
 const { initTags } = require('./utilities/getCommandTag.js');
 const { initTutorialCommandTags } = require('./data/tutorialData.js');
+const { initServerCount } = require('./utilities/getServerCount.js');
 const { runTutorials } = require('./utilities/runTutorials.js');
 
 /* Initialization */
@@ -78,6 +79,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
         /* Add user id to buttons/select menus so only they can interact with them */
         (output.components ?? []).forEach(row => (row.components ?? []).forEach(r => {
+            if (!r.data?.custom_id) return;
             r.data.custom_id = r.data.custom_id.concat(`.${interaction.user.id}`);
         }));
         if (output.modal) output.modal.data.custom_id = output.modal.data.custom_id.concat(`.${interaction.user.id}`);
@@ -110,6 +112,7 @@ client.on(Events.InteractionCreate, async interaction => {
 client.once(Events.ClientReady, async c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
     client.user.setActivity("/fox", { type: ActivityType.Playing });
+    initServerCount(client);
     await initTags(client);
     initTutorialCommandTags(Object.keys(client.commands));
 });
