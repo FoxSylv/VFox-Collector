@@ -3,7 +3,6 @@ const { getProfile } = require('../../utilities/db.js');
 const { shopData } = require('../../data/shopData.js');
 const { foxData } = require('../../data/foxData.js');
 const { shrineData } = require('../../data/shrineData.js');
-const { tutorialData } = require('../../data/tutorialData.js');
 const { items } = require('../../utilities/items.js');
 const { countFoxes } = require('../../utilities/countFoxes.js');
 const { msToSec } = require('../../utilities/msToSec.js');
@@ -18,7 +17,7 @@ function findFoxes(user, foxCount, isMinion, iterations, tailCount) {
     const kitsuneBonus = getKitsuneBonus(user, foxCount, isMinion, tailCount);
     user.stats ??= {};
     let foxes = new Map();
-    if ((user.stats.numSearches ?? 0) === 8) {
+    if ((user.stats.numSearches ?? 0) === 5) {
         return foxes;
     }
 
@@ -195,10 +194,10 @@ module.exports = {
         }
         /* Hard-code first items as a "tutorial" */
         switch(user.stats?.numSearches ?? 0) {
-            case 16:
+            case 12:
                 item = "fbox";
                 break;
-            case 33:
+            case 29:
                 item = "shoe";
                 break;
             case 42:

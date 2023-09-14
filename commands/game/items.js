@@ -3,7 +3,6 @@ const { getProfile } = require('../../utilities/db.js');
 const { items } = require('../../utilities/items.js');
 const { effectData } = require('../../data/effectData.js');
 const { getColor } = require('../../utilities/getColor.js');
-const { tutorialData } = require('../../data/tutorialData.js');
 
 function getItemEmbed(user) {
     let description = "";

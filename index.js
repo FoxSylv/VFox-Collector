@@ -5,6 +5,7 @@ const getCommands = require('./utilities/getCommands.js');
 const { getProfile } = require('./utilities/db.js');
 const { initTags } = require('./utilities/getCommandTag.js');
 const { initTutorialCommandTags } = require('./data/tutorialData.js');
+const { runTutorials } = require('./utilities/runTutorials.js');
 
 /* Initialization */
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -84,6 +85,7 @@ client.on(Events.InteractionCreate, async interaction => {
             }));
 
             await interaction.reply(output);
+            runTutorials(user, interaction);
         }
         prevInteractions.set(interaction.user.id, {interaction: interaction, timeout: timeout, isLocked: false}); //Unlock inputs
     }
