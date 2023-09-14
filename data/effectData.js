@@ -9,10 +9,10 @@ const effectData = {
     ball: {emoji: ":mirror_ball:", name: "Boosted Fox Quality; Fox And Item Quantity Decreased", isStackable: true},
     micro: {emoji: ":microscope:", name: "Boosted Item Quality; All Other Stats Greatly Decreased", isStackable: true},
     prec: {emoji: ":chopsticks:", name: "Boosted Item Quality", isStackable: true},
-    mbait: {emoji: ":performing_arts:", name: "Decimated Bait Usage", isStackable: true},
+    mbait: {emoji: ":performing_arts:", name: "Greatly Reduced Bait Usage", isStackable: true},
     idea: {emoji: ":cd:", name: "Greatly Boosted Fox Quality and Quantity", isStackable: true},
     greed: {emoji: ":moon_cake:", name: "Greatly Boosted Item Quality and Quantity", isStackable: true},
-    chance: {emoji: ":triangular_flag_on_post:", name: "Boosted Fox-Finding Chance", isStackable: true}
+    chance: {emoji: ":archery:", name: "Boosted Fox-Finding Chance", isStackable: true}
 };
 
 module.exports = {effectData};

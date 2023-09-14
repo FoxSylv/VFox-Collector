@@ -1,7 +1,7 @@
 module.exports = {
     emoji: ":bucket:",
     name: "Useless Bucket",
-    value: "can",
+    value: "bucket",
     description: "JUNK! Some cultures find this item distasteful",
     rarity: -5,
     weight: 1,

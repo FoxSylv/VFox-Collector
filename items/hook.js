@@ -1,7 +1,7 @@
 module.exports = {
     emoji: ":hook:",
     name: "Fishing Hook",
-    value: "shoe",
+    value: "hook",
     description: "JUNK! Might as well use it to free up a slot",
     rarity: -3,
     weight: 5,

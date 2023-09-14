@@ -12,6 +12,6 @@ module.exports = {
 
         const gained = 1 + Math.floor(Math.random() * 3);
         user.upgrades.coin.bait.blessed = (user.upgrades.coin.bait.blessed ?? 0) + gained;
-        return getItemScreen(user, `You found ${gained} Blessed Bait :four_leaf_clover:`);
+        return getItemScreen(user, `You found **${gained}** Blessed Bait :four_leaf_clover:`);
     }
 }

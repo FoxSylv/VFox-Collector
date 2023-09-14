@@ -8,7 +8,7 @@ module.exports = {
     async onUse(user, getItemScreen, items, slot) {
         const itemVal = user.items[slot - 1];
         let content = "";
-        if (itemVal === undefined) {
+        if (!itemVal) {
             content = "You copied an empty slot!";
         }
         else if (itemVal === "ppod") {
@@ -16,7 +16,7 @@ module.exports = {
         }
         else {
             const item = items[itemVal];
-            content = getItemScreen(user, `(Copied ${item.emoji} ${item.name}) ${(await item.onUse(user, interaction, items, slot - 1)).content}`);
+            content = `(Copied ${item.emoji} ${item.name}) ${(await item.onUse(user, getItemScreen, items, slot - 1)).content}`;
         }
         return getItemScreen(user, content);
     }

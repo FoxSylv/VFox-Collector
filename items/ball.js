@@ -7,6 +7,6 @@ module.exports = {
     weight: 2,
     activeEffects: ["ball"],
     async onUse(user, getItemScreen) {
-        return getItemScreen(user, "You now have boosted fox quality :mirror_ball:");
+        return getItemScreen(user, "You now have increased fox quality :mirror_ball:");
     }
 }
