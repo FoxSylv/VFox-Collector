@@ -99,14 +99,9 @@ function foxMessage(user, foxes, baitEnded, item, counter) {
 
     /* Item */
     if (item) {
-        [slot, itemVal] = item.split('.');
+        [slot, itemVal, numCleared] = item.split('.');
         const newItem = items[itemVal];
         description = description.concat(`\nYou found a ${newItem.emoji} **${newItem.name}**!\n${slot >= 9 ? `Unfortunately, your item inventory was full :(` : `It has gone into slot **${parseInt(slot) + 1}**!`}\n`);
-        //Clear active effects
-        user.equips ??= {};
-        let userEffects = user.equips.activeEffects ?? [];
-        user.equips.activeEffects = userEffects.filter(effect => !effectsRemovedOnItem.includes(effect));
-        const numCleared = userEffects.length - user.equips.activeEffects.length;
         if (numCleared > 0) {
             description = description.concat(`Since you found an item, **${numCleared} active effect${numCleared === 1 ? "** has" : "s** have"} been cleared\n`);
         }
@@ -136,7 +131,7 @@ const effectsRemovedOnItem = [
     "mbait",
     "idea",
     "greed",
-    "faith"
+    "chance"
 ];
 
 
@@ -180,7 +175,7 @@ module.exports = {
             }
         }
 
-        /* Calculate items earned */
+        /* Calculate item earned */
         let item = undefined;
         if (canItems(user)) {
             if (getItemChance(user, tailCount) > Math.random()) {
@@ -207,8 +202,9 @@ module.exports = {
                 item = "bpack";
                 break;
         }
-        /* Get slot */
+        /* Item consequences */
         if (item) {
+            /* Get slot */
             const userItems = user.items ?? {};
             let slot = userItems.findIndex(s => !s);
             if (slot === -1) { //if (findIndex fails)
@@ -218,7 +214,14 @@ module.exports = {
                 user.items ??= {};
                 user.items[slot] = item;
             }
-            item = `${slot}.${item}`;
+
+            //Clear active effects
+            user.equips ??= {};
+            let userEffects = user.equips.activeEffects ?? [];
+            user.equips.activeEffects = userEffects.filter(effect => !effectsRemovedOnItem.includes(effect));
+            const numCleared = userEffects.length - user.equips.activeEffects.length;
+
+            item = `${slot}.${item}.${numCleared}`;
 
             user.stats ??= {};
             user.stats.itemsFound = (user.stats.itemsFound ?? 0) + 1;
@@ -245,9 +248,8 @@ module.exports = {
         user.stats ??= {};
         user.stats.numSearches = (user.stats.numSearches ?? 0) + 1;
 
-        const output = foxMessage(user, totalFoxes, baitEnded, item, counter);
         await user.save();
-        return output;
+        return foxMessage(user, totalFoxes, baitEnded, item, counter);
 	}
 };
 
