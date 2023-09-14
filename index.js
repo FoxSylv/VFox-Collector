@@ -68,12 +68,13 @@ client.on(Events.InteractionCreate, async interaction => {
             commandName = interaction.values[0].split('.')[0];
         }
         else {
-            return;
+            throw new Error(`Invalid interaction type!\nInteraction: ${interaction}`);
         }
 
         /* Get interaction response */
         const user = await getProfile(interaction.user.id);
         const output = await client.commands[commandName]?.[useType](user, input, interaction.customId); //Extra customId is only for modals
+        if (!output) throw new Error(`Invalid interaction output!\nInteraction: ${interaction}\nInput: ${input}\nOutput: ${output}`);
 
         /* Add user id to buttons/select menus so only they can interact with them */
         (output.components ?? []).forEach(row => (row.components ?? []).forEach(r => {
@@ -86,7 +87,6 @@ client.on(Events.InteractionCreate, async interaction => {
             interaction.showModal(output.modal);
         }
         else {
-            if (!output) throw new Error(`Invalid interaction output!\nInteraction: ${interaction}\nInput: ${input}\nOutput: ${output}`);
             await interaction.reply(output);
             runTutorials(user, interaction);
         }
