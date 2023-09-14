@@ -6,7 +6,7 @@ module.exports = {
 		.setName("reset")
 		.setDescription("Deletes your VFox profile. WARNING: You cannot undo this."),
     async buttonPress(user, customId) {
-        if (customId === "reset.confirm") {
+        if (customId.split('.')[1] === "confirm") {
             await User.findByIdAndDelete(user._id);
             return {content: "You have deleted your VFox Profile.", components: []};
         }
