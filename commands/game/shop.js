@@ -240,7 +240,7 @@ module.exports = {
     async buttonPress(user, customId) {
         const buttonVals = customId.split('.');
         const category = shopData.find(c => c.value === buttonVals[1]);
-        const upgrade = category.upgrades.find(u => u.value === buttonVals[2]); //undefined only if in a catalogue page
+        const upgrade = category?.upgrades?.find(u => u.value === buttonVals[2]); //undefined only if in a catalogue page
         if (!upgrade) {
             return getShopMessage(user, buttonVals[1]);
         }
